@@ -1,0 +1,306 @@
+<div id="gig_dashboard_div">
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+</style>
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Gig Dashboard</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#" onclick="Get_Dashboard_Data()">Home</a></li>
+              <li class="breadcrumb-item active">Gig Dashboard</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+	<section class="content" style="margin-left: 15px;">
+      <div class="container-fluid">
+        
+		<hr>
+			<div id="filters_div">
+        <div class="row" style="background-color:white;">
+					<label >Filters :</label>
+            <div class="col-md-3 mb-3">
+								<div class="form-group">
+									<label >Gig#</label>
+									<!-- <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected"> -->
+									<input class="form-control" type="text" id="filter_gig_no" value="" pattern="\d*" maxlength="10" oninput="this.value = this.value.replace(/[^0-9.+]/g, '').replace(/(\..*)\./g, '$1');"> 
+									<!-- <center><span class="validation" id ="error_price_per_km" style="display:none;color:red;font-size:12px;">Please Enter Price</span></center> -->
+								</div>
+            </div>
+						<div class="col-md-3 mb-3">
+								<div class="form-group">
+									<label >Sender</label>
+									<!-- <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected"> -->
+									<select class="form-control" id="filter_sender_id">
+										<option value="">--Select--</option>
+										{% for i in sender_obj %}
+											{% if sender_id  == i.id|stringformat:"i" %}
+											<option value="{{i.id}}" selected>{% if i.name %}{{i.name}}{% else %}{{i.mobile}}{% endif %}</option>
+											{% else %}
+											<option value="{{i.id}}">{% if i.name %}{{i.name}}{% else %}{{i.mobile}}{% endif %}</option>
+											{% endif %}
+										{% endfor %}
+									</select>
+									<!-- <input class="form-control" type="text" id="filter_sender_name" value="">  -->
+									<!-- <center><span class="validation" id ="error_price_per_km" style="display:none;color:red;font-size:12px;">Please Enter Price</span></center> -->
+								</div>
+            </div>
+						<div class="col-md-3 mb-3">
+								<div class="form-group">
+									<label >Commuter</label>
+									<!-- <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected"> -->
+									<select class="form-control" id="filter_commuter_id">
+										<option value="">--Select--</option>
+										{% for i in commuter_obj %}
+											{% if commuter_id  == i.id|stringformat:"i" %}
+											<option value="{{i.id}}" selected>{% if i.name %}{{i.name}}{% else %}{{i.mobile}}{% endif %}</option>
+											{% else %}
+											<option value="{{i.id}}">{% if i.name %}{{i.name}}{% else %}{{i.mobile}}{% endif %}</option>
+											{% endif %}
+										{% endfor %}
+									</select>
+									<!-- <input class="form-control" type="text" id="filter_commuter_name" value="">  -->
+									<!-- <center><span class="validation" id ="error_price_per_km" style="display:none;color:red;font-size:12px;">Please Enter Price</span></center> -->
+								</div>
+            </div>
+						<div class="col-md-2 mb-3">
+								<div class="form-group">
+									<label ></label>
+									<button type="button" class="btn btn-primary" style="width:70px;margin-top: 32px;" onclick="Apply_Filters()">Apply</button>
+								</div>
+            </div>
+						
+						<!-- <hr> -->
+						
+					<div class="col-lg-3 col-6">
+					<!-- small box -->
+						<div class="small-box bg-warning" style="border-radius: 4.25rem !important;text-align: center;background-color: #fde1e1!important;">
+							<div class="inner">
+							<h3>{{new_gig_count}}</h3>
+
+							<p>New Gigs</p>
+							</div>
+							<!-- <div class="icon"> -->
+							<!-- <i class="ion ion-person"></i> -->
+							<!-- </div> -->
+							<a href="#" class="small-box-footer" onclick="Get_Gig_List_By_Status('1')" style="border-radius: 30px;">More info <i class="fas fa-arrow-circle-right"></i></a>
+						</div>
+					</div>
+					<div class="col-lg-3 col-6">
+					<!-- small box -->
+						<div class="small-box bg-warning" style="border-radius: 4.25rem !important;text-align: center;background-color: #c8cdf1!important;">
+							<div class="inner">
+							<h3>{{confirmed_gig_count}}</h3>
+
+							<p>Confirmed Gigs</p>
+							</div>
+							<!-- <div class="icon"> -->
+							<!-- <i class="ion ion-person"></i> -->
+							<!-- </div> -->
+							<a href="#" class="small-box-footer" onclick="Get_Gig_List_By_Status('2')" style="border-radius: 30px;">More info <i class="fas fa-arrow-circle-right"></i></a>
+						</div>
+					</div>
+					<div class="col-lg-3 col-6">
+					<!-- small box -->
+						<div class="small-box bg-warning" style="border-radius: 4.25rem !important;text-align: center;background-color: #ccf1c8!important;">
+							<div class="inner">
+							<h3>{{ready_for_pickup_gig_count}}</h3>
+
+							<p>Ready for Pickup Gigs</p>
+							</div>
+							<!-- <div class="icon"> -->
+							<!-- <i class="ion ion-person"></i> -->
+							<!-- </div> -->
+							<a href="#" class="small-box-footer" onclick="Get_Gig_List_By_Status('3')" style="border-radius: 30px;">More info <i class="fas fa-arrow-circle-right"></i></a>
+						</div>
+					</div>
+					<div class="col-lg-3 col-6">
+					<!-- small box -->
+						<div class="small-box bg-warning" style="border-radius: 4.25rem !important;text-align: center;background-color: #f1e8c8!important;">
+							<div class="inner">
+							<h3>{{on_the_way_gig_count}}</h3>
+
+							<p>On the way Gigs</p>
+							</div>
+							<!-- <div class="icon"> -->
+							<!-- <i class="ion ion-person"></i> -->
+							<!-- </div> -->
+							<a href="#" class="small-box-footer" onclick="Get_Gig_List_By_Status('4')" style="border-radius: 30px;">More info <i class="fas fa-arrow-circle-right"></i></a>
+						</div>
+					</div>
+					<div class="col-lg-3 col-6">
+					<!-- small box -->
+						<div class="small-box bg-warning" style="border-radius: 4.25rem !important;text-align: center;background-color: #f1c8ec!important;">
+							<div class="inner">
+							<h3>{{completed_gig_count}}</h3>
+
+							<p>Completed Gigs</p>
+							</div>
+							<!-- <div class="icon"> -->
+							<!-- <i class="ion ion-person"></i> -->
+							<!-- </div> -->
+							<a href="#" class="small-box-footer" onclick="Get_Gig_List_By_Status('5')" style="border-radius: 30px;">More info <i class="fas fa-arrow-circle-right"></i></a>
+						</div>
+					</div>
+					<div class="col-lg-3 col-6">
+					<!-- small box -->
+						<div class="small-box bg-warning" style="border-radius: 4.25rem !important;text-align: center;background-color: #c8eff1!important;">
+							<div class="inner">
+							<h3>{{cancelled_gig_count}}</h3>
+
+							<p>Cancelled Gigs</p>
+							</div>
+							<!-- <div class="icon"> -->
+							<!-- <i class="ion ion-person"></i> -->
+							<!-- </div> -->
+							<a href="#" class="small-box-footer" onclick="Get_Gig_List_By_Status('6')" style="border-radius: 30px;">More info <i class="fas fa-arrow-circle-right"></i></a>
+						</div>
+					</div>
+					<!-- ./col -->
+					<div class="col-lg-3 col-6">
+					<!-- small box -->
+					<div class="small-box bg-warning" style="border-radius: 4.25rem !important;text-align: center;background-color: #e49c9c!important;">
+						<div class="inner">
+						<h3>{{all_gig_count}}</h3>
+
+						<p>All Gigs</p>
+						</div>
+						<!-- <div class="icon"> -->
+						<!-- <i class="ion ion-person"></i> -->
+						<!-- </div> -->
+						<a href="#" class="small-box-footer" onclick="Get_Gig_List_By_Status('0')" style="border-radius: 30px;">More info <i class="fas fa-arrow-circle-right"></i></a>
+					</div>
+					</div>
+						
+         </div> 
+				 
+				 <!-- <div class="row" style="background-color:white;"> -->
+					
+				<!-- </div> -->
+			</div>
+		
+        
+      </div>
+    </section>
+</div>	
+
+<div id="gig_table_div" style="display:none;">
+				
+</div>
+
+<div id="gig_details_div" style="display:none;">
+				
+</div>
+
+	<!-- </div> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+	
+<script>
+$(document).ready(function(){
+	$('#datatable').DataTable({
+		<!-- "bFilter": false  -->
+		});
+		
+	
+	$('#filter_sender_id').select2({
+		closeOnSelect: true,
+		multiple: false,
+		<!-- placeholder: "--Select--" -->
+	});
+	$("#filter_sender_id").trigger("change");	
+	<!-- $("#filter_sender_id").val([]); -->
+	
+	$('#filter_commuter_id').select2({
+		closeOnSelect: true,
+		multiple: false,
+		<!-- placeholder: "--Select--" -->
+	});
+	$("#filter_commuter_id").trigger("change");	
+	<!-- $("#filter_commuter_id").val([]); -->
+});
+
+
+function Apply_Filters(){
+	var filter_gig_no = $('#filter_gig_no').val();
+	var filter_sender_id = $('#filter_sender_id').val();
+	var filter_commuter_id = $('#filter_commuter_id').val();
+	if(filter_gig_no == "" && filter_sender_id == "" && filter_commuter_id == ""){
+		Get_Gig_Dashboard_Data("","");
+	}	
+	else{
+		$.ajax({
+					method : "POST",
+					url : "/filter_gig_dashboard/",
+					data : {
+						'filter_gig_no':filter_gig_no,
+						'filter_sender_id':filter_sender_id,
+						'filter_commuter_id':filter_commuter_id,
+					},
+					success : function(response){
+						$('.content-wrapper').html("");
+						$('.content-wrapper').html(response);
+						$('#filter_gig_no').val(filter_gig_no);
+					}
+				})
+	}
+}
+
+
+function Get_Gig_List_By_Status(gig_status_code){
+	var filter_gig_no = $('#filter_gig_no').val();
+	var filter_sender_id = $('#filter_sender_id').val();
+	var filter_commuter_id = $('#filter_commuter_id').val();
+	<!-- if(filter_gig_no == "" && filter_sender_id == "" && filter_commuter_id == ""){ -->
+		<!-- Get_Gig_Dashboard_Data("",""); -->
+	<!-- }	 -->
+	<!-- else{ -->
+	$.ajax({
+		method : "POST",
+		url : "/get_gig_list_by_filters/",
+		data : {
+			'filter_gig_no':filter_gig_no,
+			'filter_sender_id':filter_sender_id,
+			'filter_commuter_id':filter_commuter_id,
+			'gig_status_code':gig_status_code,
+		},
+		success : function(response){
+			$('#gig_table_div').html("");
+			$('#gig_table_div').html(response);
+			$('#gig_dashboard_div').hide();
+			$('#gig_table_div').show();
+			<!-- $('#filter_gig_no').val(filter_gig_no); -->
+		}
+	})
+	<!-- } -->
+}
+
+
+function Open_Gig_Dashboard_Data(){
+	$('#gig_table_div').hide();
+	$('#gig_details_div').hide();
+	Apply_Filters();
+	$('#gig_dashboard_div').show();
+}
+
+function Open_Gig_Table_Data(){
+	$('#gig_details_div').hide();
+	<!-- Apply_Filters(); -->
+	$('#gig_dashboard_div').hide();
+	$('#gig_table_div').show();
+}					
+
+
+</script>

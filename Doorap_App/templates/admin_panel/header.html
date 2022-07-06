@@ -1,0 +1,190 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard</title>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script> -->
+	<!-- <script src="{% static 'admin_panel/plugins/jquery/jquery.min.js' %}"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<!-- Datatable --!>
+	
+	<!-- Bootstrap CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<!-- Bootstrap DataTable CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css">
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'admin_panel/plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bootstrap 4 -->
+  <link rel="stylesheet" href="{% static 'admin_panel/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static 'admin_panel/plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{% static 'admin_panel/plugins/jqvmap/jqvmap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'admin_panel/plugins/select2/select2/select2.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'admin_panel/dist/css/adminlte.min.css' %}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static 'admin_panel/plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+  <!-- Daterange picker -->
+  <link rel="stylesheet" href="{% static 'admin_panel/plugins/daterangepicker/daterangepicker.css' %}">
+  <!-- summernote -->
+  <link rel="stylesheet" href="{% static 'admin_panel/plugins/summernote/summernote-bs4.min.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+li.nav-item.menu-open {
+    padding: 10px;
+    border-bottom: 1px solid white;
+}
+</style>
+<!-- <div class="text-center" id="loader"> -->
+  <!-- <div class="spinner-border" role="status"> -->
+    <!-- <span class="sr-only">Loading...</span> -->
+  <!-- </div> -->
+<!-- </div> -->
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<input type="number" id="admin_id" value="{{ admin_id }}" hidden>
+<div class="wrapper">
+	<div class="preloader flex-column justify-content-center align-items-center" id="loader_img">
+		<img class="animation__shake" src="{% static 'admin_panel/img/Logo-Doorap.svg' %}" alt="AdminLTELogo" height="100" width="100" >
+	</div>
+	
+	<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="#" class="brand-link" onclick="Get_Dashboard_Data()">
+      <img src="{% static 'admin_panel/img/ic_launcher.png' %}" alt="AdminLTE Logo" class="brand-image elevation-3" style="opacity: .8;margin-left: 4.3rem;">
+      <span class="brand-text font-weight-light">ADMIN</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          <img src="{% static 'admin_panel/img/avatar.jpg' %}" class="img-circle elevation-2" alt="User Image" style="margin-left: 5rem;">
+        </div>
+        <!-- <div class="info"> -->
+          <!-- <a href="#" class="d-block">Hello Admin</a> -->
+        <!-- </div> -->
+      </div>
+		<nav class="mt-2">
+			<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+				<!-- <a href="/admin_page/"> -->
+					<a href="{% url 'dashboard' %}">
+						<li class="nav-item menu-open dashboard" style="margin-left:5px;cursor:pointer;color: lightgray;" >Dashboard
+							<i class="fas fa-home" style="float: right;margin-right: 12px;"></i>
+						</li>
+					</a>
+				<!-- </a> -->
+				<!-- <a href="#"> -->
+					<!-- <li class="nav-item menu-open customer" onclick="show()" style="margin-left:5px;cursor:pointer;">Customer -->
+						<!-- <i class="fas fa-angle-down" style="float: right;margin-right: 15px;"></i> -->
+						<!-- <ul class="menu-list" style="display:none;"> -->
+							<!-- <a href="/customer_list_page/"> -->
+								<!-- <li class="bb" id="availabl"> -->
+									<!-- Customer List</a>  -->
+								<!-- </li> -->
+							<!-- </a> -->
+							<!-- <a href="/customer_details/"> -->
+								<!-- <li class="bb" id="availabl"> -->
+									<!-- Customer Details</a>  -->
+								<!-- </li> -->
+							<!-- </a> -->
+						<!-- </ul> -->
+					<!-- </li> -->
+				<!-- </a> -->
+				<!-- <a href="#"> -->
+					<!-- <li class="nav-item menu-open customer" onclick="show1()" style="margin-left:5px;cursor:pointer;">Commuter -->
+						<!-- <i class="fas fa-angle-down" style="float: right;margin-right: 15px;"></i> -->
+						<!-- <ul class="menu-list1" style="display:none;"> -->
+							<!-- <a href="/commuter_list_page/"> -->
+								<!-- <li class="bb" id="availabl"> -->
+									<!-- Commuter List -->
+								<!-- </li> -->
+							<!-- </a> -->
+							<!-- <a href="/commuter_details/"> -->
+								<!-- <li class="bb" id="availabl"> -->
+									<!-- Commuter Details -->
+								<!-- </li> -->
+							<!-- </a> -->
+						<!-- </ul> -->
+					<!-- </li> -->
+				<!-- </a> -->
+				<!-- <a href="/customer_list_page/"> -->
+					<a href="{% url 'vender_list' %}"><li  class="nav-item menu-open customer" style="margin-left:5px;cursor:pointer;color:lightgray;" >Vendor List
+						<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+						<!-- <i class="fa-regular fa-list" style="float: right;margin-right: 15px;"></i> -->
+					</li>
+					</a>
+				<!-- </a> -->
+				<!-- <a href="/commuter_list_page/" > -->
+					<a href = "{% url 'customerpage' %}" >
+						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Customer List
+							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+						</li>
+					</a>
+					
+					
+					<a href = "{% url 'customservice' %}" >
+						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Custom Services
+							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+						</li>
+					</a>
+					
+					<a href = "{% url 'Show_banner' %}" >
+						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Banner 
+							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+						</li>
+					</a>
+					
+					<a href = "{% url 'commision' %}" >
+						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Commision 
+							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+						</li>
+					</a>
+					
+					
+					<a href = "{% url 'offer' %}" >
+						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Promo Code 
+							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+						</li>
+					</a>
+					
+					<!-- <li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" onclick="Get_Gig_Dashboard_Data('', '')">Gig Dashboard -->
+					<!-- <i class="fas fa-chart-line" style="float: right;margin-right: 15px;"></i> -->
+					<!-- </li> -->
+					
+					<!-- <li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" onclick="Get_Price_Setting()">Price Setting -->
+					<!-- <i class="fas fa-dollar-sign" style="float: right;margin-right: 15px;"></i> -->
+					<!-- </li> -->
+					
+					<!-- {% if admin_obj.user_type == "Admin" %} -->
+					<!-- <li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" onclick="Get_Admin_User_List()">Admin Users -->
+					<!-- <i class="fas fa-users" style="float: right;margin-right: 15px;"></i> -->
+					<!-- </li> -->
+					<!-- {% endif %} -->
+				<!-- </a> -->
+				<a href="{% url 'logout' %}">
+					<li class="nav-item menu-open" style="margin-left:5px;cursor:pointer;color:lightgray;">LogOut
+						<i class="fas fa-sign-out-alt" style="float: right;margin-right: 12px;"></i>				
+					</li>
+				</a>
+				
+			</ul>
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+  

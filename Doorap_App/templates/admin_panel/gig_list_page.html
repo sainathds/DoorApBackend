@@ -1,0 +1,213 @@
+
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+</style>
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Gig List</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#" onclick="Get_Dashboard_Data()">Home</a></li>
+              <li class="breadcrumb-item"><a href="#" onclick="Open_Gig_Dashboard_Data()">Gig Dashboard</a></li>
+              <li class="breadcrumb-item active">Gig List</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+	
+	<section class="content" style="margin-left: 15px;">
+      <div class="container-fluid">
+        
+		<hr>
+        <div class="row" style="background-color:white;">
+			<div class="table" style="font-size: 12px;">
+				<table id="datatable" class="table table-striped datatable">
+					 <thead>
+					<tr>
+					  <th scope="col">Gig#</th>
+					  <th scope="col">Posted Date</th>
+					  <th scope="col">Pickup DateTime</th>
+					  <th scope="col">Sender</th>
+					  <th scope="col">Pickup</th>
+					  <th scope="col">Drop off</th>
+					  <th scope="col">Packages</th>
+					  <th scope="col">Commuter</th>
+					  <!-- <th scope="col">Track Commuter</th> -->
+					  <th scope="col">Status</th>
+					  <th scope="col">Action</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					<!-- {% if gig_list_obj %} -->
+					{% for l in gig_list_obj %}
+					<tr>
+					  <!-- <th scope="row">{{forloop.counter}}</th> -->
+					  <td>{% if l.gig_no %}{{ l.gig_no }}{% else %}-{% endif %}</td>
+					  <td>{% if l.created_datime %}{{ l.created_datime }}{% else %}-{% endif %}</td>
+					  <td>{% if l.pickup_date %}{{ l.pickup_date }}<br>{{l.pickup_time}}{% else %}-{% endif %}</td>
+					  <td>{% if l.fk_sender %}{{ l.fk_sender.name }} ({{l.fk_sender.mobile}}){% else %}-{% endif %}</td>
+					  <td>{% if l.pickup_address_location %}{{ l.pickup_address_location }}{% else %}0{% endif %}</td>
+					  <td>{% if l.dropoff_address_location %}{{ l.dropoff_address_location }}{% else %}0{% endif %}</td>
+					  <td>{% if l.no_of_packages %}{{ l.no_of_packages }}{% else %}-{% endif %}</td>
+					  <td>{% if l.fk_commuter %}{{ l.fk_commuter.name }} ({{l.fk_commuter.mobile}}){% else %}-{% endif %}</td>
+					  <!-- <td>{% if l.status %}{{ l.status }}{% else %}Active{% endif %}</td> -->
+					  <td>{% if l.fk_gig_status %}{{ l.fk_gig_status.gig_status }}{% else %}-{% endif %}</td>
+					  <td>
+								<!-- <a href="/customer_details/{{ l.id }}"> -->
+								<button type="button" class="btn btn-primary" style="width:40px;padding: 1px;" onclick="View_Gig_Details('{{l.id}}')"><i class="far fa-eye"></i></button>
+								<!-- </a> -->
+								<!-- <button type="button" class="btn btn-primary" style="width:40px;padding: 1px;" onclick="Del('{{l.id}}')"> -->
+									<!-- <i class="far fa-trash-alt"></i> -->
+								<!-- </button> -->
+						</td>
+					</tr>
+					{% endfor %}
+					<!-- {% else %} -->
+					<!-- <tr>  -->
+						<!-- <td>No Data Found</td> -->
+						<!-- <td></td>						 -->
+						<!-- <td></td>						 -->
+						<!-- <td></td>						 -->
+						<!-- <td></td>						 -->
+						<!-- <td></td>						 -->
+					<!-- </tr> -->
+					<!-- {% endif %} -->
+				  </tbody>
+				</table>
+			</div>
+        </div>
+      </div>
+    </section>
+	
+	<!-- </div> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+	
+<script>
+$(document).ready(function(){
+	$('#datatable').DataTable({
+		<!-- "bFilter": false  -->
+		});
+	<!-- $('.customer').css("color", "White"); -->
+});
+
+
+function Del(id){
+	<!-- $('#delete_hidden').val(id) -->
+	<!-- $('#delModal').modal('show'); -->
+	swal({
+		title: "Are you sure?",
+		text: "To Delete this Entry!",
+		icon: "warning",
+		<!-- buttons: true, -->
+		buttons: ["No", "Yes"],
+		closeOnClickOutside: false,
+		dangerMode: true,
+		})
+		.then((willDelete) => {
+			if (willDelete) {
+				<!-- alert(id) -->
+				<!-- id = $('#canclebookingid').val(); -->
+				<!-- status = "Cancelled"; -->
+				$.ajax({
+					method : "POST",
+					url : "/delete_customer/",
+					data : {
+						'user_id':id,
+					},
+					success : function(response){
+						if (response == "deleted"){
+							swal("Entry has been Deleted..!", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								}).then(function() {
+									<!-- location.reload(); -->
+									Get_Sender_List();
+								});
+				
+						}
+					}
+				})
+				
+				
+			}
+			<!-- else { -->
+				<!-- swal("Entry not Deleted !"); -->
+			<!-- } -->
+	});
+}
+
+
+function Change_Status(id, status){
+	swal({
+		title: "Are you sure?",
+		text: "To Change This Status",
+		<!-- text: "Accept This Broker", -->
+		icon: "info",
+		<!-- buttons: true, -->
+		buttons: ["No", "Yes"],
+		closeOnClickOutside: false,
+		dangerMode: true,
+		})
+		.then((willDelete) => {
+			if (willDelete) {
+				$.ajax({
+					method : "POST",
+					url : "/change_status_user/",
+					data : {
+						'id':id,
+						'status':status
+					},
+					success : function(response){
+						$('#loading').hide();
+						if (response == "success"){
+							swal("Status Changed Successfully", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								}).then(function() {
+									<!-- location.reload(); -->
+									Get_Sender_List();
+								});
+				
+						}
+						else{
+							swal("Something Went Wrong");
+						}
+					}
+				})
+			}
+	});
+}
+
+
+function View_Gig_Details(gig_id){
+	$.ajax({
+			method : "POST",
+			url : "/gig_details_page/",
+			data : {
+				'gig_id':gig_id,
+			},
+			success : function(response){
+				$('#gig_details_div').html("");
+				$('#gig_details_div').html(response);
+				$('#gig_table_div').hide();
+				$('#gig_dashboard_div').hide();
+				$('#gig_details_div').show();
+			}
+		})
+}
+
+
+</script>

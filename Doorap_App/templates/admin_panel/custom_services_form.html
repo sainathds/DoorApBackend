@@ -1,0 +1,245 @@
+{% include 'admin_panel/header.html' %} 
+{% load static %}
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	.body{min-height: 756px !important;}
+.wrapper, body, html {
+    min-height: 750px !important;
+}
+.swal-back {
+    width: 350px !important;
+	height: auto !important;
+	}
+	
+<style>
+ 
+	.unselected_check{
+	   padding: 8px 0px 0px 18px !important;
+	}
+	.selected_check{
+	   padding: 8px 0px 0px 0px !important;
+	}
+	 div label input {margin-right: 100px;}
+
+	.cat{
+	  margin: 4px;
+	  <!-- background-color: #104068; -->
+	  border-radius: 4px;
+	  border: 1px solid #fff;
+	  overflow: hidden;
+	  float: left;
+	}
+
+	.cat label {
+	  float: left; line-height: 35px;
+	  width: 8.0em; height: 3.0em;
+	}
+
+	.cat label span {
+	  text-align: center;
+	  padding: 3px 0;
+	  display: block;
+	  border-radius: 50px;
+	  line-height: 27px;
+	      margin-right: -5px;
+	}
+
+	.cat label input {
+	  position: absolute;
+	  display: none;
+	  color: #fff !important;
+	}
+	/ selects all of the text within the input element and changes the color of the text /
+	.cat label input + span{color: #fff;}
+
+
+	/ This will declare how a selected input will look giving generic properties /
+	.cat input:checked + span {
+		color: #ffffff;
+		text-shadow: 0 0  6px rgba(0, 0, 0, 0.8);
+	}
+
+	.action input:checked + span{background-color: #670099;
+	height:44px;
+	width:132px;
+	color: white;
+	}
+	.cat.nav-link{
+		    padding: 0px !important;
+	}
+	.nav-pills .nav-link{          
+	}
+	 
+ 
+ </style>
+	
+</style>
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6" style="margin-left:45.5rem;">
+            <h1 class="m-0">Vendor custom Details</h1>
+          </div><!-- /.col -->
+          <!-- <div class="col-sm-6"> -->
+            <!-- <ol class="breadcrumb float-sm-right"> -->
+              <!-- <li class="breadcrumb-item"><a href="#" onclick="Get_Dashboard_Data()">Home</a></li> -->
+              <!-- <li class="breadcrumb-item active">Sender List</li> -->
+            <!-- </ol> -->
+          <!-- </div> -->
+        </div>
+      </div>
+    </div>
+	
+<body style="background-color: #fdfcfc03;">
+ <div class="main-content">
+        <section class="section">
+         
+          <div class="section-body">
+            <div class="row">
+              <div class="col-lg-5" > 
+              </div>
+				<div class="col-lg-4">
+					<div class="card">
+						<div class="card-body">
+							 <!-- <ul class="breadcrumb breadcrumb-style "style="background: #f3f3f3;"> -->
+								<!-- <li class="breadcrumb-item"> -->
+								  <!-- <h5 class="page-title m-b-0">Add New Bill Details</h5> -->
+								<!-- </li> -->
+								<!-- <li class="breadcrumb-item"> -->
+								  <!-- <a href="/dashboard/"> -->
+									<!-- <i class="fas fa-home"></i></a> -->
+								<!-- </li> -->
+								<!-- </ul>  -->
+
+                         
+								<div class="form-group">
+                                    <label>Category</label>
+                                        <input type="text" class="form-control" value = "{{obj2.fk_category.category_name}}" id = "category" name="category" disabled>
+                                    </div><br>
+
+						<input type = "hidden" id = "user_id" value = "{{user_id}}">
+								
+									<div class="form-group">
+                                    <label>Services</label>
+                                    <input type="text" class="form-control" 
+									value = "{{obj2.custom_service_name}}" id = "services" name="services" disabled>
+                                   </div><br>
+								   
+								   	<div class="row-col-5">
+									{% for i in obj %}
+									<div class="cat action nav-link" id="facility"  style="padding-top: 2px;">
+										  <label>Facility
+											   <input name="item" class="item" type="checkbox"    
+											   value="{{i|first}}">
+											   <span id="item{{forloop.counter}}" onclick="checkClass('item{{forloop.counter}}')" class="unselected_check">  </span>
+										  </label>
+									</div>
+								 {% endfor %}
+							
+                                  	<div class="row" style="margin-left:90%">
+								       <button type="button" class="btn btn-primary" value="save" onclick="add_new_bill()" ><i class="fa fa-plus" aria-hidden="true" ></i> </button>
+								     </div>
+									  </div>
+									 
+								</div>
+                              
+								
+								
+                             <center>
+                                <button type="button"  class="btn btn-success" value="save" onclick="add_new_bill()" >Save </button>
+                            </center>
+                                
+                                      
+                           
+                                
+						           
+                      </br>
+                  <!-- <div> -->
+                    <!-- <a href="#" class="txt1"> -->
+                      <!-- Add details -->
+                    <!-- </a> -->
+                      <!-- </div> -->
+                  
+                   </div>
+               </div>
+           </div>
+            
+        </div>
+        </section>
+        </div>
+   <br>
+   <br>
+   <br>
+   <br>
+    
+  
+  </body>			 
+	
+	<!-- </div> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>	
+
+<script type="text/javascript">
+      var count;
+  	$(document).ready(function() {
+		
+  		$("#search").on("click", function() {
+            var item = $('[name="item"]');
+			
+            count = 0;
+            $.each(item, function() {
+	  			  var $this = $(this);
+					
+    	  			if($this.is(":checked")) 
+                    {
+                        count = count + 1; 
+                        
+                    }
+    	  		});	 
+            if (count == 0)
+            {
+                $.each(item, function() {
+                    var $this = $(this);
+					var item1=$this;
+					$("#"+item1.val()).show();
+				 });	
+            }
+            else
+            {
+
+                $.each(item, function() {
+                    var $this = $(this);
+                    
+                    
+                    if($this.is(":checked")) 
+                    {
+						var item1=$this;
+						console.log("#"+item1.val());
+                        $("#"+item1.val()).show();
+						
+                    }
+                    else 
+                    {
+						
+                        var item1=$this;
+						console.log("hide",item.val());
+                        $("#"+item1.val()).hide();
+                    }
+					
+                });	
+                
+            }
+  		});
+
+  		
+  	});
+  </script>
+
+{% include 'admin_panel/footer.html' %} 

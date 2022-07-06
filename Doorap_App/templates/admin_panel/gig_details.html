@@ -1,0 +1,575 @@
+{% load static %}
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	
+	hr{
+		    margin-top: 5px;
+    margin-bottom: 5px;
+	}
+	
+	h6{
+		font-size:12px;
+	}
+	
+	.card-body{
+		font-size:12px;
+	}
+</style>
+
+<style>
+.img{
+	margin:15px;
+	<!-- border:1px solid black; -->
+	text-align: center;
+}
+</style>
+<!-- second rendition -->
+<!-- <div class="content-wrapper"> -->
+    <div class="main-body" style="margin-left: 20px;margin-right: 20px;">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Gig Details</h1>
+          </div> 
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#" onclick="Open_Gig_Dashboard_Data()">Gig Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="#" onclick="Open_Gig_Table_Data()">Gig List</a></li>
+              <li class="breadcrumb-item active">Gig Details</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+		
+		<div class="row gutters-sm">
+			<div class="col-6 mb-3">
+				<div class="card">
+					<div class="card-body">
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">GIG#</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if gig_obj.gig_no %}{{ gig_obj.gig_no }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Gig Status</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if gig_obj.fk_gig_status %}{{ gig_obj.fk_gig_status.gig_status }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Posted Date</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if gig_obj.created_datime %}{{ gig_obj.created_datime }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Pickup From</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if gig_obj.pickup_address_location %}{{ gig_obj.pickup_address_location }},<br>{% else %}{% endif %}
+                      {% if gig_obj.pickup_address_flat_floor %}{{ gig_obj.pickup_address_flat_floor }},<br>{% else %}{% endif %}
+                      {% if gig_obj.pickup_address_how_to_reach %}{{ gig_obj.pickup_address_how_to_reach }},<br>{% else %}{% endif %}
+                      {% if gig_obj.pickup_address_contact_no %}{{ gig_obj.pickup_address_contact_no }} {% else %}{% endif %}
+                      {% if gig_obj.pickup_address_save_as %}({{gig_obj.pickup_address_save_as}}){% else %}{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+									
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Drop Off To</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if gig_obj.dropoff_address_location %}{{ gig_obj.dropoff_address_location }},<br>{% else %}{% endif %}
+                      {% if gig_obj.dropoff_address_flat_floor %}{{ gig_obj.dropoff_address_flat_floor }},<br>{% else %}{% endif %}
+                      {% if gig_obj.dropoff_address_how_to_reach %}{{ gig_obj.dropoff_address_how_to_reach }},<br>{% else %}{% endif %}
+                      {% if gig_obj.dropoff_address_contact_no %}{{ gig_obj.dropoff_address_contact_no }} {% else %}{% endif %}
+                      {% if gig_obj.dropoff_address_save_as %}({{gig_obj.dropoff_address_save_as}}){% else %}{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Pickup Date Time</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if gig_obj.pickup_date %}{{ gig_obj.pickup_date }}{% else %}{% endif %} {% if gig_obj.pickup_time %}{{ gig_obj.pickup_time }}{% else %}{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">No Cantact Delivery</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if gig_obj.no_contact_delivery_status %}Yes{% else %}No{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Special Instruction</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if gig_obj.specific_insruction_text %}{{ gig_obj.specific_insruction_text }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                </div>
+				</div>
+			</div>
+			
+			<div class="col-6 mb-3">
+				<div class="card">
+					<div class="card-body">
+									<div class="row">
+                    <div class="col-sm-4">
+                      <h6 class="mb-0">Sender Details</h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary">
+                      {% if gig_obj.fk_sender %}{{ gig_obj.fk_sender.name }} ({{gig_obj.fk_sender.mobile}}){% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <h6 class="mb-0">Commuter Details</h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary">
+                      {% if gig_obj.fk_commuter %}
+												{{ gig_obj.fk_commuter.name }} ({{gig_obj.fk_commuter.mobile}}) 
+												<i class="fas fa-map-marker-alt" style="color: red;float: right;width: 20px;cursor: pointer;" onclick="Open_Commuter_Tracker('{{gig_obj.fk_commuter.current_lat}}','{{gig_obj.fk_commuter.current_lng}}')"></i>
+											{% else %}-{% endif %}
+											
+                    </div>
+                  </div>
+                  <hr>
+									<div class="row">
+                    <div class="col-sm-4">
+                      <h6 class="mb-0">Receiver Details</h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary">
+                      {% if gig_obj.receiver_name %}{{ gig_obj.receiver_name }} {% else %}-{% endif %}{% if gig_obj.receiver_contact_no %}({{gig_obj.receiver_contact_no}}){% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  
+									<div class="row">
+                    <div class="col-sm-4">
+                      <h6 class="mb-0">No. Of Packages</h6>
+                    </div>
+                    <div class="col-sm-2 text-secondary">
+                      {% if gig_obj.no_of_packages %}{{ gig_obj.no_of_packages }}{% else %}-{% endif %}
+                    </div>
+										<div class="col-sm-4">
+                      <h6 class="mb-0">Total Distance</h6>
+                    </div>
+                    <div class="col-sm-2 text-secondary">
+                      {% if gig_obj.total_distance_in_km %}{{ gig_obj.total_distance_in_km }} KM{% else %}-{% endif %}
+                    </div>
+                  </div>
+									<hr>
+									<div class="row">
+                    <div class="col-sm-4">
+                      <h6 class="mb-0">Total Packages Value</h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary">
+                      {% if gig_obj.total_package_value %}{{ gig_obj.total_package_value }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+									<hr>
+									<div class="row">
+                    <div class="col-sm-4">
+                      <h6 class="mb-0">Delivery Charge</h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary">
+                      {% if gig_obj.delivery_charge %}{{ gig_obj.delivery_charge }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+									<hr>
+									<div class="row">
+                    <div class="col-sm-4">
+                      <h6 class="mb-0">Offer Price</h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary">
+                      {% if gig_obj.offer_price %}{{ gig_obj.offer_price }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+									<hr>
+									<div class="row">
+                    <div class="col-sm-4">
+                      <h6 class="mb-0">Commuter Pay Amount</h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary">
+                      {% if gig_obj.commuter_pay_amount %}{{ gig_obj.commuter_pay_amount }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+									{% if gig_obj.fk_gig_status.gig_status == "Cancelled" %}
+										<hr>
+										<div class="row">
+											<div class="col-sm-4">
+												<h6 class="mb-0">Cancel By</h6>
+											</div>
+											<div class="col-sm-8 text-secondary">
+												{% if gig_obj.cancel_by %}{{ gig_obj.cancel_by }}{% else %}-{% endif %}
+											</div>
+										</div>
+										<hr>
+										<div class="row">
+											<div class="col-sm-4">
+												<h6 class="mb-0">Cancel Reason</h6>
+											</div>
+											<div class="col-sm-8 text-secondary">
+												{% if gig_obj.cancel_reason %}{{ gig_obj.cancel_reason }}{% else %}-{% endif %}
+											</div>
+										</div>
+										<hr>
+										<div class="row">
+											<div class="col-sm-4">
+												<h6 class="mb-0">Cancellation Charge</h6>
+											</div>
+											<div class="col-sm-8 text-secondary">
+												{% if gig_obj.cancellation_charge %}{{ gig_obj.cancellation_charge }}{% else %}-{% endif %}
+											</div>
+										</div>
+										<hr>
+										<div class="row">
+											<div class="col-sm-4">
+												<h6 class="mb-0">Refundable Amount</h6>
+											</div>
+											<div class="col-sm-8 text-secondary">
+												{% if gig_obj.refundable_price %}{{ gig_obj.refundable_price }}{% else %}-{% endif %}
+											</div>
+										</div>
+									{% endif %}
+                  <!-- <hr> -->
+                </div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="content-header">
+		  <div class="container-fluid">
+			<div class="row mb-2">
+			  <div class="col-sm-6">
+				<h1 class="m-0">Package Details</h1>
+			  </div>
+			</div>
+		  </div>
+		</div>
+				
+				{% for i in gig_packages_obj %}
+				<div class="row gutters-sm">
+					<div class="col-md-6">
+						<div class="card mb-3">
+						<h5 class="mb-0" style="text-align: center;color: #0d4886;">Package {{forloop.counter}}</h5>
+						<hr style="margin-bottom: 0px;">
+							<div class="card-body">
+								<div class="row">
+									<div class="col-sm-4">
+										<h6 class="mb-0">Size Of Package</h6>
+									</div>
+									<div class="col-sm-2 text-secondary">
+									 {% if i.size_of_package %}{{ i.size_of_package }}{% else %}-{% endif %}
+									</div>
+									<div class="col-sm-4">
+										<h6 class="mb-0">Monetory Value</h6>
+									</div>
+									<div class="col-sm-2 text-secondary">
+									 {% if i.monetory_value %}{{ i.monetory_value }}{% else %}-{% endif %}
+									</div>
+								</div>
+								<hr>
+								<div class="row">
+									<div class="col-sm-4">
+										<h6 class="mb-0">Weight</h6>
+									</div>
+									<div class="col-sm-2 text-secondary">
+									 {% if i.package_weight %}{{ i.package_weight }} KG{% else %}-{% endif %}
+									</div>
+									<div class="col-sm-4">
+										<h6 class="mb-0">Length</h6>
+									</div>
+									<div class="col-sm-2 text-secondary">
+									 {% if i.package_length %}{{ i.package_length }} FT{% else %}-{% endif %}
+									</div>
+								</div>
+								<hr>
+								<div class="row">
+									<div class="col-sm-4">
+										<h6 class="mb-0">Breadth</h6>
+									</div>
+									<div class="col-sm-2 text-secondary">
+									 {% if i.package_breadth %}{{ i.package_breadth }} FT{% else %}-{% endif %}
+									</div>
+									<div class="col-sm-4">
+										<h6 class="mb-0">Height</h6>
+									</div>
+									<div class="col-sm-2 text-secondary">
+									 {% if i.package_height %}{{ i.package_height }} FT{% else %}-{% endif %}
+									</div>
+								</div>
+								<hr>
+								<div class="row">
+									<div class="col-sm-4">
+										<h6 class="mb-0">Package Content</h6>
+									</div>
+									<div class="col-sm-8 text-secondary">
+									 {% if i.package_content %}{{ i.package_content }}{% else %}-{% endif %}
+									</div>
+								</div>
+								
+								<!-- <hr> -->
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-md-6">
+						<div class="card mb-3">
+							<div class="card-body" style="padding-top: 0;">
+									
+									<div class="row">
+										<div class="col-sm-6">
+											<h5 class="mb-0" style="text-align: center;color: #0d4886;">Picture of Item</h5>
+											<hr>
+											<div class="row">
+												<div class="col-sm-6">
+													<div class="d-flex flex-column align-items-center text-center">
+														{% if i.item_image_1  %}
+														<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{i.item_image_1}}" target="__blank">
+															<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{i.item_image_1}}" alt="Picture of Item" width="100" height="100">
+														</a>
+														{% else %}
+														<!-- <img src="{% static 'admin_panel/img/avatar.jpg' %}" alt="No Image Found" width="100" height="100"> -->
+														{% endif %}
+													</div>
+												</div>
+												<div class="col-sm-6">
+													<div class="d-flex flex-column align-items-center text-center">
+														{% if i.item_image_2  %}
+														<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{i.item_image_2}}" target="__blank">
+															<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{i.item_image_2}}" alt="Picture of Item" width="100" height="100">
+														</a>
+														{% else %}
+														<!-- <img src="{% static 'admin_panel/img/avatar.jpg' %}" alt="No Image Found" width="100" height="100"> -->
+														{% endif %}
+													</div>
+												</div>
+											</div>
+											<hr>
+										</div>
+										
+										<div class="col-sm-6">
+											<h5 class="mb-0" style="text-align: center;color: #0d4886;">Picture of Packaging</h5>
+											<hr>
+											<div class="row">
+												<div class="col-sm-6">
+													<div class="d-flex flex-column align-items-center text-center">
+														{% if i.package_image_1  %}
+														<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{i.package_image_1}}" target="__blank">
+														<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{i.package_image_1}}" alt="Picture of Packaging" width="100" height="100">
+														</a>
+														{% else %}
+														<!-- <img src="{% static 'admin_panel/img/avatar.jpg' %}" alt="No Image Found" width="100" height="100"> -->
+														{% endif %}
+													</div>
+												</div>
+												<div class="col-sm-6">
+													<div class="d-flex flex-column align-items-center text-center">
+														{% if i.package_image_2  %}
+														<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{i.package_image_2}}" target="__blank">
+														<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{i.package_image_2}}" alt="Picture of Packaging" width="100" height="100">
+														</a>
+														{% else %}
+														<!-- <img src="{% static 'admin_panel/img/avatar.jpg' %}" alt="No Image Found" width="100" height="100"> -->
+														{% endif %}
+													</div>
+												</div>
+											</div>
+											<hr>
+										</div>
+									</div>
+							</div>
+						</div>
+					</div>
+					
+		</div>
+		{% endfor %}
+		
+		
+		<div class="content-header">
+			  <div class="container-fluid">
+				<div class="row mb-2">
+				  <div class="col-sm-6">
+					<h1 class="m-0">Pickup And Drop Off Images</h1>
+				  </div>
+				</div>
+			  </div>
+			</div>
+			<!-- <hr> -->
+			<div class="row gutters-sm">
+			<div class="col-12 mb-3">
+				<div class="card">
+					<div class="card-body">
+						<div class="row">
+							<div class="col-lg-2 col-md-2 col-sm-12 img">
+								<!-- <h6 >Car Color</h6> -->
+								{% if gig_obj.pickup_complete_image %}
+								<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{gig_obj.pickup_complete_image}}" target="__blank">
+								<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{gig_obj.pickup_complete_image}}" alt="No Image" width="150">
+								</a>
+								{% endif %}
+								<center><h6>Pickup Image</h6></center>
+							</div>
+							<div class="col-lg-2 col-md-2 col-sm-12 img">
+								<!-- <h6 >Car Color</h6> -->
+								{% if gig_obj.dropoff_complete_image %}
+								<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{gig_obj.dropoff_complete_image}}" target="__blank">
+								<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{gig_obj.dropoff_complete_image}}" alt="No Image" width="150">
+								</a>
+								{% endif %}
+								<center><h6>Drop Off Image</h6></center>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			</div>
+		
+		<div class="content-header">
+		  <div class="container-fluid">
+			<div class="row mb-2">
+			  <div class="col-sm-6">
+				<h1 class="m-0">Rating Details</h1>
+			  </div>
+			</div>
+		  </div>
+		</div>
+		
+			<div class="row gutters-sm">
+			<div class="col-12 mb-3">
+				<div class="card">
+					<div class="card-body">
+									<div class="row">
+                    <div class="col-sm-2">
+                      <h6 class="mb-0">Sender Rating</h6>
+                    </div>
+                    <div class="col-sm-2 text-secondary">
+                      {% if gig_obj.sender_rating_for_commuter %}{{ gig_obj.sender_rating_for_commuter }}{% else %}-{% endif %}
+                    </div>
+										
+										<div class="col-sm-2">
+                      <h6 class="mb-0">Sender Comment</h6>
+                    </div>
+                    <div class="col-sm-6 text-secondary">
+                      {% if gig_obj.sender_comment_for_commuter %}{{ gig_obj.sender_comment_for_commuter }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-2">
+                      <h6 class="mb-0">Commuter Rating</h6>
+                    </div>
+                    <div class="col-sm-2 text-secondary">
+                      {% if gig_obj.commuter_rating_for_sender %}{{ gig_obj.commuter_rating_for_sender }}{% else %}-{% endif %}
+                    </div>
+										
+										<div class="col-sm-2">
+                      <h6 class="mb-0">Commuter Comment</h6>
+                    </div>
+                    <div class="col-sm-6 text-secondary">
+                      {% if gig_obj.commuter_comment_for_sender %}{{ gig_obj.commuter_comment_for_sender }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <!-- <hr> -->
+                  
+                </div>
+				</div>
+			</div>
+		  </div>
+			
+		</div>
+		
+
+		<!-- Location Modal -->
+		<div class="modal fade" id="Location_Modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true"  data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog modal-lg modal-dialog-centered " role="document">
+				<div class="modal-content" style="background-color: #f0f0f0;">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalCenterTitle">Commuter Tracker<label id="load_status"></label></h5>
+						<input type="hidden" id="load_day" value="">
+						<button type="button" class="close waves-effect waves-light" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="container box">
+							<fieldset>
+								<div class="form-group">
+								<div class="row">
+								<div class="col-md-12">
+						
+								</div>
+								<div class="col-md-12">
+								<div id="mapdiv1" style="width: 99.7%; height: 350px;">
+
+								</div>
+								</div>
+								</div>
+								</div>
+							
+							</fieldset>
+						
+					</div>
+				 </div>
+			</div>
+		</div>                            
+		</div>                            
+
+		<!-- End Location Modal -->
+		
+<script>
+	$(document).ready(function(){
+		$('.commuter').css("color", "White");
+	});
+
+
+var waypts = [];
+
+function initMap(driver_lat,driver_lng) {
+	var map = new google.maps.Map(document.getElementById('mapdiv1'), {
+		zoom: 12,
+		center: {'lng': parseFloat(driver_lng), 'lat': parseFloat(driver_lat)},
+		mapTypeId: google.maps.MapTypeId.ROADMAP,
+	});
+	
+		var marker = new google.maps.Marker({
+			position: {'lng': parseFloat(driver_lng), 'lat': parseFloat(driver_lat)},
+			map: map,
+			title: 'Commuter',
+		});
+
+}
+
+
+function Open_Commuter_Tracker(driver_lat,driver_lng){
+	initMap(driver_lat,driver_lng);
+	$('#Location_Modal').modal('show');
+}
+</script>

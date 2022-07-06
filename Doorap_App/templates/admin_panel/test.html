@@ -1,0 +1,213 @@
+{% include 'admin_panel/header.html' %} 
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	.body{min-height: 756px !important;}
+.wrapper, body, html {
+    min-height: 750px !important;
+}
+.swal-back {
+    width: 350px !important;
+	height: auto !important;
+	}
+	
+</style>
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+    <div class="content-header" style="margin-top:1%;">
+		  <div class="container-fluid">
+				<div class="row mb-2">
+					  <div class="col-sm-6" style="margin-left:15.5rem;">
+							<h3 class="m-0">Vendor List</h3>
+					  </div>
+				</div>
+				
+				<div class="row">
+						<div class="col-md-2" style="margin-left:15.5rem;">
+							<div class="form-group">
+								<label for="exampleFormControlSelect1">Select Country</label>
+								<select class="form-control" id="country">
+								  <option>Select Country</option>
+								  {% for i in country %}
+									<option value={{i.id}}>{{i.country_name}}</option>
+								  {% endfor %}
+								  
+								</select>
+								<span id="errmsg1" style="color:red;  "></span><br>
+							</div>
+
+						</div>
+		
+						<div class="col-md-2" style="">
+							<div class="form-group">
+								<label for="exampleFormControlSelect1">Select Category</label>
+								<select class="form-control" id="category">
+								  <option>Select Category</option>
+								  {% for i in category %}
+									<option value={{i.id}}>{{i.category_name}}</option>
+								  {% endfor %}	
+								  
+								</select>
+								<span id="errmsg2" style="color:red;  "></span><br>
+							</div>
+
+						</div>
+		
+						<div class="col-md-2"> 
+
+							 <div class="form-group">
+									<label for="exampleFormControlInput1">Offer Code</label>
+									<input type="text" class="form-control" id="offercode" placeholder="Enter offer code" maxlength="8">
+									<span id="errmsg3" style="color:red;  "></span><br>
+							</div>
+						</div>
+		
+						<div class="col-md-2"> 
+
+							 <div class="form-group">
+									<label for="exampleFormControlInput1">Discount</label>
+									<input type="text" class="form-control" id="discount" placeholder="Enter Discount" maxlength="5" max="100" min="1" oninput="this.value = this.value.replace(/[^0-9+.]/g, '').replace(/(\..*)\./g, '$1');" onKeyDown="if(this.value.length==3 && event.keyCode>47 && event.keyCode < 58)return false;">
+									<span id="errmsg4" style="color:red;  "></span><br>
+							</div>
+						</div>
+		
+						<div class="col-md-2"> 
+
+							 <div class="form-group">
+									<label for="exampleFormControlInput1">Expiry Date</label>
+									<input type="date" class="form-control" id="expirydate" placeholder="Enter Discount">
+									<span id="errmsg5" style="color:red;  "></span><br>
+							</div>
+						</div>
+					<div class="col-md-4" style="margin:0 auto;"> 
+							<button style="width:50%;     width: 50%;margin-left: 245px;margin-top: 22px;" type="button" class="btn btn-success" value="save" onclick="save_offer()">Save </button>
+					</div>
+		
+		</div>
+		  </div>
+    </div>
+	
+	<section class="content" style="margin-left: 15px;">
+      <div class="container-fluid" style="padding-left:0px; padding-right:0px; width:97%;">
+        
+		<hr>
+        <div class="row" style="background-color:white; margin-left: 15rem;">
+			<div class="table">
+				<table id="datatable" class="table table-striped datatable">
+					 <thead>
+					<tr>
+					  <th scope="col">Sr No</th>
+					  <th scope="col">Country</th>
+					  <th scope="col">Category</th>
+					  <th scope="col">Offer Code</th>
+					  <th scope="col">Discount</th>					  
+					  <th scope="col">Status</th>		
+					  <th scope="col">Action</th>
+					  
+					</tr>
+				  </thead>
+				  <tbody>
+					{% for i in offers %}
+						
+							<tr>
+							  <td scope="row">{{forloop.counter}}</td>
+							  <td>{{i.fk_country.country_name}}</td>
+							  <td>{{i.fk_category.category_name}}</td>
+							  <td>{{i.offer_code}}</td>
+							  <td>{{i.discount}}%</td>
+							  <td>{{i.offercode_status}}</td>	
+							  <td>
+									<a href="#" class="btn btn-primary btn-edit"   data-original-title="Edit" data-toggle="modal" data-target="#myModal1" data-sid="{{i.id}}"  onclick="append_data('{{i.id}}','{{i.fk_country.id}}','{{i.fk_category.id}}','{{i.offer_code}}','{{i.discount}}','{{i.expirydate|date:'Y-m-d'}}')"><i class="fa fa-edit "></i></a>
+									
+									<button type="button" class="btn btn-primary" onclick="Delete_offer('{{i.id}}')">
+										<i class="far fa-trash-alt"></i>
+									</button>
+							  </td>
+								
+							</tr>
+						
+					{% endfor %}
+				  </tbody>
+				</table>
+			</div>
+        </div>
+      </div>
+    </section>
+	
+	<!-- </div> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>	
+<script>
+	$(document).ready(function(){
+		$('#datatable').DataTable({
+			
+			});
+	});
+</script>
+<script>
+	function Change_Status(id,status)
+	{
+		
+		swal({
+			title: "Change Status.",
+			text: "Do you want to change the status?",
+			icon: "warning",
+			buttons: ["No", "Yes"],
+			html:true,
+			className: "swal-back",
+			closeOnClickOutside: false,
+			dangerMode: true,			
+		})		
+		.then((willUpdate) => {
+			if (willUpdate) {
+				$.ajax({
+					type:"POST",
+					url: "/approvereject/",
+					data: {
+						'id': id,
+						'status':status,
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+				
+			}	
+		});
+	}
+</script>
+<script>	
+	 $(document).on('click', '.swal-button--confirm', function() {     
+		$(".swal-modal").attr("id", "yourIdName");
+		$("#yourIdName").css("width", "315px");
+	    $("#yourIdName").css("height","250px");
+    });
+</script>
+
+{% include 'admin_panel/footer.html' %} 

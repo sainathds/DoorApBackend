@@ -1,0 +1,549 @@
+{% include 'admin_panel/header.html' %} 
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	.body{min-height: 756px !important;}
+.wrapper, body, html {
+    min-height: 750px !important;
+}
+.swal-back {
+    width: 350px !important;
+	height: auto !important;
+	}
+	
+</style>
+
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+    <div class="content-header" style="margin-top:1%;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6" style="margin-left:15.5rem;">
+            <h3 class="m-0">Promo Code</h3>
+			
+          </div><!-- /.col -->
+          <!-- <div class="col-sm-6"> -->
+            <!-- <ol class="breadcrumb float-sm-right"> -->
+              <!-- <li class="breadcrumb-item"><a href="#" onclick="Get_Dashboard_Data()">Home</a></li> -->
+              <!-- <li class="breadcrumb-item active">Sender List</li> -->
+            <!-- </ol> -->
+          <!-- </div> -->
+        </div>
+		<hr>
+		<div class="row">
+			<div class="col-md-2" style="margin-left:15.5rem;">
+				<div class="form-group">
+					<label for="exampleFormControlSelect1">Select Country</label>
+					<select class="form-control" id="country">
+					  <option>Select Country</option>
+					  {% for i in country %}
+						<option value={{i.id}}>{{i.country_name}}</option>
+					  {% endfor %}
+					  
+					</select>
+					<span id="errmsg1" style="color:red;  "></span><br>
+				</div>
+
+			</div>
+		
+		<div class="col-md-2" style="">
+			<div class="form-group">
+				<label for="exampleFormControlSelect1">Select Category</label>
+				<select class="form-control" id="category">
+				  <option>Select Category</option>
+				  {% for i in category %}
+					<option value={{i.id}}>{{i.category_name}}</option>
+				  {% endfor %}	
+				  
+				</select>
+				<span id="errmsg2" style="color:red;  "></span><br>
+			</div>
+
+		</div>
+		
+		<div class="col-md-2"> 
+
+			 <div class="form-group">
+					<label for="exampleFormControlInput1">Promo Code</label>
+					<input type="text" class="form-control" id="offercode" placeholder="Enter promocode code" maxlength="8">
+					<span id="errmsg3" style="color:red;  "></span><br>
+			</div>
+		</div>
+		
+		<div class="col-md-2"> 
+
+			 <div class="form-group">
+					<label for="exampleFormControlInput1">Discount</label>
+					<input type="text" class="form-control" id="discount" placeholder="Enter Discount" maxlength="5" max="100" min="1" oninput="this.value = this.value.replace(/[^0-9+.]/g, '').replace(/(\..*)\./g, '$1');" onKeyDown="if(this.value.length==3 && event.keyCode>47 && event.keyCode < 58)return false;">
+					<span id="errmsg4" style="color:red;  "></span><br>
+			</div>
+		</div>
+		
+		<div class="col-md-2"> 
+
+			 <div class="form-group">
+					<label for="exampleFormControlInput1">Expiry Date</label>
+					<input type="date" class="form-control" id="expirydate" placeholder="Enter Discount" min="{% now 'Y-m-d' %}">
+					<span id="errmsg5" style="color:red;  "></span><br>
+			</div>
+		</div>
+			<div class="col-md-4" style="margin: -35px auto;"> 
+					<button style="width:50%;     width: 50%;margin-left: 245px;margin-top: 22px;" type="button" class="btn btn-success" value="save" onclick="save_offer()">Save </button>
+			</div>
+		
+		</div>
+      </div>
+    </div>
+	
+	<section class="content" style="margin-left: 15px;">
+      <div class="container-fluid" style="padding-left:0px; padding-right:0px; width:97%;">
+        
+		<hr>
+        <div class="row" style="background-color:white; margin-left: 15rem;">
+			<div class="table">
+				<table id="datatable1" class="table table-striped datatable" style="text-align:center;">
+					 <thead>
+					<tr>
+					  <th scope="col">Sr No</th>
+					  <th scope="col">Country</th>
+					  <th scope="col">Category</th>
+					  <th scope="col">Promo Code</th>
+					  <th scope="col">Discount</th>
+					  <th scope="col">ExpiryDate</th>
+					  <th scope="col">Use OfferCode</th>
+					  <th scope="col">Status</th>		
+					  <th scope="col">Action</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					
+						{% for i in offers %}
+							<tr>
+							   <td scope="row">{{forloop.counter}}</td>
+							  <td>{{i.fk_country.country_name}}</td>
+							  <td>{{i.fk_category.category_name}}</td>
+							  <td>{{i.offer_code}}</td>
+							  <td>{{i.discount}}%</td>
+							  <td>{{i.expirydate}}</td>
+							  <td>{{i.used_offercode}}</td>
+							  <td>{{i.offercode_status}}</td>	
+							  <td>
+									<a href="#" class="btn btn-primary btn-edit"   data-original-title="Edit" data-toggle="modal" data-target="#myModal1" data-sid="{{i.id}}"  onclick="append_data('{{i.id}}','{{i.fk_country.id}}','{{i.fk_category.id}}','{{i.offer_code}}','{{i.discount}}','{{i.expirydate|date:'Y-m-d'}}')"><i class="fa fa-edit "></i></a>
+									
+									<button type="button" class="btn btn-primary" onclick="Delete_offer('{{i.id}}')">
+										<i class="far fa-trash-alt"></i>
+									</button>
+							  </td>
+							</tr>
+						{% endfor %}
+					
+				  </tbody>
+				</table>
+			</div>
+        </div>
+      </div>
+	  
+	  <!-- ---------------------------- Edit Offer Code Model -------------------------------------------- -->
+	  <div class="modal hide fade in" id="myModal1" role="dialog" data-keyboard="false" data-backdrop="static">
+				<div class="modal-dialog">
+				
+				  <!-- Modal content-->
+				  <div class="modal-content">
+					<div class="modal-header" style="background:grey;" >
+					   <h4 class="modal-title" style="color: #fff;">Update Promo Code</h4>
+					  <button type="button" class="close"  style="color: #fff;" data-dismiss="modal" onclick="clear_data1()">&times;</button>
+
+					</div>
+					<div class="modal-body">
+					   <input type="hidden" id="offerid">
+					   
+					   <select class="form-control" id="country_edit">
+							<option>Select Country</option>
+							{% for i in country %}
+							<option value={{i.id}}>{{i.country_name}}</option>
+							{% endfor %}
+						</select>
+						<span id="errmsg6" style="color:red;  "></span><br>
+						
+						<select class="form-control" id="category_edit">
+							<option>Select Category</option>
+							{% for i in category %}
+							<option value={{i.id}}>{{i.category_name}}</option>
+							{% endfor %}
+						</select>
+						<span id="errmsg7" style="color:red;  "></span><br>
+					   
+					   <input type="text" class="form-control" id="offercode_edit" placeholder="Enter promocode code" maxlength="8">
+					   <span id="errmsg8" style="color:red;"></span><br>
+					   
+					   <input type="text" class="form-control" id="discount_edit" placeholder="Enter Discount" maxlength="5" max="100" min="1" oninput="this.value = this.value.replace(/[^0-9+.]/g, '').replace(/(\..*)\./g, '$1');" onKeyDown="if(this.value.length==3 && event.keyCode>47 && event.keyCode < 58)return false;">
+					   <span id="errmsg9" style="color:red;"></span><br>
+					   
+						<input type="date" class="form-control" id="expirydate_edit" placeholder="Enter Discount" min="{% now 'Y-m-d' %}"> 
+						<span id="errmsg10" style="color:red;  "></span><br>
+					  
+					</div>
+					<div class="modal-footer">
+					  <button type="button" class="btn view-btn-style btn-success"   onclick="edit_offer()" >Update</button>
+					  <button type="button" class="btn view-btn-style btn-danger"  data-dismiss="modal" onclick="close_modal()">Close</button>
+					</div>
+					</div>
+					
+				  </div>
+				  
+				</div>
+			  </div>
+			  
+		<!-- -------------------------------------------- End Offer Code Modal ----------------------------------------------	   -->
+			  
+    </section>
+	
+	<!-- </div> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+	$(document).ready(function(){
+		$('#datatable1').DataTable();
+	});
+	
+	<!-- $('#expirydate').attr('min', minDate);  -->
+</script>
+
+
+<script>
+
+		$('#offercode_edit').bind('input', function() {
+		  var c = this.selectionStart,
+			  r = /[^a-z0-9]/gi,
+			  v = $(this).val();
+		  if(r.test(v)) {
+			$(this).val(v.replace(r, ''));
+			c--;
+		  }
+		  this.setSelectionRange(c, c);
+		});
+		
+		function clear_data1()
+		{
+			$('#errmsg6').hide();
+			$('#errmsg8').hide();
+			$('#errmsg7').hide();
+			$('#errmsg9').hide();
+			$('#errmsg10').hide();
+		
+		}
+		function close_modal()
+		{
+			$('#errmsg6').hide();
+			$('#errmsg8').hide();
+			$('#errmsg7').hide();
+			$('#errmsg9').hide();
+			$('#errmsg10').hide();
+		}
+		function append_data(id,country_id,category_id,offer_code,discount,expirydate)
+		{
+			 $("#offerid").val(id);
+			 $("#country_edit").val(country_id);
+			 $("#category_edit").val(category_id);
+			 $("#offercode_edit").val(offer_code);
+			 $("#discount_edit").val(discount);
+			 $("#expirydate_edit").val(expirydate);
+			 
+		}
+		
+		$('#country_edit').mouseup(function(){
+            $('#errmsg6').hide();
+        });
+		
+		$('#category_edit').mouseup(function(){
+			$('#errmsg7').hide();
+		});
+		
+		$('#offercode_edit').keyup(function(){
+			$('#errmsg8').hide();
+		});
+			
+		$('#discount_edit').keyup(function(){
+			$('#errmsg9').hide();
+		});
+		
+		$('#expirydate_edit').keyup(function(){
+			$('#errmsg10').hide();
+		});
+		function edit_offer()
+		{
+				offer_id = $("#offerid").val();
+				country = $("#country_edit").val();
+				category = $("#category_edit").val();
+				offercode = $("#offercode_edit").val();
+				discount = $("#discount_edit").val();
+				expirydate = $("#expirydate_edit").val();
+						
+				if (country == "Select Country")
+				{
+					errmsg6.innerHTML = "Please Select Country..";
+					$("#errmsg6").show();
+				}
+				else if (category == "Select Category")
+				{
+					errmsg7.innerHTML = "Please Select Category..";
+					$("#errmsg7").show();
+				}
+				else if (offercode == "" || offercode == null)
+				{
+					errmsg8.innerHTML = "Please Enter Promo Code..";
+					$("#errmsg8").show();
+				}
+				else if (discount == "" || discount == null)
+				{
+					errmsg9.innerHTML = "Please Enter Discount..";
+					$("#errmsg9").show();
+				}
+				else if (discount == 0 || discount == null)
+				{
+					errmsg9.innerHTML = "Please Enter Valid Discount..";
+					$("#errmsg9").show();
+				}
+				else if(discount >100)
+				{
+					errmsg9.innerHTML = "Please enter discount value less than eqaul to 100%....";
+					$("#errmsg9").show();
+				}
+				else if (expirydate == "" || expirydate == null)
+				{
+					errmsg10.innerHTML = "Please Select ExpiryDate..";
+					$("#errmsg10").show();
+				}
+				else
+				{
+						$.ajax({
+							type:"POST",
+							url: "/edit_offer/",
+							data: {
+								'offer_id':offer_id,
+								'country': country,
+								'category':category,
+								'offercode':offercode,
+								'discount':discount,
+								'expirydate':expirydate
+								
+							},
+							success: function (response) 
+							{
+								if (response.status == '1'){
+									swal(""+response.msg+"", {
+										icon: "success",
+										button: "Ok",
+										closeOnClickOutside: false,
+										
+									})
+									.then((addcat)=>{
+								   if(addcat){
+									window.location.reload();
+								   }
+								});
+									
+								}
+								else{
+									swal(""+response.msg+"", {
+									icon: "info",
+									button: "Ok",
+									closeOnClickOutside: false,
+									});
+								}
+							}
+							
+						})
+				}
+		}
+</script>
+<script>	
+	 $(document).on('click', '.swal-button--confirm', function() {     
+		$(".swal-modal").attr("id", "yourIdName");
+		$("#yourIdName").css("width", "315px");
+	    $("#yourIdName").css("height","250px");
+    });
+</script>
+
+<script>
+
+	$('#offercode').bind('input', function() {
+	  var c = this.selectionStart,
+		  r = /[^a-z0-9]/gi,
+		  v = $(this).val();
+	  if(r.test(v)) {
+		$(this).val(v.replace(r, ''));
+		c--;
+	  }
+	  this.setSelectionRange(c, c);
+	});
+	$('#country').mouseup(function(){
+            $('#errmsg1').hide();
+        });
+		
+	$('#category').mouseup(function(){
+		$('#errmsg2').hide();
+	});
+	
+	$('#offercode').keyup(function(){
+		$('#errmsg3').hide();
+	});
+		
+	$('#discount').keyup(function(){
+		$('#errmsg4').hide();
+	});
+	
+	$('#expirydate').keyup(function(){
+		$('#errmsg5').hide();
+	});
+	
+	
+	function save_offer()
+	{
+		country = $("#country").val();
+		category = $("#category").val();
+		offercode = $("#offercode").val();
+		discount = $("#discount").val();
+		expirydate = $("#expirydate").val();
+		<!-- alert(expirydate); -->
+		if (country == "Select Country")
+		{
+			errmsg1.innerHTML = "Please Select Country..";
+			$("#errmsg1").show();
+		}
+		else if (category == "Select Category")
+		{
+			errmsg2.innerHTML = "Please Select Category..";
+			$("#errmsg2").show();
+		}
+		else if (offercode == "" || offercode == null)
+		{
+			errmsg3.innerHTML = "Please Enter Promo Code..";
+			$("#errmsg3").show();
+		}
+		else if (discount == "" || discount == null)
+		{
+			errmsg4.innerHTML = "Please Enter Discount..";
+			$("#errmsg4").show();
+		}
+		else if (discount == 0 || discount == null)
+		{
+			errmsg4.innerHTML = "Please Enter Valid Discount..";
+			$("#errmsg4").show();
+		}
+		else if(discount >100)
+		{
+			errmsg4.innerHTML = "Please enter discount value less than eqaul to 100%....";
+			$("#errmsg4").show();
+		}
+		else if (expirydate == "" || expirydate == null)
+		{
+			errmsg5.innerHTML = "Please Select ExpiryDate..";
+			$("#errmsg5").show();
+		}
+		else
+		{
+				$.ajax({
+					type:"POST",
+					url: "/save_offer/",
+					data: {
+						'country': country,
+						'category':category,
+						'offercode':offercode,
+						'discount':discount,
+						'expirydate':expirydate
+						
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+		}
+	}
+
+</script>
+
+<script>
+	
+	function Delete_offer(offer_id)
+	{
+			swal({
+			title: "Delete OfferCode.",
+			text: "Do you want to delete this offercode?",
+			icon: "warning",
+			buttons: ["No", "Yes"],
+			html:true,
+			className: "swal-back",
+			closeOnClickOutside: false,
+			dangerMode: true,			
+		})		
+		.then((willUpdate) => {
+			if (willUpdate) {
+				$.ajax({
+					type:"POST",
+					url: "/delete_offer/",
+					data: {
+						'offer_id': offer_id
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+				
+			}	
+		});
+	
+	}
+
+</script>
+
+{% include 'admin_panel/footer.html' %} 

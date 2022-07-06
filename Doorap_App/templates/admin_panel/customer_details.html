@@ -1,0 +1,229 @@
+{% load static %}
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	.body{min-height: 756px !important;}
+.wrapper, body, html {
+    min-height: 750px !important;
+}
+
+</style>
+
+
+<!-- second rendition -->
+<!-- <div class="content-wrapper"> -->
+    <div class="main-body" style="margin-left: 20px;">
+	<div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Sender Details</h1>
+          </div> 
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#" onclick="Get_Sender_List()">Sender List</a></li>
+              <li class="breadcrumb-item active">Sender Details</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+          <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex flex-column align-items-center text-center">
+										{% if sender_obj.profile_image  %}
+											{% if "http" in sender_obj.profile_image %}
+												<img src="{{sender_obj.profile_image}}" alt="User Profile" class="rounded-circle" width="150" height="150">
+											{% else %}
+												<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{sender_obj.profile_image}}" alt="User Profile" class="rounded-circle" width="150" height="150">
+											{% endif %}
+										{% else %}
+                    <img src="{% static 'admin_panel/img/avatar.jpg' %}" alt="No Image Found" class="rounded-circle" width="150" height="150">
+										{% endif %}
+                    <div class="mt-3">
+                      <h4>{{ sender_obj.name }}</h4>
+                      <!-- <p class="text-secondary mb-1">Full Stack Developer</p> -->
+											{% if sender_obj.status == "Suspend" %}
+                      <div class="col-sm-9 text-secondary" style="max-width: 100%;color: red !important;font-size: 18px;">
+												{% if sender_obj.status %}{{ sender_obj.status }}{% else %}Active{% endif %}
+											</div>
+											{% else %}
+											<div class="col-sm-9 text-secondary" style="max-width: 100%;color: green !important;font-size: 18px;">
+												{% if sender_obj.status %}{{ sender_obj.status }}{% else %}Active{% endif %}
+											</div>
+											{% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Full Name</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if sender_obj.name %}{{ sender_obj.name }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Email</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                     {% if sender_obj.email %}{{ sender_obj.email }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                 
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Mobile</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if sender_obj.mobile %}{{ sender_obj.mobile }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <!-- <hr> -->
+									<!-- <div class="row"> -->
+                    <!-- <div class="col-sm-3"> -->
+                      <!-- <h6 class="mb-0">Status</h6> -->
+                    <!-- </div> -->
+                    <!-- <div class="col-sm-9 text-secondary"> -->
+                      <!-- {% if sender_obj.status %}{{ sender_obj.status }}{% else %}Active{% endif %} -->
+                    <!-- </div> -->
+                  <!-- </div> -->
+                  <!-- <div class="row"> -->
+                    <!-- <div class="col-sm-3"> -->
+                      <!-- <h6 class="mb-0">Address</h6> -->
+                    <!-- </div> -->
+                    <!-- <div class="col-sm-9 text-secondary"> -->
+                      <!-- {{ sender_obj.address_flat }}, {{ sender_obj.address_reach }} -->
+                    <!-- </div> -->
+                  <!-- </div> -->
+				  <!-- <hr> -->
+                  <div class="row">
+                    <!-- <div class="col-sm-3"> -->
+                      <!-- <h6 class="mb-0">Status</h6> -->
+                    <!-- </div> -->
+                    <!-- <div class="col-sm-9 text-secondary"> -->
+                      <!-- {{ sender_obj.status }} -->
+					  <!-- <button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="float:right;margin-right:15px;" type="button">Edit -->
+					  <!-- </button> -->
+					<!-- </div> -->
+					<input type="text" id="sender_id" value="{{ sender_obj.id }}" hidden>
+					<!-- Modal -->
+					<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					  <div class="modal-dialog" role="document">
+						<div class="modal-content">
+						  <div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">Change Status</h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							  <span aria-hidden="true">&times;</span>
+							</button>
+						  </div>
+						  <div class="modal-body">
+							<div class="contact-page-input-box">
+								<label>Status<span class="requeired-star">*</span></label>
+								<select style="min-width:100%;margin-bottom:20px;" name="status" class="cuisine form-control contact select2" id="status" data-error="Subject field is required" required="">
+									<option disabled selected>Select a Status</option> 
+									{% for status in status_list %}
+										<option value="{{ status }}">{{ status }}</option>
+									{% endfor %}									
+								</select>
+								<span style="display:none;" class="span_to_hide" id="padish_cuisine_error">Field Is Required</span>
+							</div>
+						  </div>
+						  <div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							<button type="button" onclick="change_status()" class="btn btn-primary">Change Status</button>
+						  </div>
+						</div>
+					  </div>
+					</div>
+                  </div>
+                  <!-- <hr> -->
+                  <!-- <div class="row"> -->
+                    <!-- <div class="col-sm-12"> -->
+                      <!-- <a class="btn btn-info " target="__blank" href="https://www.bootdey.com/snippets/view/profile-edit-data-and-skills">Edit</a> -->
+                    <!-- </div> -->
+                  <!-- </div> -->
+                </div>
+              </div>
+
+              
+
+
+
+            </div>
+          </div>
+		  <!-- <div class="content-header"> -->
+      <!-- <div class="container-fluid"> -->
+        <!-- <div class="row mb-2"> -->
+          <!-- <div class="col-sm-6"> -->
+            <!-- <h1 class="m-0">Vehical Details</h1> -->
+          <!-- </div> -->
+        <!-- </div> -->
+      <!-- </div> -->
+    <!-- </div> -->
+		  <!-- <!-- <div class="row gutters-sm"> -->
+			<!-- <div class="col-12 mb-3"> -->
+              <!-- <div class="card"> -->
+                <!-- <div class="card-body"> -->
+					<!-- <div class="d-flex flex-column align-items-center text-center"> -->
+						
+					<!-- </div> -->
+                  <!-- </div> -->
+                <!-- </div> -->
+              <!-- </div> -->
+            </div>
+        <!-- </div> -->
+    <!-- </div> -->
+	
+<script>
+	$(document).ready(function(){
+		$('.customer').css("color", "White");
+	});
+	
+	
+	function change_status(){
+		var status = $('#status').val();
+		var id = $('#sender_id').val();
+		console.log("status", status, id);
+		$("#loader").show();
+		$.ajax({
+				method : "POST",
+				url : "/change_status/",
+				data : {
+					'id':id,
+					'status':status,
+				},
+				success : function(response){
+							$("#loader").hide();
+							   if (response.status == '1'){
+								   swal(""+response.msg+"", {
+									   icon: "success",
+									   button: "Ok",
+									   closeOnClickOutside: false,
+								   }). then(function() {
+												window.location.href = ""+response.url+""
+											});
+							   }
+							   else{
+								   swal(""+response.msg+"", {
+								   icon: "info",
+								   button: "Ok",
+								   closeOnClickOutside: true,
+								   });
+							   }
+						}
+				});
+	}
+</script>

@@ -1,0 +1,289 @@
+{% include 'admin_panel/header.html' %} 
+{% load static %}
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	.body{min-height: 756px !important;}
+.wrapper, body, html {
+    min-height: 750px !important;
+}
+.swal-back {
+    width: 350px !important;
+	height: auto !important;
+	}
+	
+</style>
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+     <div class="main-body" style="margin-left: 20px;margin-right: 20px;">
+   
+	<section>
+	<div class="col-md-12" style= "margin-left:19%; margin-top:1%;">
+	 <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-3">
+            <h3>Vendor Details</h3>
+          </div> 
+        
+        </div>
+      </div>
+    </div>
+          <div class="row gutters-sm">
+            <div>
+              
+            </div>
+            <div class="col-md-9">
+              <div class="card mb-3">
+                <div class="card-body" style="padding:40px;">
+                  <div class="row">
+                    <div class="col-sm-3" style="display:inline-flex;">
+                      <h6 class="mb-0">Full Name:- </h6>
+					  <span style="margin-left:20px;" class=" text-secondary"> {{ obj_vender.full_name }} </span>
+                    </div>
+					
+					<div class="col-sm-3" style="display:inline-flex;">
+                      <h6 class="mb-0">About me:-</h6>
+					  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.abount_me == "" %} - {% else %}  {{ obj_vender.abount_me }} {% endif %}</span>
+                    </div>
+					
+					<div class="col-sm-2" style="display:inline-flex;">
+                     <h6 class="mb-0">Mobile:-</h6>
+					  <span style="margin-left:20px;" class=" text-secondary"> {{ obj_vender.mobile_no }} </span>
+                    </div>
+					
+					 
+					 <div class="col-sm-4" style="display:inline-flex; padding-left: 50px;">
+                     <h6 class="mb-0">Business name:</h6>
+					  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.business_name == "" %} - {% else %}  {{ obj_vender.business_name }} {% endif %} </span>
+                    </div>
+					
+					 </div>
+					   <br>
+
+					 <div class="row">
+						<div class="col-sm-6" style="display:inline-flex;">
+						  <h6 class="mb-0">Location:</h6>
+						  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.google_address == "" %} - {% else %} {{ obj_vender.google_address }} {% endif %}</span>
+						</div>
+						
+						<div class="col-sm-6" style="display:inline-flex;">
+						  <h6 class="mb-0">Address line one:</h6>
+						  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.address_line_one == "" %} - {% else %} {{ obj_vender.address_line_one }} {% endif %}</span>
+						</div>
+					
+					
+					
+					</div>
+                   <br>
+					<div class="row">
+						<div class="col-sm-6" style="display:inline-flex;">
+						  <h6 class="mb-0">Address line two:</h6>
+						  <span style="margin-left:20px;" class=" text-secondary"> {% if obj_vender.address_line_two == "" %} - {% else %} {{ obj_vender.address_line_two }} {% endif %}</span>
+						</div>
+					
+						<div class="col-sm-2" style="display:inline-flex;">
+						  <h6 class="mb-0">Country:</h6>
+						  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.fk_country.country_name == "" %} - {% else %} {{ obj_vender.fk_country.country_name }} {% endif %}</span> 
+						</div>
+						
+						<div class="col-sm-2" style="display:inline-flex;">
+                     <h6 class="mb-0">City:</h6>
+					  <span style="margin-left:20px;" class=" text-secondary">  {{ obj_vender.fk_city.city_name }} </span>
+                    </div>
+					
+					
+                    <div class="col-sm-2" style="display:inline-flex;">
+                      <h6 class="mb-0">Zip code:</h6>
+					  <span style="margin-left:20px;" class=" text-secondary">  {{ obj_vender.zip_code }} </span>
+                    </div>
+					</div>
+					
+               </div>
+              </div>
+
+            </div>
+		</div>
+	</div>
+</div>
+</section>
+<br>
+<hr>
+	
+		<section class="col-11" style="margin-left:2%;" >
+		 <div class="content-header"  >
+   
+            <h3 style="margin-left:20%; width:50%;">Vendor Service Details</h13>
+        
+    </div>
+      <div class="container-fluid" style="margin-left:1%;">
+        
+		<hr>
+        <div class="row" style="background-color:white; margin-left: 15rem;">
+			<div class="table">
+				<table id="datatable" class="table table-striped datatable">
+					 <thead>
+					<tr>
+					  <th scope="col">Sr No</th>
+					  <th scope="col">Category</th>
+					  <th scope="col">Services</th>
+					  <th scope="col">Facility</th>
+					  
+					
+					  <th scope="col">Price</th>
+					  <th scope="col">Hour</th>
+					  <!-- <th scope="col">View</th> -->
+					  
+					</tr>
+				  </thead>
+				  <tbody>
+					{% for i in main_dict %}
+						<tr>
+							<td>{{forloop.counter}}</td>
+							<td>{{i.category_name}}</td>
+							<td>{{i.service_name}}
+								
+							<select class="form-control" onchange="showfacility('{{forloop.counter}}')" id="service_id{{forloop.counter}}">
+									
+									{% for j in i.service %}
+										<option value="{{j.0}}">{{j.1}}</option>
+									{% endfor %}
+							</select>
+							
+							</td>
+							<td>
+								
+								<select class="form-control" id="facility{{forloop.counter}}">
+									{% for k in i.first_facilities %}
+										<option value="{{k}}">{{k}}</option>
+									{% endfor %}
+								</select>
+							</td>
+							
+							<td id="price{{forloop.counter}}">{{i.first_price}}</td>
+							
+							
+
+							<td id="hour{{forloop.counter}}">{{i.first_hour}}</td>
+							
+						</tr>
+					{% endfor %}
+				  </tbody>
+				</table>
+			</div>
+        </div>
+      </div>
+    </section>
+	<br>
+	<br>
+	<br>
+	      <!------------------------------------------------------->
+
+
+   <!-- <div class="modal fade" id="openmodal" tabindex="-1" role="dialog" aria-labelledby="formModal" aria-hidden="true" data-keyboard="false" data-backdrop="static"> -->
+          <!-- <div class="modal-dialog" role="document"> -->
+            <!-- <div class="modal-content"> -->
+              <!-- <div class="modal-header"> -->
+                <!-- <h5 class="modal-title" id="formModal">Show Facilities</h5> -->
+                <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
+                  <!-- <span aria-hidden="true">&times;</span> -->
+                <!-- </button> -->
+              <!-- </div> -->
+              
+	
+			   <!-- <div class="row gutters-sm"> -->
+            <!-- <div> -->
+              
+            <!-- </div> -->
+            <!-- <div class="col-md-9"> -->
+              <!-- <div class="card mb-3"> -->
+                <!-- <div class="card-body"> -->
+                  <!-- <div class="row"> -->
+                    <!-- <div class="col-sm-10"> -->
+                      <!-- <h6 class="mb-0">Facility:- </h6> -->
+                    <!-- </div> -->
+                    <!-- <div class="col-sm-4 text-secondary"> -->
+                      
+                    <!-- </div> -->
+                 <!-- </div> -->
+                 <!-- <br> -->
+                 <!-- <br> -->
+                 
+               <!-- </div> -->
+              <!-- </div> -->
+
+            <!-- </div> -->
+		<!-- </div> -->
+            <!-- </div> -->
+          <!-- </div> -->
+        <!-- </div> -->
+	
+	
+	<!-- </div> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>	
+<script>
+	$(document).ready(function(){
+		$('#datatable').DataTable({
+			
+			});
+	});
+</script>
+<script>
+	  function open_modal(id, facility){
+      
+        console.log(id)
+        console.log(facility)
+
+        $('#openmodal').modal('show'); 
+}
+
+	function showfacility(id)
+	{
+		service_id = $("#service_id"+id).val();
+		
+					$.ajax({
+					type:"POST",
+					url: "/show_vendor_facility/",
+					data: {
+						'service_id':service_id,
+						
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							
+							
+							$('#facility'+id).empty();
+							$("#price"+id).empty();
+							$("#hour"+id).empty();
+							
+							response.data1.forEach(element => {
+								console.log(element.fk_vender_facility__facility_name);
+								  $('#facility'+id).append($('<option>').val(element.fk_vender_facility__facility_name).text(element.fk_vender_facility__facility_name));
+								});
+								<!-- $('#facility').append($('<option>').val('Other').text('Other')); -->
+								<!-- $("#price"+id).remove(); -->
+								
+								
+								$("#price"+id).html(response.data2);
+								$("#hour"+id).html(response.data3);
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+	}
+</script>
+
+{% include 'admin_panel/footer.html' %} 

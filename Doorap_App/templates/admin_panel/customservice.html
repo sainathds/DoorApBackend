@@ -1,0 +1,149 @@
+{% include 'admin_panel/header.html' %} 
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	.body{min-height: 756px !important;}
+.wrapper, body, html {
+    min-height: 750px !important;
+}
+.swal-back {
+    width: 350px !important;
+	height: auto !important;
+	}
+	
+</style>
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+      <div class="content-header">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-4" style="margin-left:15.5rem;">
+            <h1 class="m-0">Custom Services</h1>
+          </div>
+         <!-- </div> -->
+		  <!-- <div style="margin-left:35.5rem;"> -->
+		  <!-- <a href="/custom_services_form/" class="btn btn-icon btn-primary pull-right" > Add New category</a> -->
+			<!-- </div> -->
+      </div>
+      </div>
+    </div>
+	
+	<section class="content" style="margin-left: 15px;">
+      <div class="container-fluid" style="padding-left:0px; padding-right:0px; width:97%;">
+	    				
+		<hr>
+        <div class="row" style="background-color:white; margin-left: 15rem;">
+			<div class="table">
+				<table id="datatable" class="table table-striped datatable">
+					 <thead>
+					<tr>
+					  <th scope="col">Sr No</th>
+					  <th scope="col">Vendor</th>
+					  <!-- <th scope="col">Category</th> -->
+					  <!-- <th scope="col">Custom Service Name</th> -->
+					  <!-- <th scope="col">Custom service price</th>					   -->
+					
+					  <th scope="col">Action </th>
+					  <!-- <th scope="col">View</th> -->
+					  
+					</tr>
+				  </thead>
+				  <tbody> 
+					{% for i in obj2 %}
+						
+							<tr>
+							  <td scope="row">{{forloop.counter}}</td>
+							  <td>{{i.fk_vendor__full_name}}</td>
+							  <!-- <td>{{i.fk_category.category_name}}</td> -->
+							  <!-- <td>{{i.custom_service_name}}</td> -->
+							 <td>
+							   <a class="btn btn-outline-primary" href = "/vendorCategories/{{i.fk_vendor__id}}"><i class="fa fa-plus" aria-hidden="true" ></i></a>
+								</td>
+								</td>	
+							</tr>
+					
+					{% endfor %}
+				  </tbody>
+				</table>
+			</div>
+        </div>
+      </div>
+    </section>
+	
+	<!-- </div> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>	
+<script>
+	$(document).ready(function(){
+		$('#datatable').DataTable({
+			
+			});
+	});
+</script>
+<script>
+	function Change_Status(id,status)
+	{
+		
+		swal({
+			title: "Change Status.",
+			text: "Do you want to change the status?",
+			icon: "warning",
+			buttons: ["No", "Yes"],
+			html:true,
+			className: "swal-back",
+			closeOnClickOutside: false,
+			dangerMode: true,			
+		})		
+		.then((willUpdate) => {
+			if (willUpdate) {
+				$.ajax({
+					type:"POST",
+					url: "/approvereject/",
+					data: {
+						'id': id,
+						'status':status,
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+				
+			}	
+		});
+	}
+</script>
+<script>	
+	 $(document).on('click', '.swal-button--confirm', function() {     
+		$(".swal-modal").attr("id", "yourIdName");
+		$("#yourIdName").css("width", "315px");
+	    $("#yourIdName").css("height","250px");
+    });
+</script>
+
+{% include 'admin_panel/footer.html' %} 

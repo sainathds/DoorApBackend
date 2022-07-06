@@ -1,0 +1,543 @@
+{% load static %}
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	
+	hr{
+		    margin-top: 5px;
+    margin-bottom: 5px;
+	}
+</style>
+
+<style>
+.img{
+	margin:15px;
+	<!-- border:1px solid black; -->
+	text-align: center;
+}
+</style>
+<!-- second rendition -->
+<!-- <div class="content-wrapper"> -->
+    <div class="main-body" style="margin-left: 20px;margin-right: 20px;">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Commuter Details</h1>
+          </div> 
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#" onclick="Get_Commuter_List()">Commuter List</a></li>
+              <li class="breadcrumb-item active">Commuter Details</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+          <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex flex-column align-items-center text-center">
+                    {% if commuter_obj.profile_image  %}
+											{% if "http" in commuter_obj.profile_image %}
+												<a href="{{commuter_obj.profile_image}}" target="__blank">
+													<img src="{{commuter_obj.profile_image}}" alt="User Profile" class="rounded-circle" width="150" height="150">
+												</a>
+											{% else %}
+												<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.profile_image}}" target="__blank">
+													<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.profile_image}}" alt="User Profile" class="rounded-circle" width="150" height="150">
+												</a>
+											{% endif %}
+										{% else %}
+                    <img src="{% static 'admin_panel/img/avatar.jpg' %}" alt="No Image Found" class="rounded-circle" width="150" height="150">
+										{% endif %}
+                    <!-- {{ commuter_obj.profile_image }} -->
+					<div class="mt-3">
+                      <h4>{{ commuter_obj.name }}</h4>
+                      <!-- <p class="text-secondary mb-1">Full Stack Developer</p> -->
+                      <!-- <p class="text-muted font-size-sm">{{ commuter_obj.address_flat }}, {{ commuter_obj.address_reach }}</p> -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Full Name</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                     {% if commuter_obj.name %}{{ commuter_obj.name }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Email</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.email %}{{ commuter_obj.email }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                 
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Mobile</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.mobile %}{{ commuter_obj.mobile }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Gender</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.gender %}{{ commuter_obj.gender }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Date Of Birth</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.dob %}{{ commuter_obj.dob }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <!-- <div class="row"> -->
+                    <!-- <div class="col-sm-3"> -->
+                      <!-- <h6 class="mb-0">Address</h6> -->
+                    <!-- </div> -->
+                    <!-- <div class="col-sm-9 text-secondary"> -->
+                      <!-- {{ commuter_obj.address_flat }}, {{ commuter_obj.address_reach }} -->
+                    <!-- </div> -->
+                  <!-- </div> -->
+                  <!-- <hr> -->
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Status</h6>
+                    </div>
+                    <div class="col-sm-6 text-secondary">
+                      {% if commuter_obj.verification_status %}{{ commuter_obj.verification_status }}{% else %}Pending{% endif %}
+					  <!-- <button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" style="float:right;margin-right:15px;" type="button">Edit -->
+					  <!-- </button> -->
+										</div>
+										{% if admin_obj.user_type == "Executive" %}
+										
+										{% else %}
+										<div class="col-sm-3">
+                      {% if commuter_obj.verification_status == "Suspend" %}
+												<button type="button" class="btn btn-primary" style="width:50px;padding: 1px;float:right;" onclick="Change_Status('{{commuter_obj.id}}', 'Active')">Active</button>
+											{% elif commuter_obj.verification_status == "Active" %}
+											<button type="button" class="btn btn-danger" style="width:65px;padding: 1px;float:right;" onclick="Change_Status('{{commuter_obj.id}}', 'Suspend')">Suspend</button>
+											{% else %}
+											<button type="button" class="btn btn-primary" style="width:50px;padding: 1px;float:right;" onclick="Change_Status('{{commuter_obj.id}}', 'Active')">Active</button>
+											<!-- <button type="button" class="btn btn-danger" style="width:65px;padding: 1px;float:right;" onclick="Change_Status('{{commuter_obj.id}}', 'Suspend')">Suspend</button> -->
+											{% endif %}
+                    </div>
+										{% endif %}
+					
+                  </div>
+									<hr>
+									
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Address</h6>
+                    </div>
+                    <div class="col-sm-8 text-secondary">
+										
+                      {% if commuter_obj.address_location %}{{ commuter_obj.address_location }}{% else %}-{% endif %}
+                    </div>
+										<div class="col-sm-1">
+                      <button class="btn btn-primary" style="float:right;margin-right:15px;cursor: alias;" type="button">{{commuter_obj.address_save_as}}</button>
+                    </div>
+										
+                  </div>
+                  <hr>
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Flat, Floor, Building Name</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.address_flat_floor %}{{ commuter_obj.address_flat_floor }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">How To Reach</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.address_how_to_reach %}{{ commuter_obj.address_how_to_reach }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Landmark</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.address_contact_no %}{{ commuter_obj.address_contact_no }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <!-- <hr> -->
+                </div>
+              </div>
+
+             
+            </div>
+		</div>
+		<div class="content-header">
+		  <div class="container-fluid">
+			<div class="row mb-2">
+			  <div class="col-sm-6">
+				<h1 class="m-0">Verification Details</h1>
+			  </div>
+			</div>
+		  </div>
+		</div>
+		
+			<div class="row gutters-sm">
+			<div class="col-12 mb-3">
+				<div class="card">
+					<div class="card-body">
+				<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Driving Licence Number</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.driving_license_number %}{{ commuter_obj.driving_license_number }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Vehical Registration Number</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.vehicle_registration_number %}{{ commuter_obj.vehicle_registration_number }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Car Company</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.fk_car_company %}{{ commuter_obj.fk_car_company.name }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Car Model</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.fk_car_model %}{{ commuter_obj.fk_car_model.name }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <hr>
+									<div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Car Color</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {% if commuter_obj.fk_car_color %}{{ commuter_obj.fk_car_color.name }}{% else %}-{% endif %}
+                    </div>
+                  </div>
+                  <!-- <hr> -->
+                </div>
+				</div>
+			</div>
+		  </div>
+			<div class="content-header">
+			  <div class="container-fluid">
+				<div class="row mb-2">
+				  <div class="col-sm-6">
+					<h1 class="m-0">Aadhar Card and Vehical Images</h1>
+				  </div>
+				</div>
+			  </div>
+			</div>
+			<hr>
+			<div class="content-header">
+			  <div class="container-fluid">
+				<div class="row mb-2">
+				  <div class="col-sm-6">
+					<h4 class="m-0">Aadhar Card Images</h4>
+				  </div>
+				</div>
+			  </div>
+			</div>
+			<div class="row gutters-sm">
+			<div class="col-12 mb-3">
+				<div class="card">
+					<div class="card-body">
+						<div class="row">
+							<div class="col-lg-2 col-md-2 col-sm-12 img">
+								<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.license_front_image }}" target="__blank">
+								<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.license_front_image }}" alt="Admin" width="150">
+								</a>
+								<center><h6>Front Image</h6></center>
+							</div>
+							<div class="col-lg-2 col-md-2 col-sm-12 img">
+								<!-- <h6 >Car Color</h6> -->
+								<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.license_back_image }}" target="__blank">
+								<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.license_back_image }}" alt="Admin" width="150">
+								</a>
+								<center><h6>Back Image</h6></center>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			</div>
+			<hr>
+			<div class="content-header">
+			  <div class="container-fluid">
+				<div class="row mb-2">
+				  <div class="col-sm-6">
+					<h4 class="m-0">Vehical Images</h4>
+				  </div>
+				</div>
+			  </div>
+			</div>
+			<div class="row gutters-sm">
+			<div class="col-12 mb-3">
+				<div class="card">
+					<div class="card-body">
+						<div class="row">
+							<div class="col-lg-2 col-md-6 col-sm-12 img">
+								<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.vehicle_front_image }}" target="__blank">
+								<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.vehicle_front_image }}" alt="Admin" width="150">
+								</a>
+								<center><h6>Front Image</h6></center>
+							</div>
+							<div class="col-lg-2 col-md-6 col-sm-12 img">
+								<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.vehicle_back_image }}" target="__blank">
+								<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.vehicle_back_image }}" alt="Admin" width="150">
+								</a>
+								<center><h6>Back Image</h6></center>
+							</div>
+							<div class="col-lg-2 col-md-6 col-sm-12 img">
+								<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.vehicle_left_image }}" target="__blank">
+								<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.vehicle_left_image }}" alt="Admin" width="150">
+								</a>
+								<center><h6>Left Image</h6></center>
+							</div>
+							<div class="col-lg-2 col-md-6 col-sm-12 img">
+								<a href="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.vehicle_right_image }}" target="__blank">
+								<img src="https://vahaac-bucket.s3.ap-south-1.amazonaws.com/{{ commuter_obj.vehicle_right_image }}" alt="Admin" width="150">
+								</a>
+								<center><h6>Right Image</h6></center>
+							</div>
+						</div>
+                </div>
+				</div>
+			</div>
+		  </div>
+			
+			<div class="content-header">
+		  <div class="container-fluid">
+			<div class="row mb-2">
+			  <div class="col-sm-6">
+				<h1 class="m-0">Spring Verification Details</h1>
+			  </div>
+			</div>
+		  </div>
+		</div>
+		
+			<div class="row gutters-sm">
+			<div class="col-12 mb-3">
+				<div class="card">
+					<div class="card-body">
+						<div class="row">
+                    <div class="col-sm-4">
+											<div class="row">
+												<div class="col-sm-7">
+													<h6 class="mb-0">Document OCR Status</h6>
+												</div>
+												<div class="col-sm-4 text-secondary">
+													{% if commuter_obj.status_ocr %}{{ commuter_obj.status_ocr }}{% else %}{{ commuter_obj.ocr_api_status }}{% endif %}
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-sm-7">
+													<h6 class="mb-0">Document Verification Status</h6>
+												</div>
+												<div class="col-sm-4 text-secondary">
+													{% if commuter_obj.document_verification_status_matching_message %}{{ commuter_obj.document_verification_status_matching_message }}{% else %}{{ commuter_obj.document_verification_api_status }}{% endif %}
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-sm-7">
+													<h6 class="mb-0">Add Selfie Status</h6>
+												</div>
+												<div class="col-sm-4 text-secondary">
+													{% if commuter_obj.add_selfie_api_status %}{{ commuter_obj.add_selfie_api_status }}{% else %}-{% endif %}
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-sm-7">
+													<h6 class="mb-0">Face Match Status</h6>
+												</div>
+												<div class="col-sm-4 text-secondary">
+													{% if commuter_obj.face_match_api_status %}{{ commuter_obj.face_match_api_status }}{% else %}-{% endif %}
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-sm-7">
+													<h6 class="mb-0">Court Check Status</h6>
+												</div>
+												<div class="col-sm-4 text-secondary">
+													{% if commuter_obj.court_check_api_status %}{{ commuter_obj.court_check_api_status }}{% else %}-{% endif %}
+												</div>
+											</div>
+                    </div>
+										<div class="col-sm-8">
+                     <div class="row">
+												<div class="col-sm-2">
+													<h6 class="mb-0">Person Id</h6>
+												</div>
+												<div class="col-sm-10 text-secondary">
+													{% if commuter_obj.person_id %}{{ commuter_obj.person_id }}{% else %}-{% endif %}
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-sm-2">
+													<h6 class="mb-0">Request Id</h6>
+												</div>
+												<div class="col-sm-10 text-secondary">
+													{% if commuter_obj.request_id %}{{ commuter_obj.request_id }}{% else %}-{% endif %}
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-sm-2">
+													<h6 class="mb-0">Face Match Score</h6>
+												</div>
+												<div class="col-sm-10 text-secondary">
+													{% if commuter_obj.match_score_face_match %}{{ commuter_obj.match_score_face_match }}{% else %}-{% endif %}
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-sm-2">
+													<h6 class="mb-0">PDF Report</h6>
+												</div>
+												<div class="col-sm-10 text-secondary">
+													{% if pdf_report_court_list %}
+														{% for i in pdf_report_court_list %}
+															<a href="{{ i }}" target="__blank">{{ i }} <br><hr>
+														{% endfor %}
+													{% else %}
+														No Report Found
+													{% endif %}
+												</div>
+											</div>
+                    </div>
+                    <!-- <div class="col-sm-9 text-secondary"> -->
+                      <!-- {% if commuter_obj.driving_license_number %}{{ commuter_obj.driving_license_number }}{% else %}-{% endif %} -->
+                    <!-- </div> -->
+										
+									
+                  <!-- <hr> -->
+            </div>
+				</div>
+			</div>
+		  </div>
+			
+		</div>
+    <!-- </div> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+<script>
+	$(document).ready(function(){
+		$('.commuter').css("color", "White");
+	});
+	
+	
+	<!-- function change_status(){ -->
+		<!-- var status = $('#status').val(); -->
+		<!-- var id = $('#commuter_id').val(); -->
+		<!-- console.log("status", status, id); -->
+		<!-- $("#loader").show(); -->
+		<!-- $.ajax({ -->
+				<!-- method : "POST", -->
+				<!-- url : "/change_status/", -->
+				<!-- data : { -->
+					<!-- 'id':id, -->
+					<!-- 'status':status, -->
+				<!-- }, -->
+				<!-- success : function(response){ -->
+							<!-- $("#loader").hide(); -->
+							   <!-- if (response.status == '1'){ -->
+								   <!-- swal(""+response.msg+"", { -->
+									   <!-- icon: "success", -->
+									   <!-- button: "Ok", -->
+									   <!-- closeOnClickOutside: false, -->
+								   <!-- }). then(function() { -->
+												<!-- window.location.href = ""+response.url+"" -->
+											<!-- }); -->
+							   <!-- } -->
+							   <!-- else{ -->
+								   <!-- swal(""+response.msg+"", { -->
+								   <!-- icon: "info", -->
+								   <!-- button: "Ok", -->
+								   <!-- closeOnClickOutside: true, -->
+								   <!-- }); -->
+							   <!-- } -->
+						<!-- } -->
+				<!-- }); -->
+	<!-- } -->
+	
+	
+	function Change_Status(id, status){
+	swal({
+		title: "Are you sure?",
+		text: "To Change This Status",
+		<!-- text: "Accept This Broker", -->
+		icon: "info",
+		<!-- buttons: true, -->
+		buttons: ["No", "Yes"],
+		closeOnClickOutside: false,
+		dangerMode: true,
+		})
+		.then((willDelete) => {
+			if (willDelete) {
+				$.ajax({
+					method : "POST",
+					url : "/change_status_driver/",
+					data : {
+						'id':id,
+						'status':status
+					},
+					success : function(response){
+						$('#loading').hide();
+						if (response == "success"){
+							swal("Status Changed Successfully", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								}).then(function() {
+									<!-- location.reload(); -->
+									View_Commuter_Details("{{commuter_obj.id}}");
+								});
+				
+						}
+						else{
+							swal("Something Went Wrong");
+						}
+					}
+				})
+			}
+	});
+}
+</script>

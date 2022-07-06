@@ -1,0 +1,916 @@
+{% include 'admin_panel/header.html' %} 
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	.body{min-height: 756px !important;}
+.wrapper, body, html {
+    min-height: 750px !important;
+}
+.swal-back {
+    width: 350px !important;
+	height: auto !important;
+	}
+	
+</style>
+
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+
+    <div class="content-header" style="margin-top:1%;">
+      <div class="container-fluid">
+			<div class="row mb-2">
+				  <div class="col-sm-6" style="margin-left:15.5rem;">
+					<h3 class="m-0">Commision</h3>
+				  </div>
+			</div>
+			<hr>
+		</div>
+	</div>
+
+			<div class="row" style="padding-bottom:15px;">
+					<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist" style="padding-left:770px;">
+						  <li class="nav-item">
+							<a style="    width: 197px; text-align: center;" class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true" onclick="customer_tab()">Customer</a>
+						  </li>
+						  <li class="nav-item">
+							<a style="    width: 197px; text-align: center;" class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false" onclick="vendor_tab()">Vendor</a>
+						  </li>
+		 
+					</ul>
+			</div>
+			<hr>
+<div id="customer">
+		<div class="row">
+				<div class="col-md-2" style="margin-left:26.5rem;">
+					<div class="form-group">
+						<label for="exampleFormControlSelect1">Select Country</label>
+						<select class="form-control" id="cust_country">
+						  <option>Select Country</option>
+						  {% for i in country %}
+						  <option value={{i.id}}>{{i.country_name}}</option>
+						{% endfor %}
+						</select>
+						<span id="errmsg1" style="color:red;  "></span><br>
+					</div>
+
+				</div>
+		
+				<div class="col-md-2" style="">
+					<div class="form-group">
+						<label for="exampleFormControlSelect1">Select Category</label>
+						<select class="form-control" id="cust_category">
+						  <option>Select Category</option>
+						  {% for i in category %}
+						  <option value={{i.id}}>{{i.category_name}}</option>
+						  {% endfor %}
+						</select>
+						<span id="errmsg2" style="color:red;  "></span><br>
+					</div>
+
+				</div>
+		
+				<div class="col-md-2"> 
+
+					 <div class="form-group">
+							<label for="exampleFormControlInput1">Commision</label>
+							<input type="text" class="form-control" id="cust_commision" placeholder="Enter Commision" maxlength="3">
+							<span id="errmsg3" style="color:red;  "></span><br>
+					</div>
+				</div>
+				<div class="col-md-3" style="margin:0 auto;"> 
+							<button style="width:50%;     width: 50%;margin-left: 0px;margin-top: 31px;" type="button" class="btn btn-success" value="save" onclick="customer_commision()">Save </button>
+				</div>
+		</div>
+		<section class="content" style="margin-left: 15px;" id="customer_table">
+			<div class="container-fluid" style="padding-left:0px; padding-right:0px; width:97%;">
+				<hr>
+					<div class="row" style="background-color:white; margin-left: 15rem;">
+						<div class="table">
+							<table id="datatable" class="table table-striped datatable">
+									 <thead>
+										<tr>
+										  <th scope="col">Sr No</th>
+										  <th scope="col">Country</th>
+										  <th scope="col">Category</th>
+										  <th scope="col">Commision</th>
+										  <th scope="col">Action</th>					  
+										  
+										</tr>
+								  </thead>
+								  <tbody>
+									{% for i in customer_commision %}
+										<tr>
+										  <td scope="row">{{forloop.counter}}</td>
+										  <td>{{i.fk_country.country_name}}</td>
+										  <td>{{i.fk_category.category_name}}</td>
+										  <td>{{i.commision}}%</td>
+										  <td>
+											<a href="#" class="btn btn-primary btn-edit"   data-original-title="Edit" data-toggle="modal" data-target="#edit_customer_modal" data-sid="{{i.id}}"  onclick="append_customer_data('{{i.id}}','{{i.fk_country.id}}','{{i.fk_category.id}}','{{i.commision}}')"><i class="fa fa-edit "></i></a>
+									
+											<button type="button" class="btn btn-primary" onclick="Delete_Customer_Commision('{{i.id}}')">
+												<i class="far fa-trash-alt"></i>
+											</button>
+										  
+										  </td>					  
+										  
+										</tr>
+									
+								 {% endfor %}
+								  </tbody>
+							</table>
+						</div>
+					</div>
+			</div>
+		</section>
+
+</div>
+<div id="vendor">
+		<div class="row">
+				<div class="col-md-2" style="margin-left:26.5rem;">
+					<div class="form-group">
+						<label for="exampleFormControlSelect1">Select Country</label>
+						<select class="form-control" id="vend_country">
+						  <option>Select Country</option>
+						  {% for i in country %}
+						  <option value={{i.id}}>{{i.country_name}}</option>
+						{% endfor %}
+						</select>
+						<span id="errmsg4" style="color:red;  "></span><br>
+					</div>
+
+				</div>
+		
+				<div class="col-md-2" style="">
+					<div class="form-group">
+						<label for="exampleFormControlSelect1">Select Category</label>
+						<select class="form-control" id="vend_category">
+						  <option>Select Category</option>
+						  {% for i in category %}
+						  <option value={{i.id}}>{{i.category_name}}</option>
+						  {% endfor %}
+						</select>
+						<span id="errmsg5" style="color:red;  "></span><br>
+					</div>
+
+				</div>
+		
+				<div class="col-md-2"> 
+
+					 <div class="form-group">
+							<label for="exampleFormControlInput1">Commision</label>
+							<input type="text" class="form-control" id="vend_commision" placeholder="Enter Commision" maxlength="3">
+							<span id="errmsg6" style="color:red;  "></span><br>
+					</div>
+				</div>
+				<div class="col-md-3" style="margin:0 auto;"> 
+							<button style="width:50%;     width: 50%;margin-left: 0px;margin-top: 31px;" type="button" class="btn btn-success" value="save" onclick="vendor_commision()">Save </button>
+				</div>
+		</div>
+		<section class="content" style="margin-left: 15px;" id="customer_table">
+			<div class="container-fluid" style="padding-left:0px; padding-right:0px; width:97%;">
+				<hr>
+					<div class="row" style="background-color:white; margin-left: 15rem;">
+						<div class="table">
+							<table id="datatable_vendor" class="table table-striped datatable">
+									 <thead>
+										<tr>
+										  <th scope="col">Sr No</th>
+										  <th scope="col">Country</th>
+										  <th scope="col">Category</th>
+										  <th scope="col">Commision</th>
+										  <th scope="col">Action</th>					  
+										</tr>
+								  </thead>
+								  <tbody>
+								  {% for i in vendor_commision %}
+									
+										<tr>
+										  <td scope="row">{{forloop.counter}}</td>
+										  <td>{{i.fk_country.country_name}}</td>
+										  <td>{{i.fk_category.category_name}}</td>
+										  <td>{{i.commision}}%</td>
+										  <td>
+												<a href="#" class="btn btn-primary btn-edit"   data-original-title="Edit" data-toggle="modal" data-target="#edit_vendor_modal" data-sid="{{i.id}}"  onclick="append_vendor_data('{{i.id}}','{{i.fk_country.id}}','{{i.fk_category.id}}','{{i.commision}}')"><i class="fa fa-edit "></i></a>
+									
+											<button type="button" class="btn btn-primary" onclick="Delete_Vendor_Commision('{{i.id}}')">
+												<i class="far fa-trash-alt"></i>
+											</button>
+										  
+										  </td>					  
+										  
+										</tr>
+									
+								 {% endfor %}
+								  </tbody>
+							</table>
+						</div>
+					</div>
+			</div>
+		</section>
+
+</div>
+
+	  <!-- ---------------------------- Edit Customer Commision Code Model -------------------------------------------- -->
+	  <div class="modal hide fade in" id="edit_customer_modal" role="dialog" data-keyboard="false" data-backdrop="static">
+				<div class="modal-dialog">
+				
+				  <!-- Modal content-->
+				  <div class="modal-content">
+					<div class="modal-header" style="background:grey;" >
+					   <h4 class="modal-title" style="color: #fff;">Update Customer Commision</h4>
+					  <button type="button" class="close"  style="color: #fff;" data-dismiss="modal" onclick="clear_data()">&times;</button>
+
+					</div>
+					<div class="modal-body">
+					   <input type="hidden" id="cust_id">
+					   
+					   <select class="form-control" id="country_edit">
+							<option>Select Country</option>
+							{% for i in country %}
+							<option value={{i.id}}>{{i.country_name}}</option>
+							{% endfor %}
+						</select>
+						<span id="errmsg7" style="color:red;"></span><br>
+						
+						<select class="form-control" id="category_edit">
+							<option>Select Category</option>
+							{% for i in category %}
+							<option value={{i.id}}>{{i.category_name}}</option>
+							{% endfor %}
+						</select>
+						<span id="errmsg8" style="color:red;"></span><br>
+					   
+					   <input type="text" class="form-control" id="edit_commision" placeholder="Enter Commision" maxlength="3">
+					   <span id="errmsg9" style="color:red;"></span><br>
+					   
+					   
+					</div>
+					<div class="modal-footer">
+					  <button type="button" class="btn view-btn-style btn-success"   onclick="Edit_Customer_Commision()" >Update</button>
+					  <button type="button" class="btn view-btn-style btn-danger"  data-dismiss="modal" onclick="close_modal()">Close</button>
+					</div>
+					</div>
+					
+				  </div>
+				  
+				</div>
+			  </div>
+			  
+		<!-- -------------------------------------------- End Offer Code Modal ----------------------------------------------	   -->
+
+		 <!-- ---------------------------- Edit Vendor Commision Code Model -------------------------------------------- -->
+	  <div class="modal hide fade in" id="edit_vendor_modal" role="dialog" data-keyboard="false" data-backdrop="static">
+				<div class="modal-dialog">
+				
+				  <!-- Modal content-->
+				  <div class="modal-content">
+					<div class="modal-header" style="background:grey;" >
+					   <h4 class="modal-title" style="color: #fff;">Update Vendor Commision</h4>
+					  <button type="button" class="close"  style="color: #fff;" data-dismiss="modal" onclick="clear_data1()">&times;</button>
+
+					</div>
+					<div class="modal-body">
+					   <input type="hidden" id="vend_id">
+					   
+					   <select class="form-control" id="country_edit1">
+							<option>Select Country</option>
+							{% for i in country %}
+							<option value={{i.id}}>{{i.country_name}}</option>
+							{% endfor %}
+						</select>
+						<span id="errmsg10" style="color:red;"></span><br>
+						
+						<select class="form-control" id="category_edit1">
+							<option>Select Category</option>
+							{% for i in category %}
+							<option value={{i.id}}>{{i.category_name}}</option>
+							{% endfor %}
+						</select>
+						<span id="errmsg11" style="color:red;"></span><br>
+					   
+					   <input type="text" class="form-control" id="edit_commision1" placeholder="Enter Commision" maxlength="3">
+					   <span id="errmsg12" style="color:red;"></span><br>
+					   
+					   
+					</div>
+					<div class="modal-footer">
+					  <button type="button" class="btn view-btn-style btn-success"   onclick="Edit_Vendor_Commision()" >Update</button>
+					  <button type="button" class="btn view-btn-style btn-danger"  data-dismiss="modal" onclick="close_modal1()">Close</button>
+					</div>
+					</div>
+					
+				  </div>
+				  
+				</div>
+			  </div>
+			  
+		<!-- -------------------------------------------- End Offer Code Modal ----------------------------------------------	   -->
+
+
+
+
+	
+	<!-- </div> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+<script>
+	$(document).ready(function(){
+		$("#vendor").hide();
+		
+	});
+	function customer_tab()
+	{
+		$("#customer").show();
+		$("#vendor").hide();
+		$('#errmsg4').hide();
+		$('#errmsg5').hide();
+		$('#errmsg6').hide();
+		
+		$('#cust_country').prop('selectedIndex',0);
+		$('#vend_category').prop('selectedIndex',0);
+		$('#vend_commision').val("");
+	}
+	function vendor_tab()
+	{
+		$("#vendor").show();
+		$("#customer").hide();
+		$('#errmsg1').hide();
+		$('#errmsg2').hide();
+		$('#errmsg3').hide();
+		
+		$('#vend_country').prop('selectedIndex',0);
+		$('#cust_category').prop('selectedIndex',0);
+		$('#cust_commision').val("");
+	}
+	
+	function close_modal()
+	{
+		$('#errmsg7').hide();
+		$('#errmsg8').hide();
+		$('#errmsg9').hide();
+	}
+	
+	
+	function close_modal1()
+	{
+		$('#errmsg10').hide();
+		$('#errmsg11').hide();
+		$('#errmsg12').hide();
+	
+	}
+	
+	function clear_data()
+	{
+		$('#errmsg7').hide();
+		$('#errmsg8').hide();
+		$('#errmsg9').hide();
+	
+	}
+	function clear_data1()
+	{
+		$('#errmsg10').hide();
+		$('#errmsg11').hide();
+		$('#errmsg12').hide();
+	
+	}
+	$(document).ready(function(){
+		$('#datatable').DataTable({
+			
+			});
+	});
+	datatable_vendor
+	$(document).ready(function(){
+		$('#datatable_vendor').DataTable({
+			
+			});
+	});
+</script>
+
+<script>	
+	 $(document).on('click', '.swal-button--confirm', function() {     
+		$(".swal-modal").attr("id", "yourIdName");
+		$("#yourIdName").css("width", "315px");
+	    $("#yourIdName").css("height","250px");
+    });
+</script>
+
+<script>
+    <!-- ---------------------------------------------------------- Add Customer Commision ----------------------------------------------------- -->
+	$('#cust_commision').bind('input', function() {
+	  var c = this.selectionStart,
+		  r = /[^0-9]/gi,
+		  v = $(this).val();
+	  if(r.test(v)) {
+		$(this).val(v.replace(r, ''));
+		c--;
+	  }
+	  this.setSelectionRange(c, c);
+	});
+	$('#cust_country').mouseup(function(){
+		$('#errmsg1').hide();
+	});
+	
+	$('#cust_category').mouseup(function(){
+		$('#errmsg2').hide();
+	});
+	cust_commision
+	$('#cust_commision').keyup(function(){
+		$('#errmsg3').hide();
+	});
+	function customer_commision()
+	{
+			country = $("#cust_country").val();
+			category = $("#cust_category").val();
+			commision = $("#cust_commision").val();
+			
+			if (country == "Select Country")
+			{
+				errmsg1.innerHTML = "Please Select Country..";
+				$("#errmsg1").show();
+			}
+			else if (category == "Select Category")
+			{
+				errmsg2.innerHTML = "Please Select Category..";
+				$("#errmsg2").show();
+			}
+			else if (commision == "" || commision == null)
+			{
+				errmsg3.innerHTML = "Please Enter Commision..";
+				$("#errmsg3").show();
+			}
+			else if (commision == 0 || commision == null)
+			{
+				errmsg3.innerHTML = "Please Enter Valid Commision..";
+				$("#errmsg3").show();
+			}
+			else if(commision >100)
+			{
+				errmsg3.innerHTML = "Please enter commision value less than eqaul to 100%....";
+				$("#errmsg3").show();
+			}
+			else
+			{
+					$.ajax({
+					type:"POST",
+					url: "/save_customer_commision/",
+					data: {
+						'country': country,
+						'category':category,
+						'commision':commision,
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+			}
+	}
+	
+	<!-- ---------------------------------------------------------- End Add Customer Commision Code ----------------------------------------------------- -->
+	
+	
+	<!-- ------------------------------------------------------------- Delete Customer Commision Code ----------------------------------------------------- -->
+	function Delete_Customer_Commision(commision_id)
+	{
+			swal({
+			title: "Delete Commision.",
+			text: "Do you want to delete this commision?",
+			icon: "warning",
+			buttons: ["No", "Yes"],
+			html:true,
+			className: "swal-back",
+			closeOnClickOutside: false,
+			dangerMode: true,			
+		})		
+		.then((willUpdate) => {
+			if (willUpdate) {
+				$.ajax({
+					type:"POST",
+					url: "/delete_commision/",
+					data: {
+						'commision_id': commision_id
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+				
+			}	
+		});
+	}
+	
+	<!-------------------------------------------------------------------- End Customer Delete Commision Code --------------------------------------------------------- -->
+	function append_customer_data(customer_id,country_id,category_id,commision)
+	{
+		$("#cust_id").val(customer_id);
+		$("#country_edit").val(country_id);
+		$("#category_edit").val(category_id);
+		$("#edit_commision").val(commision);
+	
+	}
+	$('#edit_commision').bind('input', function() {
+	  var c = this.selectionStart,
+		  r = /[^0-9]/gi,
+		  v = $(this).val();
+	  if(r.test(v)) {
+		$(this).val(v.replace(r, ''));
+		c--;
+	  }
+	  this.setSelectionRange(c, c);
+	});
+	$('#country_edit').mouseup(function(){
+		$('#errmsg7').hide();
+	});
+	
+	$('#category_edit').mouseup(function(){
+		$('#errmsg8').hide();
+	});
+	
+	$('#edit_commision').keyup(function(){
+		$('#errmsg9').hide();
+	});
+	
+	
+	function Edit_Customer_Commision()
+	{
+			commision_id = $("#cust_id").val();
+			country = $("#country_edit").val();
+			category = $("#category_edit").val();
+			commision = $("#edit_commision").val();
+			
+			if (country == "Select Country")
+			{
+				errmsg7.innerHTML = "Please Select Country..";
+				$("#errmsg7").show();
+			}
+			else if (category == "Select Category")
+			{
+				errmsg8.innerHTML = "Please Select Category..";
+				$("#errmsg8").show();
+			}
+			else if (commision == "" || commision == null)
+			{
+				errmsg9.innerHTML = "Please Enter Commision..";
+				$("#errmsg9").show();
+			}
+			else if (commision == 0 || commision == null)
+			{
+				errmsg9.innerHTML = "Please Enter Valid Commision..";
+				$("#errmsg9").show();
+			}
+			else if(commision >100)
+			{
+				errmsg9.innerHTML = "Please enter commision value less than eqaul to 100%....";
+				$("#errmsg9").show();
+			}
+			else
+			{
+					$.ajax({
+					type:"POST",
+					url: "/edit_commision/",
+					data: {
+						'commision_id':commision_id,
+						'country': country,
+						'category':category,
+						'commision':commision,
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+			}
+		
+	}
+
+
+
+</script>
+
+
+<script>
+    <!-- ------------------------------------------------------- Add Vendor Commision Code ------------------------------------------------------ -->
+	$('#vend_commision').bind('input', function() {
+		  var c = this.selectionStart,
+			  r = /[^0-9]/gi,
+			  v = $(this).val();
+		  if(r.test(v)) {
+			$(this).val(v.replace(r, ''));
+			c--;
+		  }
+		  this.setSelectionRange(c, c);
+	});
+	
+	$('#vend_country').mouseup(function(){
+		$('#errmsg4').hide();
+	});
+	
+	$('#vend_category').mouseup(function(){
+		$('#errmsg5').hide();
+	});
+	
+	$('#vend_commision').keyup(function(){
+		$('#errmsg6').hide();
+	});
+	function vendor_commision()
+	{
+			country = $("#vend_country").val();
+			category = $("#vend_category").val();
+			commision = $("#vend_commision").val();
+			
+			if (country == "Select Country")
+			{
+				errmsg4.innerHTML = "Please Select Country..";
+				$("#errmsg4").show();
+			}
+			else if (category == "Select Category")
+			{
+				errmsg5.innerHTML = "Please Select Category..";
+				$("#errmsg5").show();
+			}
+			else if (commision == "" || commision == null)
+			{
+				errmsg6.innerHTML = "Please Enter Commision..";
+				$("#errmsg6").show();
+			}
+			else if (commision == 0 || commision == null)
+			{
+				errmsg6.innerHTML = "Please Enter Valid Commision..";
+				$("#errmsg6").show();
+			}
+			else if(commision >100)
+			{
+				errmsg6.innerHTML = "Please enter commision value less than eqaul to 100%....";
+				$("#errmsg6").show();
+			}
+			else
+			{
+					$.ajax({
+					type:"POST",
+					url: "/save_vendor_commision/",
+					data: {
+						'country': country,
+						'category':category,
+						'commision':commision,
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+			}
+	}
+
+	<!-- ----------------------------------------------------------------- End Vendor Commision Add Code ------------------------------------------------------- -->
+
+	<!-- ------------------------------------------------------------- Delete Vendor Commision Code ----------------------------------------------------- -->
+	function Delete_Vendor_Commision(commision_id)
+	{
+			swal({
+			title: "Delete Commision.",
+			text: "Do you want to delete this commision?",
+			icon: "warning",
+			buttons: ["No", "Yes"],
+			html:true,
+			className: "swal-back",
+			closeOnClickOutside: false,
+			dangerMode: true,			
+		})		
+		.then((willUpdate) => {
+			if (willUpdate) {
+				$.ajax({
+					type:"POST",
+					url: "/delete_commision/",
+					data: {
+						'commision_id': commision_id
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+				
+			}	
+		});
+	}
+	
+	<!-------------------------------------------------------------------- End Vendor Delete Commision Code --------------------------------------------------------- -->
+	function append_vendor_data(customer_id,country_id,category_id,commision)
+	{
+		$("#vend_id").val(customer_id);
+		$("#country_edit1").val(country_id);
+		$("#category_edit1").val(category_id);
+		$("#edit_commision1").val(commision);
+	
+	}
+	
+	$('#edit_commision1').bind('input', function() {
+	  var c = this.selectionStart,
+		  r = /[^0-9]/gi,
+		  v = $(this).val();
+	  if(r.test(v)) {
+		$(this).val(v.replace(r, ''));
+		c--;
+	  }
+	  this.setSelectionRange(c, c);
+	});
+	$('#country_edit1').mouseup(function(){
+		$('#errmsg10').hide();
+	});
+	
+	$('#category_edit1').mouseup(function(){
+		$('#errmsg11').hide();
+	});
+	
+	$('#edit_commision1').keyup(function(){
+		$('#errmsg12').hide();
+	});
+	function Edit_Vendor_Commision()
+	{
+			commision_id = $("#vend_id").val();
+			country = $("#country_edit1").val();
+			category = $("#category_edit1").val();
+			commision = $("#edit_commision1").val();
+			
+			if (country == "Select Country")
+			{
+				errmsg10.innerHTML = "Please Select Country..";
+				$("#errmsg10").show();
+			}
+			else if (category == "Select Category")
+			{
+				errmsg11.innerHTML = "Please Select Category..";
+				$("#errmsg11").show();
+			}
+			else if (commision == "" || commision == null)
+			{
+				errmsg12.innerHTML = "Please Enter Commision..";
+				$("#errmsg12").show();
+			}
+			else if (commision == 0 || commision == null)
+			{
+				errmsg12.innerHTML = "Please Enter Valid Commision..";
+				$("#errmsg12").show();
+			}
+			else if(commision >100)
+			{
+				errmsg12.innerHTML = "Please enter commision value less than eqaul to 100%....";
+				$("#errmsg12").show();
+			}
+			else
+			{
+					$.ajax({
+					type:"POST",
+					url: "/edit_commision/",
+					data: {
+						'commision_id':commision_id,
+						'country': country,
+						'category':category,
+						'commision':commision,
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+								icon: "success",
+								button: "Ok",
+								closeOnClickOutside: false,
+								
+							})
+							.then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+			}
+		
+	
+	}
+</script>
+
+
+{% include 'admin_panel/footer.html' %} 

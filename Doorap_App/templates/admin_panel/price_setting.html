@@ -1,0 +1,188 @@
+{% load static %}
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	
+	.disabledClass{
+		pointer-events: none;
+    opacity: 0.9;
+	}
+</style>
+
+
+<!-- second rendition -->
+<!-- <div class="content-wrapper"> -->
+    <div class="main-body" style="margin-left: 20px;margin-right: 20px;">
+	<div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Price Setting</h1>
+          </div> 
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#" onclick="Get_Dashboard_Data()">Home</a></li>
+              <li class="breadcrumb-item active">Price Setting</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+          <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+              <div class="card">
+								{% if admin_obj.user_type == "Executive" %}
+                <div class="card-body disabledClass">
+								{% else %}
+                <div class="card-body">
+								{% endif %}
+                  <div class="d-flex flex-column align-items-center text-center">
+											<div class="form-group">
+												<label >Price Per KM</label>
+												<!-- <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected"> -->
+												<input class="form-control" type="text" id="price_per_km" value="{{price_obj.price_per_km}}" pattern="\d*" maxlength="10" oninput="this.value = this.value.replace(/[^0-9.+]/g, '').replace(/(\..*)\./g, '$1');"> 
+												<center><span class="validation" id ="error_price_per_km" style="display:none;color:red;font-size:12px;">Please Enter Price</span></center>
+											</div>
+											
+											<div class="form-group">
+												<label >Base Price</label>
+												<!-- <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected"> -->
+												<input class="form-control" type="text" id="base_price" value="{{price_obj.base_price}}" pattern="\d*" maxlength="10" oninput="this.value = this.value.replace(/[^0-9.+]/g, '').replace(/(\..*)\./g, '$1');"> 
+												<center><span class="validation" id ="error_base_price" style="display:none;color:red;font-size:12px;">Please Enter Base Price</span></center>
+											</div>
+											
+											<div class="form-group">
+												<label >Cancellation Charge</label>
+												<!-- <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected"> -->
+												<input class="form-control" type="text" id="cancellation_charges" value="{{price_obj.cancellation_charges}}" pattern="\d*" maxlength="10" oninput="this.value = this.value.replace(/[^0-9.+]/g, '').replace(/(\..*)\./g, '$1');"> 
+												<center><span class="validation" id ="error_cancellation_charges" style="display:none;color:red;font-size:12px;">Please Enter Cancellation Charge Amount</span></center>
+											</div>
+											
+											<div class="form-group">
+												<label >Vaahac Commission (%)</label>
+												<!-- <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected"> -->
+												<input class="form-control" type="text" id="vaahac_commission" value="{{price_obj.vaahac_commission}}" pattern="\d*" maxlength="10" oninput="this.value = this.value.replace(/[^0-9.+]/g, '').replace(/(\..*)\./g, '$1');"> 
+												<center><span class="validation" id ="error_vaahac_commission" style="display:none;color:red;font-size:12px;">Please Enter Vaahac Commission</span></center>
+											</div>
+											
+											{% if admin_obj.user_type == "Executive" %}
+											
+											{% else %}
+												<button type="button" class="btn btn-primary" style="width:70px;padding: 2px;float:right;" onclick="Update_Price()">Update</button>
+											{% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+		  <!-- <div class="content-header"> -->
+      <!-- <div class="container-fluid"> -->
+        <!-- <div class="row mb-2"> -->
+          <!-- <div class="col-sm-6"> -->
+            <!-- <h1 class="m-0">Vehical Details</h1> -->
+          <!-- </div> -->
+        <!-- </div> -->
+      <!-- </div> -->
+    <!-- </div> -->
+		  <!-- <!-- <div class="row gutters-sm"> -->
+			<!-- <div class="col-12 mb-3"> -->
+              <!-- <div class="card"> -->
+                <!-- <div class="card-body"> -->
+					<!-- <div class="d-flex flex-column align-items-center text-center"> -->
+						
+					<!-- </div> -->
+                  <!-- </div> -->
+                <!-- </div> -->
+              <!-- </div> -->
+     </div>
+        <!-- </div> -->
+    <!-- </div> -->
+	
+<script>
+	$(document).ready(function(){
+		$('.customer').css("color", "White");
+	});
+	
+	
+	function change_status(){
+		var status = $('#status').val();
+		var id = $('#sender_id').val();
+		console.log("status", status, id);
+		$("#loader").show();
+		$.ajax({
+				method : "POST",
+				url : "/change_status/",
+				data : {
+					'id':id,
+					'status':status,
+				},
+				success : function(response){
+							$("#loader").hide();
+							   if (response.status == '1'){
+								   swal(""+response.msg+"", {
+									   icon: "success",
+									   button: "Ok",
+									   closeOnClickOutside: false,
+								   }). then(function() {
+												window.location.href = ""+response.url+""
+											});
+							   }
+							   else{
+								   swal(""+response.msg+"", {
+								   icon: "info",
+								   button: "Ok",
+								   closeOnClickOutside: true,
+								   });
+							   }
+						}
+				});
+	}
+	
+	function Update_Price(){
+		var price_per_km = $('#price_per_km').val();
+		var base_price = $('#base_price').val();
+		var cancellation_charges = $('#cancellation_charges').val();
+		var vaahac_commission = $('#vaahac_commission').val();
+		if(price_per_km == ""){
+			swal("Please Enter Price")
+		}
+		else if(base_price == ""){
+			swal("Please Enter Base Price")
+		}
+		else if(cancellation_charges == ""){
+			swal("Please Enter Cancellation Charge")
+		}
+		else if(vaahac_commission == ""){
+			swal("Please Enter Vaahac Commission")
+		}
+		else{
+			$.ajax({
+				method : "POST",
+				url : "/update_price_per_km/",
+				data : {
+					'price_per_km':price_per_km,
+					'base_price':base_price,
+					'cancellation_charges':cancellation_charges,
+					'vaahac_commission':vaahac_commission,
+				},
+				success : function(response){
+							   if (response == 'success'){
+								   swal("Price Updated Successfully", {
+									   icon: "success",
+									   button: "Ok",
+									   closeOnClickOutside: false,
+								   }). then(function() {
+												Get_Price_Setting();
+											});
+							   }
+							   else{
+								   swal("Something Went Wrong");
+							   }
+						}
+				});
+		}
+	}
+</script>
