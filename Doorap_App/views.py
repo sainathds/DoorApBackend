@@ -118,7 +118,8 @@ def ApproveReject(request):
                 else:
                     pass
                 message_title = "Doorap"
-                message_body = "Dear " + str(vender_obj.full_name)+ " We would gladly like to inform you that your account has been approved"
+                # message_body = "Dear " + str(vender_obj.full_name)+ " We would gladly like to inform you that your account has been approved"
+                message_body = "Dear Vendor, Congratulations! Your account is activated."
                 data_message = {
                     'title':message_title,
                     "body":message_body,
@@ -154,7 +155,8 @@ def ApproveReject(request):
                 else:
                     pass
                 message_title = "Doorap"
-                message_body = "Dear " + str(vender_obj.full_name)+ " We are sorry to inform you that your account has  been rejected.."
+                # message_body = "Dear " + str(vender_obj.full_name)+ " We are sorry to inform you that your account has  been rejected.."
+                message_body = "Dear Vendor, Your account is rejected by administrator"
                 data_message = {
                     'title':message_title,
                     "body":message_body,

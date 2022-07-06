@@ -1139,25 +1139,28 @@ def Customer_Reorder(request):
         order_id = data.get('order_id',None)
         order_obj = OrderDetails.objects.get(id = sid , order_id = order_id)
         
-        order_service_obj = OrderService.objects.filter(fk_order__id = sid).values('fk_service__fk_category','fk_vendor','fk_service__price','hour').distinct()
-        
-        # if  AddtoCart.objects.filter(fk_vendor = vendor_obj , fk_customer = customer_obj , fk_vender_service__fk_category = category_obj).exists():
-            # print("previous........")
+        order_service_obj = OrderService.objects.filter(fk_order__id = sid).values('fk_service__fk_category','fk_vendor','fk_service__price','hour','fk_service').distinct()
+        order_service = OrderService.objects.filter(fk_order__id = sid)
+        if  AddtoCart.objects.filter(fk_vendor__id = order_service_obj[0]['fk_vendor'] , fk_customer__id = order_obj.fk_customer.id , fk_vender_service__fk_category__id = order_service_obj[0]['fk_service__fk_category']).exists():
+            print("previous........")
             
-            # if AddtoCart.objects.filter(fk_vendor = vendor_obj , fk_customer = customer_obj , fk_vender_service = service_obj).exists():
-                # cart_obj = AddtoCart.objects.get(fk_vendor = vendor_obj , fk_customer = customer_obj , fk_vender_service = service_obj)
+            for i in order_service:
+            
+                if AddtoCart.objects.filter(fk_vendor__id = i.fk_vendor.id , fk_customer__id = order_obj.fk_customer.id , fk_vender_service__id = i.fk_service.id).exists():
+                    cart_obj = AddtoCart.objects.get(fk_vendor__id = i.fk_vendor.id , fk_customer__id = order_obj.fk_customer.id , fk_vender_service__id = i.fk_service.id)
+                    print("**********")
+                    new_quantity = cart_obj.quantity + int(i.service_quantity)
+                    new_total = cart_obj.price * new_quantity
+                    AddtoCart.objects.filter( id = cart_obj.id).update(quantity = new_quantity , sub_total = new_total )
+                    return Response({'status':200,'msg':'Data Added Successfully.'})
+                else:
+                    print("---------")
+                    total = int(i.service_quantity) * i.fk_service.price
+                    AddtoCart.objects.create(fk_vendor__id = i.fk_vendor.id , fk_category__id = order_service_obj[0]['fk_service__fk_category'] ,fk_customer__id = order_obj.fk_customer.id , fk_vender_service__id = i.fk_service.id , price = price , hour = hour, quantity = quantity,sub_total = total)
+                    
+                    return Response({'status':200,'msg':'Data Added Successfully.'})
                 
-                # new_quantity = cart_obj.quantity + quantity
-                # new_total = price * new_quantity
-                # AddtoCart.objects.filter( id = cart_obj.id).update(quantity = new_quantity , sub_total = new_total )
-                # return Response({'status':200,'msg':'Data Added Successfully.'})
-            # else:
-                # total = quantity * price
-                # AddtoCart.objects.create(fk_vendor = vendor_obj , fk_category = category_obj ,fk_customer = customer_obj , fk_vender_service = service_obj , price = price , hour = hour, quantity = quantity,sub_total = total)
-                
-                # return Response({'status':200,'msg':'Data Added Successfully.'})
-                
-        if AddtoCart.objects.filter(fk_vendor__id = order_service_obj[0]['fk_vendor'] , fk_customer__id = order_obj.fk_customer.id ).filter(~Q(fk_vender_service__fk_category__id = order_service_obj[0]['fk_service__fk_category'] )).exists():
+        elif AddtoCart.objects.filter(fk_vendor__id = order_service_obj[0]['fk_vendor'] , fk_customer__id = order_obj.fk_customer.id ).filter(~Q(fk_vender_service__fk_category__id = order_service_obj[0]['fk_service__fk_category'] )).exists():
             print("---------")
             return Response({'status':403,'msg':'Sorry! You have already added service for another category.To add service of this category please complete booking of first category else discart items from cart.'})
             
@@ -1173,14 +1176,13 @@ def Customer_Reorder(request):
             vendor_obj = VendorDetails.objects.get(id = order_service_obj[0]['fk_vendor'])
             category_obj = CategoryMaster.objects.get( id = order_service_obj[0]['fk_service__fk_category'])
             customer_obj = MyUser.objects.get(id = order_obj.fk_customer.id)
-            order_service = OrderService.objects.filter(fk_order__id = sid)  
+              
             AddtoCart.objects.filter(fk_customer = customer_obj).delete()
             for i in order_service:
                 service_obj = VenderServices.objects.get(id = i.fk_service.id)
                 total = int(i.service_quantity) * i.fk_service.price
                 AddtoCart.objects.create(fk_vendor = vendor_obj , fk_category = category_obj ,fk_customer =  customer_obj, fk_vender_service = service_obj , price = i.fk_service.price , hour = i.hour, quantity = i.service_quantity,sub_total = total)   # add data to add to cart table
-                # return Response({'status':200,'msg':'Data Added Successfully.'})
-            
+                
             return Response({'status':200,'msg':'ReOrder Sucessfully.'})
     except:
         traceback.print_exc()
