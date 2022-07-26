@@ -1,0 +1,15 @@
+{% for i in services %}
+	<div class="row">
+				<div class="col-sm-8">
+					<label>Service Name:</label>
+					{{i.fk_service.fk_service.service_name}}
+				</div>
+		   </div>
+		   <div class="row">
+				<div class="col-sm-10">
+					<label>Quantity/Price:</label>
+					{{i.service_quantity}} / ${{i.fk_service.price}}
+				<div>
+	</div>
+	<hr style="margin: 0.3rem 0 !important; width: 475px;">
+{% endfor %}

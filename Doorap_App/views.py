@@ -11,6 +11,8 @@ import requests
 import json
 import ast
 from django.http import HttpResponse
+from django.template.loader import render_to_string
+import stripe
 def Login_page(request):
     return render(request,'admin_panel/login.html')
 
@@ -63,8 +65,41 @@ def Dashboard(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def VenderListPage(request):
     if request.session.get('email'):
-        vender = VendorDetails.objects.all().order_by('full_name')
-        context = {'vender':vender}
+        user = MyUser.objects.filter(is_vendor = True).order_by('-created_datime')
+        vendor = VendorDetails.objects.all()
+        
+        temp_list = []
+        for j in user:
+            
+            if VendorDetails.objects.filter(fk_user__id = j.id , fk_user__is_vendor = True).exists():
+                data =VendorDetails.objects.get(fk_user__id = j.id , fk_user__is_vendor = True)
+                
+                data = {
+                "id":data.fk_user.id,
+                "full_name":data.full_name,
+                "business_name":data.business_name,
+                "created_date":data.fk_user.created_datime,
+                "mobile_no":data.mobile_no,
+                "email":data.fk_user.email,
+                "user_status":data.user_status,
+                }
+                temp_list.append(data)
+            else:
+                data = MyUser.objects.get(id = j.id,is_vendor = True)
+                # print(data.email)
+                data = {
+                "id":data.id,
+                "full_name":data.name,
+                "business_name":"-",
+                "created_date":data.created_datime,
+                "mobile_no":"-",
+                "email":data.email,
+                "user_status":"-",
+                }
+                temp_list.append(data)
+           
+        # vender = VendorDetails.objects.all().order_by('full_name')
+        context = {'vender':temp_list}
         return render(request,'admin_panel/vendor_list.html',context)
     else:
         return redirect('/login_page/')
@@ -76,7 +111,7 @@ def VenderListPage(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def CustomerListPage(request):
     if request.session.get('email'):
-       customer = MyUser.objects.filter(is_customer = True).order_by('name')
+       customer = MyUser.objects.filter(is_customer = True).order_by('-created_datime')
        context = {'customer':customer}
        return render(request,'admin_panel/customer_list.html',context)
     else:
@@ -100,14 +135,15 @@ def ApproveReject(request):
         if request.method == "POST":
             sid = request.POST.get('id')
             status = request.POST.get('status')
-            
+            cur_date_time = datetime.datetime.now()
             if status == "Approve":
-                VendorDetails.objects.filter(id=sid).update(user_status=status)
-                vender_obj = VendorDetails.objects.get(id=sid)
+                
+                VendorDetails.objects.filter(fk_user__id=sid).update(user_status=status)
+                vender_obj = VendorDetails.objects.get(fk_user__id=sid)
                 email = vender_obj.fk_user.email
                 # print(email)
                 # print(vender_obj.fk_user.firebase_token)
-                send_mail("Doorap",f'Dear {vender_obj.full_name},\nWe would gladly like to inform you that your account has been approved. Now you can login login to your account.\nWe sincerely hope you enjoy using Doorap.\nIf you have any questions or if we can further assist you in any way,please feel free email us at noreplydoorap@gmail.com\nThank You,\nTeam-Doorap', settings.EMAIL_HOST_USER,[email])
+                send_mail("Doorap",f'Dear {vender_obj.full_name},\nWe would gladly like to inform you that your account has been approved. Now you can login to your account.\nWe sincerely hope you enjoy using Doorap.\nIf you have any questions or if we can further assist you in any way, please feel free to email us at noreplydoorap@gmail.com\nThank You,\nTeam-Doorap', settings.EMAIL_HOST_USER,[email])
                 
                 
                 # send Notification on mobile app
@@ -120,9 +156,13 @@ def ApproveReject(request):
                 message_title = "Doorap"
                 # message_body = "Dear " + str(vender_obj.full_name)+ " We would gladly like to inform you that your account has been approved"
                 message_body = "Dear Vendor, Congratulations! Your account is activated."
+                order_status = "Approve"
+                user_type = "Vendor"
                 data_message = {
                     'title':message_title,
                     "body":message_body,
+                    "order_status":order_status,
+                    "user_type":user_type,
                     "action":"Program",
                     "action_id":str(vender_obj.id),
                     "current_datetime":str(datetime.datetime.now()).split(".")[0],
@@ -132,7 +172,8 @@ def ApproveReject(request):
                     "sound": "alarm.mp3",
                     "click_action": "FLUTTER_NOTIFICATION_CLICK",
                 }
-                res = send_notification(token_list, message_title, message_body, data_message)
+                res = send_notification(token_list, message_title, message_body, data_message,order_status,user_type)
+                Notifications.objects.create(fk_user = vender_obj.fk_user , notification = message_body , notification_date = cur_date_time)
                 print("notification responsre..................",res)
                 
                 # End Send nofication on mobile app code
@@ -140,11 +181,11 @@ def ApproveReject(request):
                 
                 return JsonResponse({"status":"1","msg":"Status Changed Successfully.."})
             else:
-                VendorDetails.objects.filter(id=sid).update(user_status=status)
-                vender_obj = VendorDetails.objects.get(id=sid)
+                VendorDetails.objects.filter(fk_user__id=sid).update(user_status=status)
+                vender_obj = VendorDetails.objects.get(fk_user__id=sid)
                 email = vender_obj.fk_user.email
                
-                send_mail("Doorap",f'Dear {vender_obj.full_name},\nWe are sorry to inform you that your account has  been rejected..\nWe sincerely hope you enjoy using Doorap.\nIf you have any questions or if we can further assist you in any way,please feel free email us at noreplydoorap@gmail.com\nThank You,\n Team-Doorap', settings.EMAIL_HOST_USER,[email])
+                send_mail("Doorap",f'Dear {vender_obj.full_name},\nWe are sorry to inform you that your account has  been rejected.\nWe sincerely hope you enjoy using Doorap.\nIf you have any questions or if we can further assist you in any way, please feel free to email us at noreplydoorap@gmail.com\nThank You,\n Team-Doorap', settings.EMAIL_HOST_USER,[email])
                
                
                 # send Notification on mobile app
@@ -155,11 +196,15 @@ def ApproveReject(request):
                 else:
                     pass
                 message_title = "Doorap"
+                order_status = "Reject"
+                user_type = "Vendor"
                 # message_body = "Dear " + str(vender_obj.full_name)+ " We are sorry to inform you that your account has  been rejected.."
                 message_body = "Dear Vendor, Your account is rejected by administrator"
                 data_message = {
                     'title':message_title,
                     "body":message_body,
+                    "order_status":order_status,
+                    "user_type":user_type,
                     "action":"Program",
                     "action_id":str(vender_obj.id),
                     "current_datetime":str(datetime.datetime.now()).split(".")[0],
@@ -169,7 +214,8 @@ def ApproveReject(request):
                     "sound": "alarm.mp3",
                     "click_action": "FLUTTER_NOTIFICATION_CLICK",
                 }
-                res = send_notification(token_list, message_title, message_body, data_message)
+                res = send_notification(token_list, message_title, message_body, data_message,order_status,user_type)
+                Notifications.objects.create(fk_user = vender_obj.fk_user, notification = message_body ,notification_date = cur_date_time)
                 print("notification responsre..................",res)
                 
                 # End Send nofication on mobile app code
@@ -185,7 +231,7 @@ def ApproveReject(request):
 
 #********************  Mobile App Send Nofification function ***************************** 
 
-def send_notification(token_list, message_title, message_body, data_message):
+def send_notification(token_list, message_title, message_body, data_message,order_status,user_type):
     # print("message_body.........",message_body)
     # print("message_title...........",message_title)
     # print("token_list........",token_list)
@@ -204,6 +250,8 @@ def send_notification(token_list, message_title, message_body, data_message):
                 "notification" : {
                     "title":message_title,
                     "body":message_body,
+                    "order_status":order_status,
+                    "user_type":user_type
                 },
                 "registration_ids":token_list
             }
@@ -228,12 +276,96 @@ def send_notification(token_list, message_title, message_body, data_message):
 def view_vendor(request,id):
     
     if request.session.get('email'):
+        obj_vender = VendorDetails.objects.get(fk_user__id=id)
+        categories = VenderServices.objects.filter(fk_vendor__fk_user__id=id).values('id','fk_category','fk_category__category_name','fk_service__service_name','price','hour')
+        vendor_obj = VendorDetails.objects.filter(fk_user__id=id).last()
+        temp = []
+        main_dict = []
+        count = 0
+        for j in categories:
+            service_dict = {}
+            service_dict['category_name'] = j['fk_category__category_name']
+            service_dict['service_name'] = j['fk_service__service_name']
+            service_dict['price'] = j['price']
+            service_dict['hour'] = j['hour']
+            temp_list1 = []
+            facility = VenderFacility.objects.filter(fk_vender_service__id = j['id']).values('fk_vender_facility__facility_name')
+            for k in facility:
+                temp_list1.append(k['fk_vender_facility__facility_name'])
+            
+            service_dict['facility_name'] = temp_list1
+            temp.append(service_dict)
+            
+        # print("----------",temp)
+        
+        # for i in categories:
+            # temp_dict = {}
+            # services = VenderServices.objects.filter(fk_vendor=vendor_obj, fk_category__id=i['fk_category']).values('id','fk_service','fk_service__service_name').distinct()
+            # temp_dict['category_name'] = i['fk_category__category_name']
+            # temp_list = []
+            # temp_list2 = []
+            # for j in services:
+                # temp_list.append([j['id'],j['fk_service__service_name']])
+                
+                # temp_dict['service'] = temp_list
+            
+            # if (len(temp_list) > 0):
+                # data = VenderServices.objects.filter(id=temp_list[0][0])
+                # for i in data:
+                    # temp_dict['first_price'] = i.price
+                    # temp_dict['first_hour'] = i.hour
+            # else:
+                # pass
+                
+                
+            # if (len(temp_list) > 0):
+                # facility = VenderFacility.objects.filter(fk_vender_service__id=temp_list[0][0])
+                # temp_dict['first_facilities'] = [k.fk_vender_facility.facility_name for k in facility]
+            # else:
+                # temp_dict['first_facilities'] =  []
+            
+            # main_dict.append(temp_dict)
+            
+        
+        
+        return render(request,'admin_panel/view_vendor.html', {"main_dict":temp,'vendor_obj':vendor_obj, "obj_vender":obj_vender})
+    else:
+        return redirect('/login_page/')  
+ 
+@csrf_exempt
+def Delete_Vendor(request):
+    try:
+        if request.session.get('email'):
+            if request.method == "POST":
+                vendor_id = request.POST.get('vendor_id',None)
+                MyUser.objects.filter(id = vendor_id).delete()
+                return JsonResponse({'status':'1','msg':'Account Deleted Successfully.'})
+            else:
+                return JsonResponse({'status':'0','msg':'Something went wrong.'})
+        else:
+            return redirect('/login_page/')
+    except:
+        traceback.print_exc()
+        return JsonResponse({'status':'0','msg':'Something went wrong.'})
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def test(request,id):
+    
+    if request.session.get('email'):
         obj_vender = VendorDetails.objects.get(id=id)
         categories = VenderServices.objects.filter(fk_vendor__id=id).values('fk_category','fk_category__category_name').distinct()
         vendor_obj = VendorDetails.objects.filter(id=id).last()
         temp = []
         main_dict = []
         count = 0
+        # vender_fac = VenderFacility.objects.filter(fk_vender_service__fk_vendor__id = id)
+        # for i in vender_fac:
+            
+            # print(i.fk_vender_service.fk_category.category_name)
+            # print(i.fk_vender_service.fk_service.service_name)
+            # print(i.fk_vender_facility.facility_name)
+        
+        
         for i in categories:
             temp_dict = {}
             services = VenderServices.objects.filter(fk_vendor=vendor_obj, fk_category__id=i['fk_category']).values('id','fk_service','fk_service__service_name').distinct()
@@ -244,13 +376,6 @@ def view_vendor(request,id):
                 temp_list.append([j['id'],j['fk_service__service_name']])
                 
                 temp_dict['service'] = temp_list
-            
-            # if (len(temp_list) > 0):
-                # data = VenderServices.objects.filter(id=temp_list[0][0])
-                # for k in 
-                # temp_dict['first_price'] = str(50)
-            # else:
-                # temp_dict['first_price'] =  []
             
             if (len(temp_list) > 0):
                 data = VenderServices.objects.filter(id=temp_list[0][0])
@@ -270,7 +395,7 @@ def view_vendor(request,id):
             main_dict.append(temp_dict)
             
         
-        print(main_dict);
+        # print(main_dict);
         return render(request,'admin_panel/view_vendor.html', {"main_dict":main_dict,'vendor_obj':vendor_obj, "obj_vender":obj_vender})
     else:
         return redirect('/login_page/')  
@@ -629,19 +754,23 @@ def Edit_Offer(request):
                 
                 country_obj = CountryMaster.objects.get( id = country)
                 category_obj = CategoryMaster.objects.get( id = category)
+                
+                print(datetime.datetime.now().date())
                 if Offers.objects.filter(id=offer_id).exclude(id=offer_id).exists():
                     return JsonResponse({"status":"0","msg":"Something Went Wrong."})
                 else:
                     offer_obj = Offers.objects.get(id = offer_id)
-                    if offer_obj.offercode_status == "Expired":
+                    if offer_obj.offercode_status == "Expired" and offer_obj.expirydate >= datetime.datetime.now().date():
                         Offers.objects.filter(id = offer_id).update(fk_country = country_obj , fk_category = category_obj , offer_code = offercode , discount = discount , expirydate = expirydate, offercode_status ="Active" )
-                        return JsonResponse({'status':'1','msg':'Offers Updated Successfully.'})
+                        
+                    elif offer_obj.offercode_status == "Expired" and offer_obj.expirydate <= datetime.datetime.now().date():
+                        Offers.objects.filter(id = offer_id).update(fk_country = country_obj , fk_category = category_obj , offer_code = offercode , discount = discount , expirydate = expirydate, offercode_status ="Active" )
                     elif offer_obj.offercode_status == "Active":
                         Offers.objects.filter(id = offer_id).update(fk_country = country_obj , fk_category = category_obj , offer_code = offercode , discount = discount , expirydate = expirydate )
-                        return JsonResponse({'status':'1','msg':'Offers Updated Successfully.'})
+                       
                     else:
                         pass
-                    
+                    return JsonResponse({'status':'1','msg':'Offers Updated Successfully.'})
            else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
@@ -659,14 +788,88 @@ def Delete_Offer(request):
                 
                 Offers.objects.filter(id = offer_id).delete()
                 
-                return JsonResponse({'status':'1','msg':'OfferCode Deleted Successfully.'})
+                return JsonResponse({'status':'1','msg':'Promocode Deleted Successfully.'})
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
            return redirect ('/login_page/') 
     except:
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
+
+
+
+def Orders(request):
+    if request.session.get('email'):
+        return render(request,'admin_panel/orders.html')
+    else:
+        return redirect('/login_page/')
         
+@csrf_exempt
+def Show_Orders(request):
+    try:
+        if request.session.get('email'):
+            if request.method == "POST":
+                status = request.POST.get('status')
+                temp = ['Accepted','Started']
+                    
+                if status == "All":
+                    orders = OrderDetails.objects.all().order_by('-id').exclude(order_status__in = temp)
+                else:
+                    orders = OrderDetails.objects.filter(order_status = status).order_by('-id')
+                rendered = render_to_string("admin_panel/render_to_string/r_t_s_orders.html",{'orders':orders})
+                
+                return JsonResponse({'status':'1','msg':'Success','response':rendered})
+            else:
+                return JsonResponse({'status':'0','msg':'Something went wrong.'})
+        else:
+            return redirect('/login_page/')
+    except:
+        traceback.print_exc()
+        return JsonResponse({'status':'0','msg':'Something went wrong.'})
+
+
+@csrf_exempt
+def Filter_Order(request):
+    try:
+        if request.session.get('email'):
+            if request.method == 'POST':
+                from_date = request.POST.get('from_date')
+                to_date = request.POST.get('to_date')
+                status = request.POST.get('status')
+                if status == "All":
+                    orders = OrderDetails.objects.filter(current_booking_date__gte = from_date , current_booking_date__lte = to_date).order_by('-id')
+                else:
+                    orders = OrderDetails.objects.filter(current_booking_date__gte = from_date , current_booking_date__lte = to_date, order_status = status).order_by('-id')
+                rendered = render_to_string("admin_panel/render_to_string/r_t_s_orders.html",{'orders':orders})
+                
+                return JsonResponse({'status':'1','msg':'Success','response':rendered})
+            else:
+                return JsonResponse({'status':'0','msg':'Something went wrong.'})
+        else:
+            return redirect('/login_page/')
+    except:
+        traceback.print_exc()
+        return JsonResponse({'status':'0','msg':'Something went wrong.'})
+        
+
+@csrf_exempt
+def Show_item_detail(request):
+    try:
+        if request.session.get('email'):
+            if request.method == 'POST':
+                sid = request.POST.get('id')
+                services = OrderService.objects.filter(fk_order__id = sid)
+                rendered = render_to_string("admin_panel/render_to_string/r_t_s_itemdetail.html",{'services':services})
+                print(rendered)
+                return JsonResponse({'status':'1','msg':'Success','response':rendered})
+            else:
+                print("hello")
+                return JsonResponse({'status':'0','msg':'Something went wrong.'})
+        else:
+           return redirect('/login_page/') 
+    except:
+        traceback.print_exc()
+        return JsonResponse({'status':'0','msg':'Something went wrong.'})
 #********************** End Mobile App Send Nofification Function ********************************* 
  
 

@@ -34,7 +34,7 @@ import types
 from six import text_type
 from django.contrib.auth import authenticate
 from django.db.models.expressions import RawSQL
-
+import stripe
 
 
 #Create Token with out password
@@ -90,7 +90,7 @@ def get_otp(request):
         else:
             temp_dict = {}
             otp = random.randint(1000,9999)
-            send_mail('Doorap Account Verification', f'Your OTP is {otp}.\nUse this OTP to complete your Account Verification.\nNote: Please do not share your OTP or password with anyone.\nIf you have any questions or if we can further assist you in any way,please feel free email us at noreplydoorap@gmail.com\nThank You,\nTeam Doorap', settings.EMAIL_HOST_USER, [email])
+            send_mail('Doorap Account Verification', f'Your OTP is {otp}.\nUse this OTP to complete your Account Verification.\nNote: Please do not share your OTP or password with anyone.\nIf you have any questions or if we can further assist you in any way, please feel free email us at noreplydoorap@gmail.com\nThank You,\nTeam Doorap', settings.EMAIL_HOST_USER, [email])
             temp_dict['otp'] = otp
             temp_dict["signup_msg"] = ""
 
@@ -273,6 +273,7 @@ def save_profile(request):
             if serializer1.is_valid():
                 serializer1.save()
                 MyUser.objects.filter(email = email).update(is_profile_create = True)
+                VendorDetails.objects.filter(fk_user__email = email).update(is_available= True)
                 return Response({'status': 200,  'msg': "Profile Save Sucessfully"})
             else:
                 print(serializer1.errors)
@@ -390,7 +391,7 @@ def forgotPassword_get_otp(request):
 
             otp = random.randint(1000,9999)
 
-            send_mail('Doorap Account Verification', f'Your OTP is {otp}.\nUse this OTP to complete your Account Verification.\nNote: Please do not share your OTP or password with anyone.\nIf you have any questions or if we can further assist you in any way,please feel free email us at noreplydoorap@gmail.com\nThank you,\nTeam Doorap', settings.EMAIL_HOST_USER, [email])
+            send_mail('Doorap Account Verification', f'Your OTP is {otp}.\nUse this OTP to complete your Account Verification.\nNote: Please do not share your OTP or password with anyone.\nIf you have any questions or if we can further assist you in any way, please feel free email us at noreplydoorap@gmail.com\nThank you,\nTeam Doorap', settings.EMAIL_HOST_USER, [email])
             context ={
             'id': user_obj.id,
             'otp':otp
@@ -619,6 +620,21 @@ def Add_Bank_Account(request):
     except:
         traceback.print_exc()
         return Response({'status': 403, "msg": 'Something went wrong.'})
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Show_Bank_Account(request):
+    try:
+        data = request.data
+        vendor_id = data.get('vendor_id',None)
+        bank_details = Vender_AccountDetails.objects.filter(fk_vender__fk_user__id = vendor_id).values('Account_no','IBAN_no','BIC_code','Bank_name')
+        
+        return Response({'status':200,'msg':'Show Bank Details.','payload':bank_details})
+    except:
+        return Response({'status':403,'msg':'Something went wrong.'})
 
 
 #****************************************** End User Profile Api **********************************
@@ -870,9 +886,15 @@ def Delete_Vendor_Services(request):   #Delete Services Api
     try:
         data = request.data
         data_id = data.get('id',None)
-
+        vendor_id = data.get('vendor_id',None)
         VenderServices.objects.get(id = data_id).delete()
-        return Response({'status':200,'msg':'Service Deleted Successfully.'})
+        vendor_obj = MyUser.objects.get( id = vendor_id)
+        print(vendor_obj)
+        if VenderServices.objects.filter(fk_vendor__fk_user = vendor_obj).exists():
+            return Response({'status':200,'msg':'Service Deleted Successfully.'})
+        else:
+            VendorDetails.objects.filter(fk_user = vendor_obj).update(is_service_created = False)
+            return Response({'status':200,'msg':'Service Deleted Successfully.'})
     except:
         traceback.print_exc()
         return Response({'status':403,'msg':'Something went wrong.'})
@@ -966,40 +988,25 @@ def Show_Order_to_Vendor(request):
         user_obj = MyUser.objects.get( id = vendor_id)
         vendor_obj = VendorDetails.objects.get( fk_user = user_obj)
         
-        if order_status == "Pending" or "Started" or "Accepted" or "Cancelled" or "Completed":
-            order_obj = OrderDetails.objects.filter( fk_vendor = vendor_obj,order_status = order_status)
+        if order_status == "Pending" or order_status == "Started" or order_status == "Accepted" or order_status == "Cancelled" or order_status == "Completed":
             
-            order_details = OrderDetails.objects.filter(fk_vendor = vendor_obj , order_status = order_status ).values('id','order_id','fk_vendor','fk_customer','fk_customer__name','duration','fk_country__city_name','address','vendor_pay_amount','order_status')
+            order_obj = OrderDetails.objects.filter( fk_vendor = vendor_obj,order_status = order_status).order_by('-id')
             
+            order_details = OrderDetails.objects.filter(fk_vendor = vendor_obj , order_status = order_status ).order_by('-id').values('id','order_id','fk_vendor','fk_customer','fk_customer__name','duration','customer_city','customer_country','address','lat','lng','zip_code','vendor_pay_amount','order_status')
+             
             for k in order_details:
                 temp_dict = {}
                 service_list = []
-                order_service = OrderService.objects.filter(fk_order__id = k['id'])
+                order_service = OrderService.objects.filter(fk_order__id = k['id']).order_by('-id')
                 for j in order_service:
                     # data = { 'service_name':j.fk_service.fk_service.service_name}
                     service_list.append(j.fk_service.fk_service.service_name)
-                temp_dict[k['order_id']] = service_list
-                    
-                k['service'] = temp_dict
-            return Response({'status':200,'msg':'Show Vendor Order.','payload':order_details})
-        elif order_status == "All":
-            order_obj = OrderDetails.objects.filter( fk_vendor = vendor_obj,order_status = order_status)
-            
-            order_details = OrderDetails.objects.filter(fk_vendor = vendor_obj).values('id','order_id','fk_vendor','fk_customer','fk_customer__name','duration','fk_country__city_name','address','vendor_pay_amount','order_status')
-            
-            for k in order_details:
-                temp_dict = {}
-                service_list = []
-                order_service = OrderService.objects.filter(fk_order__id = k['id'])
-                for j in order_service:
-                    # data = { 'service_name':j.fk_service.fk_service.service_name}
-                    service_list.append(j.fk_service.fk_service.service_name)
-                temp_dict[k['order_id']] = service_list
+                temp_dict['service_name'] = service_list
                     
                 k['service'] = temp_dict
             return Response({'status':200,'msg':'Show Vendor Order.','payload':order_details})
         else:
-            pass
+            return Response({'status':403,'msg':'Order status not found'})
     except:
         traceback.print_exc()
         return Response({'status':403,'msg':'Something went wrong.'})
@@ -1018,9 +1025,21 @@ def Order_Accept_Decline(request):
         order_id = data.get('order_id',None)
         order_status = data.get('order_status',None)
         customer_id = data.get('customer_id',None)
+        stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
+        
+        order_obj = OrderDetails.objects.get(id = sid , order_id = order_id)
         OrderDetails.objects.filter( id = sid , order_id = order_id).update(order_status = order_status)
         Send_Message(customer_id , order_status)
-        return Response({'status':200,'msg':'Order '+(order_status)+'.'})
+        if order_status == "Rejected":
+            refund = stripe.Refund.create(payment_intent=order_obj.payment_intent_id, amount=(int((str(order_obj.total_amount).split('.'))[0])) * 100)
+            OrderDetails.objects.filter( id = sid , order_id = order_id).update(stripe_refund_id = refund['id'] , stripe_refund_txtid = refund['balance_transaction'] , stripe_refund_status = refund['status'])
+            return Response({'status':200,'msg':'You have miss an opportunity!.'})
+        elif order_status == "Cancelled":
+            refund = stripe.Refund.create(payment_intent=order_obj.payment_intent_id, amount = (int((str(order_obj.total_amount).split('.'))[0])) * 100)
+            OrderDetails.objects.filter( id = sid , order_id = order_id).update(stripe_refund_id = refund['id'] , stripe_refund_txtid = refund['balance_transaction'] , stripe_refund_status = refund['status'])
+            return Response({'status':200,'msg':'Order '+(order_status)+' Successfully.'})
+        else:
+            return Response({'status':200,'msg':'Order '+(order_status)+' Successfully.'})
         
     except:
         traceback.print_exc()
@@ -1040,12 +1059,12 @@ def Order_Start_Job(request):
         order_status = data.get('order_status',None)
         customer_id = data.get('customer_id',None)
         vendor_id = data.get('vendor_id',None)
-        if OrderDetails.objects.filter(fk_vendor__fk_user__id = vendor_id ,order_status = order_status).exclude(id = sid).exists():
+        if OrderDetails.objects.filter(fk_vendor__fk_user__id = vendor_id ,order_status = order_status).exists():
             return Response({'status':403,'msg':'You have already started job.Please complete your previous job and start a new job.'})
         else:
             OrderDetails.objects.filter( id = sid , order_id = order_id).update(order_status = order_status)
             Send_Message(customer_id , order_status)
-            return Response({'status':200,'msg':'Order Started.'})
+            return Response({'status':200,'msg':'You are ready to start new job.'})
     except:
         traceback.print_exc()
         return Response({'status':403,'msg':'Something went wrong.'})
@@ -1063,9 +1082,9 @@ def Show_Running_Job(request):
         
         user_obj = MyUser.objects.get(id = vendor_id)
         vendor_obj = VendorDetails.objects.get(fk_user = user_obj)
-        order_obj = OrderDetails.objects.filter( fk_vendor = vendor_obj,order_status = "Started")
+        # order_obj = OrderDetails.objects.filter( fk_vendor = vendor_obj,order_status = "Started")
             
-        order_details = OrderDetails.objects.filter(fk_vendor = vendor_obj , order_status = "Started" ).values('id','order_id','fk_vendor','fk_customer','fk_customer__name','duration','fk_country__city_name','address','vendor_pay_amount','order_status')
+        order_details = OrderDetails.objects.filter(fk_vendor = vendor_obj , order_status = "Started" ).order_by('-id').values('id','order_id','fk_vendor','fk_customer','fk_customer__name','duration','customer_city','customer_country','lat','lng','zip_code','address','vendor_pay_amount','order_status')
         
         for k in order_details:
             temp_dict = {}
@@ -1074,7 +1093,7 @@ def Show_Running_Job(request):
             for j in order_service:
                 # data = { 'service_name':j.fk_service.fk_service.service_name}
                 service_list.append(j.fk_service.fk_service.service_name)
-            temp_dict[k['order_id']] = service_list
+            temp_dict['service_name'] = service_list
                 
             k['service'] = temp_dict
         
@@ -1084,12 +1103,35 @@ def Show_Running_Job(request):
         traceback.print_exc()
         return Response({'status':403,'msg':'Something went wrong.'})     
         
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Show_Vendor_Detail_Order(request):
+    try:
+        data = request.data
+        sid = data.get('id',None)
+        order_id = data.get('order_id',None)
         
- 
+        order_data =OrderDetails.objects.filter( id = sid).values('id','order_id','fk_category__category_name','fk_customer','fk_vendor','booking_start_time','order_status','booking_date','address')
+        order_service = OrderService.objects.filter(fk_order__id = sid).values('fk_service__fk_service__service_name','fk_service__fk_service__service_image','fk_service__price','fk_service__hour')
+        customer_details = OrderDetails.objects.filter(id = sid ,order_id = order_id).values('fk_customer__name')
+        payment_information = OrderDetails.objects.filter( id = sid).values('sub_total','vendor_pay_amount','duration','vendor_convenience_fee','quantity')
+        
+        payload ={'order_data':order_data[0],
+        'order_service':order_service,
+        'customer_details':customer_details[0],
+        'payment_information':payment_information[0]}
+        
+        return Response({'status':200,'msg':'Order Detailed.','payload':payload})
+    except:
+        print(traceback.print_exc())
+        return Response({'status':403,'msg':'Something went wrong.'})    
 
 #********************  Mobile App Send Nofification function ***************************** 
 
-def send_notification(token_list, message_title, message_body, data_message):
+def send_notification(token_list, message_title, message_body, data_message,order_status,user_type):
 
     try:
         api_key = str(settings.API_KEY_NOTIFICATION)
@@ -1105,6 +1147,8 @@ def send_notification(token_list, message_title, message_body, data_message):
                 "notification" : {
                     "title":message_title,
                     "body":message_body,
+                    "order_status":order_status,
+                    "user_type":user_type
                 },
                 "registration_ids":token_list
             }
@@ -1114,7 +1158,7 @@ def send_notification(token_list, message_title, message_body, data_message):
             }
             response = requests.post(url, headers=headers, data = json.dumps(payload))
             print(response.text)
-            print(response)
+            print(response.json)
         return "success"
     except:
         print(str(traceback.format_exc()))
@@ -1131,19 +1175,38 @@ def Send_Message(customer_id , status):
     else:
         pass
     message_title = "Doorap"
+    order_status = ""
+    user_type = ""
+    cur_date_time = datetime.datetime.now()
     if status =="Accepted":
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
+        
+        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
+        order_status = "Accepted"
+        user_type = "Customer"
     elif status == "Cancelled":
         message_body = "Dear " + str(user_obj.name)+ " We are sorry to inform you that your order has been " +status +" by vendor."
+        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
+        order_status = "Cancelled"
+        user_type = "Customer"
     elif status == "Rejected":
         message_body = "Dear " + str(user_obj.name)+ " We are sorry to inform you that your order has been " +status +" by vendor."
+        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
+        order_status = "Rejected"
+        user_type = "Customer"
     elif status == "Started":
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
+        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
+        order_status = "Started"
+        user_type = "Customer"
     else:
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
+        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
     data_message = {
         'title':message_title,
         "body":message_body,
+        "order_status":order_status,
+        "user_type":user_type,
         "action":"Program",
         "action_id":str(user_obj.id),
         "current_datetime":str(datetime.datetime.now()).split(".")[0],
@@ -1153,6 +1216,6 @@ def Send_Message(customer_id , status):
         "sound": "alarm.mp3",
         "click_action": "FLUTTER_NOTIFICATION_CLICK",
     }
-    res = send_notification(token_list, message_title, message_body, data_message)
+    res = send_notification(token_list, message_title, message_body, data_message,order_status,user_type)
     print("notification responsre..................",res)
                 

@@ -38,5 +38,16 @@ urlpatterns = [
     path('customer_cancel_order/',views_customer.Customer_Cancel_Order  , name='customer_cancel_order'),
     path('order_completed/',views_customer.Order_Completed , name='order_completed'),
     path('customer_reorder/',views_customer.Customer_Reorder , name='customer_reorder'),
+    
+    path('logout_api/',views_customer.Logout_api , name='logout_api'),
+    path('show_notification/',views_customer.Show_Nofification_Api , name='show_notification'),
+    path('delete_notification/',views_customer.Delete_Notification_Api , name='delete_notification'),
+    path('notification_seen/',views_customer.Nofication_Seen_Api , name='notification_seen'),
+    path('rating_feedback/',views_customer.Reviews_Rating_Feedback , name='rating_feedback'),
+    path('show_review_feedback/',views_customer.Show_Review_Feedback, name='show_review_feedback'),
+    path('stripe_payment/',views_customer.Stripe_payment , name='stripe_payment'),
+    path('card/',views_customer.card , name='card'),
+    path('test/',views_customer.test,name='test'),
+    
 
 ]

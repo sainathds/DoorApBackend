@@ -7,6 +7,7 @@ urlpatterns = [
     path('logout/',views.logout , name='logout'),
     path('dashboard/',views.Dashboard,name='dashboard'),
     path('vender_list/',views.VenderListPage , name='vender_list'),
+    path('delete_vendor/',views.Delete_Vendor,name='delete_vendor'),
     path('approvereject/',views.ApproveReject,name='approvereject'),
     path('customerpage/',views.CustomerListPage , name='customerpage'),
     path('customerdelete/',views.DeleteCustomer,name = 'customerdelete'),
@@ -35,6 +36,11 @@ urlpatterns = [
     path('edit_commision/',views.Edit_Commision , name='edit_customer_commision'),
     path('delete_commision/',views.Delete_Commision , name='delete_customer_commision'),
     path('save_vendor_commision/',views.Save_Vendor_Commision , name='save_vendor_commision'),
+    path('orders/',views.Orders , name='orders'),
+    path('show_orders/',views.Show_Orders , name = 'Show_Orders'),
+    path('filter_order/',views.Filter_Order , name = 'filter_order'),
+    path('show_item_detail/',views.Show_item_detail , name='show_item_detail'),
+    path('test/',views.test , name='test'),
    
     # path('test/',views.test , name='test')
     

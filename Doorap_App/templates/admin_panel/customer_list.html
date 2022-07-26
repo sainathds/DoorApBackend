@@ -12,6 +12,9 @@
     width: 350px !important;
 	height: auto !important;
 	}
+	.custom-select{
+	width: 50px!important;
+	}
 </style>
 <!-- Content Wrapper. Contains page content -->
   <!-- <div class="content-wrapper"> -->
@@ -38,12 +41,13 @@
 		<hr>
         <div class="row" style="background-color:white; margin-left: 15rem;">
 			<div class="table">
-				<table id="datatable" class="table table-striped datatable">
+				<table id="datatable" class="table table-striped datatable" >
 					 <thead>
 					<tr>
 					  <th scope="col">Sr No</th>
 					  <th scope="col">Name</th>
 					  <th scope="col">Email</th>
+					  <th scope="col">Created Date</th>
 					  <th scope="col">Action</th>
 					</tr>
 				  </thead>
@@ -53,6 +57,7 @@
 						  <td scope="row">{{forloop.counter}}</td>
 						  <td>{{i.name}}</td>
 						  <td>{{i.email}}</td>
+						  <td>{{i.created_datime.date}}</td>
 						  <td>
 								<button  class="btn btn-primary" style="width:auto;padding: 1px;" onclick="Change_Status('{{i.id}}')">Delete</button>
 						  </td>

@@ -37,9 +37,9 @@ from django.db.models.expressions import RawSQL
 from datetime import datetime
 from datetime import timedelta
 import time
-
+from dateutil import parser
 from django.db.models import Q
-
+import stripe
 #*************************************************************************** START CUSTOMER APP API  *****************************************************************
 
 @api_view(['GET'])
@@ -48,7 +48,7 @@ from django.db.models import Q
 @csrf_exempt
 def Show_Banner(request):
     try:
-        banner = BannerMaster.objects.all().values()
+        banner = BannerMaster.objects.all().order_by('-id').values()
         # serializer = BannerMasterSerializers(BannerMaster.objects.all(),many=True)
         
         return Response({'status':200,'msg':'Banner List','payload':list(banner)})
@@ -87,13 +87,23 @@ def Show_location_wise_vendor(request):
         temp_list = []
         for i in vendor_obj:
             
-            data = VenderServices.objects.filter(fk_category = category_obj ,fk_vendor = i).values('fk_vendor__id','fk_vendor__full_name','fk_vendor__profile_image','fk_category__category_name','rating').distinct()
+            data = VenderServices.objects.filter(fk_category = category_obj ,fk_vendor = i).values('fk_vendor__id','fk_vendor__full_name','fk_vendor__profile_image','fk_category__category_name').distinct()
             
             like_dislike = LikeDislike.objects.filter( fk_vendor = i , fk_customer = customer_obj )
             
             if data.exists():
                 
                 for i in data:
+                    rating = ReviewsandFeedback.objects.filter(fk_vendor__id = i['fk_vendor__id']).values('rating')
+                    count = ReviewsandFeedback.objects.filter(fk_vendor__id = i['fk_vendor__id']).count()
+                    total_rateing = 0
+                    for k in rating:
+                        total_rateing = total_rateing + k['rating']
+                    
+                    if total_rateing == 0 and count == 0:
+                        i['rating'] = 0.0
+                    else:
+                        i['rating'] = total_rateing / count
                     if like_dislike.exists():
                         for j in like_dislike: 
                             i['like_dislike'] = j.like_dislike
@@ -191,31 +201,50 @@ def Show_Vendor_profile(request):
         vendor_id = data.get('vendor_id',None)
         category_id = data.get('category_id',None)
         
-        data = VenderServices.objects.filter(fk_vendor__id = vendor_id , fk_category__id = category_id).values('fk_vendor__id','fk_vendor__full_name','fk_category__id','fk_category__category_name','fk_vendor__abount_me','fk_vendor__profile_image','fk_vendor__business_name','rating').distinct()
+        data = VenderServices.objects.filter(fk_vendor__id = vendor_id , fk_category__id = category_id).values('fk_vendor__id','fk_vendor__full_name','fk_category__id','fk_category__category_name','fk_vendor__abount_me','fk_vendor__profile_image','fk_vendor__business_name').distinct()
         
-        review_list = []
-        review_and_feedback1 = {
-            "service_name":"Tap Repair",
-            "feedback":"Very talented. Completed task according to specification.",
-            "total_price":1480,
-            "price_per_hour":45.00,
-            "date":"May 2022 - Jun 2022",
-            "hour":39
-            }
-        review_and_feedback2 = {
-        "service_name":"Tap Repair",
-        "feedback":"Very talented. Completed task according to specification.",
-        "total_price":1480,
-        "price_per_hour":45.00,
-        "date":"May 2022 - Jun 2022",
-        "hour":39
-        }
-        review_list.append(review_and_feedback1)
-        review_list.append(review_and_feedback2)
+        reviews = ReviewsandFeedback.objects.filter(fk_vendor__id = vendor_id).order_by('-id').values('fk_orderdetails__fk_category__category_name','feedback','review_date','rating')
+        
+        
+        rating = ReviewsandFeedback.objects.filter(fk_vendor__id = data[0]['fk_vendor__id']).values('rating')
+        count = ReviewsandFeedback.objects.filter(fk_vendor__id = data[0]['fk_vendor__id']).count()
+        total_rateing = 0
+        
+        for k in rating:
+            total_rateing = total_rateing + k['rating']
+        
+        if total_rateing == 0 and count == 0:
+            for i in data:
+                i['rating'] = 0.0
+                i['average_count' ] = str(count)
+        else:
+            for i in data:
+                i['rating'] = total_rateing / count
+                i['average_count' ] = str(count)
+            
+        # review_list = []
+        # review_and_feedback1 = {
+            # "service_name":"Tap Repair",
+            # "feedback":"Very talented. Completed task according to specification.",
+            # "total_price":1480,
+            # "price_per_hour":45.00,
+            # "date":"May 2022 - Jun 2022",
+            # "hour":39
+            # }
+        # review_and_feedback2 = {
+        # "service_name":"Tap Repair",
+        # "feedback":"Very talented. Completed task according to specification.",
+        # "total_price":1480,
+        # "price_per_hour":45.00,
+        # "date":"May 2022 - Jun 2022",
+        # "hour":39
+        # }
+        # review_list.append(review_and_feedback1)
+        # review_list.append(review_and_feedback2)
         if data.exists():
             temp_dict = {}
             temp_dict['vendor_profile'] = data
-            temp_dict['review_and_feedback'] = review_list
+            temp_dict['review_and_feedback'] = reviews
             return Response({'status':200,'msg':'Vendor Profile.','payload':temp_dict})
         else:
             return Response({'status':200,'msg':'Vendor profile not found'})
@@ -344,15 +373,15 @@ def Item_Add_to_Cart(request):    #Item Add to Cart
                 
         elif AddtoCart.objects.filter(fk_vendor = vendor_obj , fk_customer = customer_obj).filter(~Q(fk_vender_service__fk_category = category_obj)).exists():
             print("---------")
-            return Response({'status':403,'msg':'Sorry! You have already added service for another category.To add service of this category please complete booking of first category else discart items from cart.'})
+            return Response({'status':403,'msg':'Sorry! You have already added service for another category.To add service of this category please complete booking of first category or remove items from your cart.'})
             
         elif AddtoCart.objects.filter( fk_customer = customer_obj,fk_vender_service__fk_category = category_obj).filter(~Q(fk_vendor = vendor_obj)).exists():
             print("*************")
-            return Response({'status':403,'msg':'Sorry! You have already added service for another vendor.To add service of this vendor please complete booking of first vendor else discart items from cart.'})
+            return Response({'status':403,'msg':'Sorry! You have already added service for another vendor.To add service of this vendor please complete booking of first vendor or remove items from your cart.'})
             
         elif AddtoCart.objects.filter( fk_customer = customer_obj).filter(~Q(fk_vendor = vendor_obj,fk_vender_service__fk_category = category_obj)).exists():
             print("................")
-            return Response({'status':403,'msg':'Sorry! you have already added service for another category.To add service of this category please complete booking of first category else discart items from cart.'})
+            return Response({'status':403,'msg':'Sorry! you have already added service for another category.To add service of this category please complete booking of first category or remove items from your cart.'})
             
         else:
             print("---------------------new")
@@ -507,9 +536,12 @@ def Promocode_check(request):
         customer_obj = MyUser.objects.get( id = customer_id)
         country_obj = CountryMaster.objects.get(country_name = country_name)
         category_obj = CategoryMaster.objects.get( id = category_id)
-         
-        if OrderDetails.objects.filter(user_promocode__contains = coupon , fk_customer = customer_obj).exists():
-            return Response({'status':403,'msg':'Offer Code Already Applied.'})
+        
+        print(country_name)
+        
+        if OrderDetails.objects.filter(user_promocode__contains = coupon , fk_customer = customer_obj , fk_category = category_obj , customer_country = country_name).exists():
+            print("---------")
+            return Response({'status':403,'msg':'Sorry! You have already used promocode '+ coupon+'.'})
         else:
             if Offers.objects.filter(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon).exists():
                 if Offers.objects.filter(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon,offercode_status ="Active").exists():
@@ -533,11 +565,11 @@ def Promocode_check(request):
                             update_offercode = offer_obj.used_offercode - 1
                             Offers.objects.filter(id = offer_obj.id).update(used_offercode = update_offercode)
                         
-                        return Response({'status':200,'msg':'Offer code cancel successfully.'})
+                        return Response({'status':200,'msg':'Promocode code cancel successfully.'})
                 else:
-                    return Response({'status':403,'msg':'Coupon is Expired.'})
+                    return Response({'status':403,'msg':'Promocode is Expired.'})
             else:
-                return Response({'status':403,'msg':'Invalid Coupon.'})
+                return Response({'status':403,'msg':'Invalid Promocode.'})
     except:
         traceback.print_exc()
         return Response({'status':403,'msg':'Something went wrong.'})
@@ -764,6 +796,7 @@ def Save_Order_Details(request):
         customer_id = data.get('customer_id',None)
         quantity = data.get('quantity',None)
         address = data.get('address',None)
+        customer_country = data.get('customer_country',None)
         city = data.get('city',None)
         zip_code = data.get('zip_code',None)
         lat = data.get('lat',None)
@@ -781,7 +814,11 @@ def Save_Order_Details(request):
         vendor_country_id = data.get('vendor_country_id',None)
         vendor_country_name = data.get('vendor_country_name',None)
         category_id = data.get('category_id',None)
-        booking_time = data.get('booking_time',None)
+        current_booking_time = data.get('current_booking_time',None)
+        current_booking_date = data.get('current_booking_date',None)
+        applied_id = data.get('applied_id',None)
+        payment_intent_id = data.get('payment_intent_id',None)
+        
         
         country_obj = CountryMaster.objects.get(id = vendor_country_id , country_name = vendor_country_name)
         category_obj = CategoryMaster.objects.get(id = category_id)
@@ -793,14 +830,14 @@ def Save_Order_Details(request):
         print(vendor_tax.commision)
         vendor_tax = sub_total * vendor_tax.commision / 100
         vendor_pay_amount = sub_total - vendor_tax
-        city_obj = CityMaster.objects.get(city_name = city)
+        # city_obj = CityMaster.objects.get(city_name = city)
         
         order_id = "OID"+ str(random.randint(100000,999999))
         while OrderDetails.objects.filter(order_id=order_id).exists():
           order_id = "OID"+ str(random.randint(100000,999999))
         
         
-        OrderDetails.objects.create(order_id = order_id , fk_vendor = vendor_obj , fk_customer = customer_obj ,  quantity = quantity , address = address , fk_city = city_obj , zip_code = zip_code , lat = lat , lng = lng , sub_total = sub_total , discount = discount , convenience_fee = convenience_fee , total_amount = total_amount , duration = duration , booking_date = booking_date , booking_start_time = booking_start_time , booking_end_time = booking_end_time , user_promocode = promocode , vendor_pay_amount = vendor_pay_amount,booking_time = booking_time)
+        OrderDetails.objects.create(order_id = order_id , fk_vendor = vendor_obj , customer_city = city, customer_country = customer_country , fk_category = category_obj , fk_customer = customer_obj ,  quantity = quantity , address = address ,  zip_code = zip_code , lat = lat , lng = lng , sub_total = sub_total , discount = discount , convenience_fee = convenience_fee , total_amount = total_amount , duration = duration , booking_date = booking_date , booking_start_time = booking_start_time , booking_end_time = booking_end_time , user_promocode = promocode , vendor_pay_amount = vendor_pay_amount,current_booking_time = current_booking_time,current_booking_date = current_booking_date , vendor_convenience_fee = vendor_tax , payment_intent_id = payment_intent_id)
         
         
         order_obj = OrderDetails.objects.get(order_id = order_id)
@@ -813,15 +850,117 @@ def Save_Order_Details(request):
         payload ={ 'id':order_obj.id,
         'order_id':order_obj.order_id}
         AddtoCart.objects.filter(fk_customer = customer_obj).delete()
+        if applied_id == 0:
+            pass
+        else:
+            AppliedOfferCode.objects.filter(id = applied_id).delete()
         user_obj = MyUser.objects.get( email = vendor_obj.fk_user)
         
         Send_Message(user_obj.id,"Vendor_Order",customer_obj.name )
-        return Response({'status':200,'msg':'Order Details Save Sucessfully.'})
+        return Response({'status':200,'msg':'Order Details Save Sucessfully.','payload':payload})
     except:
         traceback.print_exc()
         return Response({'status':403,'msg':'Something went wrong.'})
         
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Stripe_payment(request):
+    try:
+        data = request.data
+        user_id = data.get('user_id',None)
+        total_amount = data.get('amount',None)
+        user_email = data.get('email',None)
         
+        
+        
+        stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
+        customer = stripe.Customer.create(email=user_email)
+        ephemeralKey = stripe.EphemeralKey.create(
+        customer=customer['id'],
+        stripe_version='2020-08-27',
+        )
+        
+        paymentIntent = stripe.PaymentIntent.create(
+        amount=total_amount * 100,
+        currency='usd',
+        customer=customer['id'],
+        payment_method_types=[ "card"],
+        )
+        
+        
+        MyUser.objects.filter(id = user_id).update( stripe_customer_id = customer['id'])
+        payload = {
+        "customer_id":customer['id'],
+        "client_secret":paymentIntent.client_secret,
+        "ephemeral_key":ephemeralKey.secret,
+        "payment_intent_id":paymentIntent.id
+        }
+        
+        # print("----------",customer['id'])
+        
+        # print(ephemeralKey.secret)
+        return Response({'status':200,'msg':'Success','payload':payload})
+    except:
+        traceback.print_exc()
+        return Response({'status':403,'msg':'Something went wrong.'})
+        
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def card(request):
+    try:
+        data = request.data
+        user_id = data.get('user_id',None)
+        total_amount = data.get('amount',None)
+        
+        stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
+        
+        # setupIntent = stripe.SetupIntent.create(customer=customer['id'],)
+        
+        # customer = stripe.Customer.create()
+          # ephemeralKey = stripe.EphemeralKey.create(
+            # customer=customer['id'],
+            # stripe_version='2020-08-27',
+          # )
+          # stripe.api_version = '2020-08-27;automatic_payment_methods_beta=v1'
+
+          
+        # setupIntent = stripe.SetupIntent.create(customer='cus_M6oK49jEagudtc',)
+        # payment_menthod = stripe.PaymentMethod.list(customer='cus_M6oK49jEagudtc', type="card")
+        
+        print(setupIntent)
+        print(payment_menthod)
+        
+        # response = stripe.PaymentIntent.create(
+            # amount=total_amount,
+            # currency='usd',
+            # customer=customer['id'],
+            # payment_method=paymentIntent.id,
+            # off_session=True,
+            # confirm=True,
+          # )
+        
+        # payload = {
+        # "customer_id":customer['id'],
+        # "client_secret":paymentIntent.client_secret,
+        # "ephemeral_key":ephemeralKey.secret
+        # }
+        # print(customer['id'])
+        # print(paymentIntent.client_secret)
+        # print(ephemeralKey.secret)
+        return Response({'status':200,'msg':'Success'})
+    except:
+        traceback.print_exc()
+        return Response({'status':403,'msg':'Something went wrong.'})
+
+
+
+    
         
 
 @api_view(['POST'])
@@ -926,7 +1065,8 @@ def Get_Cart_data(request):
                     "total_amount":total_amount,
                     "applied_id":applied_obj.id,
                     "is_promocde_applied":applied_obj.is_applied,
-                    "prmocode_msg":f"{applied_obj.fk_offer.offer_code} Applied Sucessfully."
+                    "prmocode_msg":f"{applied_obj.fk_offer.offer_code} Applied Sucessfully.",
+                    "promocode":applied_obj.fk_offer.offer_code
                 }]
                 cart = AddtoCart.objects.filter(fk_customer = customer_obj).values('id','fk_vendor','fk_vendor__fk_country','fk_vendor__fk_country__country_name','fk_customer','fk_vender_service','fk_vender_service__fk_service__service_name','fk_vender_service__fk_service__service_image','quantity','price','hour')
                 temp_dict = {}
@@ -952,7 +1092,8 @@ def Get_Cart_data(request):
                     "total_amount":total_amount,
                     "applied_id":0,
                     "is_promocde_applied":False,
-                    "prmocode_msg":""
+                    "prmocode_msg":"",
+                    "promocode":""
                 }]
                 
                 cart = AddtoCart.objects.filter(fk_customer = customer_obj).values('id','fk_vendor','fk_vendor__fk_country','fk_vendor__fk_country__country_name','fk_customer','fk_vender_service','fk_vender_service__fk_service__service_name','fk_vender_service__fk_service__service_image','quantity','price','hour')
@@ -1010,16 +1151,16 @@ def Show_Current_Order(request):
         
         customer_obj = MyUser.objects.get(id = customer_id)
 
-        
-        order_details = OrderDetails.objects.filter(fk_customer = customer_obj).exclude(order_status = "Completed").order_by('-id').values('id','order_id','fk_vendor','fk_vendor__profile_image','fk_vendor__full_name','fk_customer','fk_customer__name','duration','fk_city__city_name','address','total_amount','order_status')
-        
+        status_list = ['Completed','Cancelled','Rejected']
+        order_details = OrderDetails.objects.filter(fk_customer = customer_obj).exclude(order_status__in = status_list).order_by('-id').values('id','order_id','fk_vendor','fk_vendor__profile_image','fk_vendor__full_name','fk_vendor__google_address','fk_vendor__google_address_lat','fk_vendor__google_address_lng','fk_vendor__address_line_one','fk_vendor__address_line_two','fk_vendor__fk_country__country_name','fk_vendor__fk_city__city_name','duration','total_amount','order_status')
+         
         for k in order_details:
             temp_dict = {}
             service_list = []
             order_service = OrderService.objects.filter(fk_order__id = k['id'])
             for j in order_service:
                 service_list.append(j.fk_service.fk_service.service_name)
-            temp_dict[k['order_id']] = service_list
+            temp_dict['service_name'] = service_list
                 
             k['service'] = temp_dict
             k['rating'] = 5
@@ -1041,7 +1182,7 @@ def Show_Customer_All_Order(request):
         
         # status = ['Accept','Started']
         
-        order_details = OrderDetails.objects.filter(fk_customer = customer_obj).order_by('-id').values('id','fk_customer','fk_customer__name','order_id','fk_vendor','fk_vendor__full_name','booking_date','total_amount','order_status','booking_start_time','booking_end_time','quantity')
+        order_details = OrderDetails.objects.filter(fk_customer = customer_obj).order_by('-id').values('id','fk_customer','fk_customer__name','order_id','fk_vendor','fk_vendor__full_name','booking_date','total_amount','order_status','booking_start_time','quantity','booking_date')
        
         return Response({'status':200,'msg':'Customer Orders','payload':order_details})
     except:
@@ -1058,14 +1199,18 @@ def Show_Customer_Detail_Order(request):
         data = request.data
         sid = data.get('id',None)
         order_id = data.get('order_id',None)
-        order_data =OrderDetails.objects.filter( id = sid).values('id','order_id','fk_customer','fk_vendor','booking_date','order_status')
+        
+        order_data =OrderDetails.objects.filter( id = sid).values('id','order_id','fk_customer','fk_vendor','booking_date','order_status','booking_start_time','address')
         order_service = OrderService.objects.filter(fk_order__id = sid).values('fk_service__fk_service__service_name','fk_service__fk_service__service_image','fk_service__price','fk_service__hour')
-        vendor_details = OrderService.objects.filter(fk_order__id = sid).values('fk_vendor__full_name','fk_service__fk_category__category_name').distinct()
-        payment_information = OrderDetails.objects.filter( id = sid).values('total_amount','duration','address')
+        vendor_details = OrderService.objects.filter(fk_order__id = sid).values('fk_vendor__full_name','fk_vendor__profile_image','fk_service__fk_category__category_name').distinct()
+        payment_information = OrderDetails.objects.filter( id = sid).values('quantity','sub_total','discount','convenience_fee','total_amount')
+        feedback = ReviewsandFeedback.objects.filter(fk_orderdetails__id = sid).values('rating','feedback')
+        print(feedback)
         payload ={'order_data':order_data[0],
         'order_service':order_service,
         'vendor_details':vendor_details[0],
-        'payment_information':payment_information[0]}
+        'payment_information':payment_information[0],
+        'reviewandfeedback':feedback}
         
         return Response({'status':200,'msg':'Order Detailed.','payload':payload})
     except:
@@ -1083,21 +1228,29 @@ def Customer_Cancel_Order(request):
         sid = data.get('id',None)
         order_id = data.get('order_id',None)
         vendor_id = data.get('vendor_id',None)
+        stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
         if OrderDetails.objects.filter( id = sid , order_id = order_id , order_status ="Started").exists():
             return Response ({'status':403,'msg':'Your Order has been started by vendor.You cannot cancel order.'})
         else:
             order_obj = OrderDetails.objects.get(id = sid , order_id = order_id)
-            buying_date_time = datetime.combine(order_obj.booking_date, order_obj.booking_time)
+            buying_date_time = datetime.combine(order_obj.current_booking_date, order_obj.current_booking_time)
             cur_date_time = datetime.now()
             
             diff = cur_date_time - buying_date_time
             days, seconds = diff.days, diff.seconds
             hours = days * 24 + seconds // 3600
-            print(cur_date_time)
+            
+            
             if int(hours) < 1:
-                OrderDetails.objects.filter(id = sid, order_id = order_id).update(order_status = "Cancelled")
+                refund = stripe.Refund.create(payment_intent=order_obj.payment_intent_id, amount=(int((str(order_obj.total_amount).split('.'))[0])) * 100)
+                
+                OrderDetails.objects.filter(id = sid, order_id = order_id).update(order_status = "Cancelled",stripe_refund_id = refund['id'] , stripe_refund_txtid = refund['balance_transaction'] , stripe_refund_status = refund['status'])
+                
+                # OrderDetails.objects.filter(id = sid, order_id = order_id).update(order_status = "Cancelled")
+                
                 vendor_obj = VendorDetails.objects.get(id = vendor_id)
-                Send_Message(vendor_obj.fk_user.id,"Cancelled",None)
+                data = Send_Message(vendor_obj.fk_user.id,"Cancelled",None)
+                
                 return Response({'status':200,'msg':'Order Cancelled Successfully.'})
             else:
                 return Response({'status':403,'msg':'Order Cannot Cancel after 1 hour.'})
@@ -1141,43 +1294,50 @@ def Customer_Reorder(request):
         
         order_service_obj = OrderService.objects.filter(fk_order__id = sid).values('fk_service__fk_category','fk_vendor','fk_service__price','hour','fk_service').distinct()
         order_service = OrderService.objects.filter(fk_order__id = sid)
+        vendor_obj = VendorDetails.objects.get(id = order_service_obj[0]['fk_vendor'])
+        category_obj = CategoryMaster.objects.get( id = order_service_obj[0]['fk_service__fk_category'])
+        customer_obj = MyUser.objects.get(id = order_obj.fk_customer.id)
+              
         if  AddtoCart.objects.filter(fk_vendor__id = order_service_obj[0]['fk_vendor'] , fk_customer__id = order_obj.fk_customer.id , fk_vender_service__fk_category__id = order_service_obj[0]['fk_service__fk_category']).exists():
             print("previous........")
             
             for i in order_service:
-            
+                print(i)
                 if AddtoCart.objects.filter(fk_vendor__id = i.fk_vendor.id , fk_customer__id = order_obj.fk_customer.id , fk_vender_service__id = i.fk_service.id).exists():
                     cart_obj = AddtoCart.objects.get(fk_vendor__id = i.fk_vendor.id , fk_customer__id = order_obj.fk_customer.id , fk_vender_service__id = i.fk_service.id)
                     print("**********")
-                    new_quantity = cart_obj.quantity + int(i.service_quantity)
+                    
+                    new_quantity = int(cart_obj.quantity) + int(i.service_quantity)
+                    print(new_quantity)
                     new_total = cart_obj.price * new_quantity
                     AddtoCart.objects.filter( id = cart_obj.id).update(quantity = new_quantity , sub_total = new_total )
-                    return Response({'status':200,'msg':'Data Added Successfully.'})
+                    
                 else:
                     print("---------")
                     total = int(i.service_quantity) * i.fk_service.price
-                    AddtoCart.objects.create(fk_vendor__id = i.fk_vendor.id , fk_category__id = order_service_obj[0]['fk_service__fk_category'] ,fk_customer__id = order_obj.fk_customer.id , fk_vender_service__id = i.fk_service.id , price = price , hour = hour, quantity = quantity,sub_total = total)
+                    AddtoCart.objects.create(fk_vendor = vendor_obj , fk_category = category_obj ,fk_customer = customer_obj , fk_vender_service = i.fk_service , price = i.fk_service.price , hour = i.hour, quantity = i.service_quantity,sub_total = total)
                     
-                    return Response({'status':200,'msg':'Data Added Successfully.'})
+            return Response({'status':200,'msg':'ReOrder Successfully.'})
                 
         elif AddtoCart.objects.filter(fk_vendor__id = order_service_obj[0]['fk_vendor'] , fk_customer__id = order_obj.fk_customer.id ).filter(~Q(fk_vender_service__fk_category__id = order_service_obj[0]['fk_service__fk_category'] )).exists():
-            print("---------")
+            # print("---------")
             return Response({'status':403,'msg':'Sorry! You have already added service for another category.To add service of this category please complete booking of first category else discart items from cart.'})
             
         elif AddtoCart.objects.filter( fk_customer__id = order_obj.fk_customer.id,fk_vender_service__fk_category__id = order_service_obj[0]['fk_service__fk_category']).filter(~Q(fk_vendor__id = order_service_obj[0]['fk_vendor'])).exists():
-            print("*************")
+            # print("*************")
             return Response({'status':403,'msg':'Sorry! You have already added service for another vendor.To add service of this vendor please complete booking of first vendor else discart items from cart.'})
             
         elif AddtoCart.objects.filter( fk_customer__id = order_obj.fk_customer.id).filter(~Q(fk_vendor__id = order_service_obj[0]['fk_vendor'],fk_vender_service__fk_category__id = order_service_obj[0]['fk_service__fk_category'])).exists():
-            print("................")
+            # print("................")
             return Response({'status':403,'msg':'Sorry! you have already added service for another category.To add service of this category please complete booking of first category else discart items from cart.'})
             
         else:
+            print("]]]]]]]]]]]]]]]]]]]]]]]]]]]")
             vendor_obj = VendorDetails.objects.get(id = order_service_obj[0]['fk_vendor'])
             category_obj = CategoryMaster.objects.get( id = order_service_obj[0]['fk_service__fk_category'])
             customer_obj = MyUser.objects.get(id = order_obj.fk_customer.id)
               
-            AddtoCart.objects.filter(fk_customer = customer_obj).delete()
+            # AddtoCart.objects.filter(fk_customer = customer_obj).delete()
             for i in order_service:
                 service_obj = VenderServices.objects.get(id = i.fk_service.id)
                 total = int(i.service_quantity) * i.fk_service.price
@@ -1188,9 +1348,129 @@ def Customer_Reorder(request):
         traceback.print_exc()
         return Response({'status':403,'msg':'Something went wrong.'})
  
-    
 
-def send_notification(token_list, message_title, message_body, data_message):
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt 
+def Logout_api(request):
+    try:
+        data = request.data
+        sid = data.get('id',None)
+        MyUser.objects.filter( id = sid).update(firebase_token = '')
+        return Response({'status':200,'msg':'Logout Successfully.'})
+    except:
+        return Response({'status':403,'msg':'Something went wrong.'})
+
+def Calculate_Hour_Minute_Second_Day(seconds):
+	minutes, seconds = divmod(seconds, 60)
+	hours, minutes = divmod(minutes, 60)
+	days, hours = divmod(hours, 24)
+    
+	return (days, hours, minutes, seconds)
+  
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Show_Nofification_Api(request):
+    try:
+        data = request.data
+        user_id = data.get('user_id',None)
+        notification = Notifications.objects.filter(fk_user__id = user_id).values('fk_user','notification','notification_date','is_seen')
+        for i in notification:
+            cur_date_time = datetime.now()
+            cur_time = datetime.fromisoformat(str(cur_date_time) ).strftime('%Y-%m-%d %H:%M:%S')
+            notification_time = datetime.fromisoformat(str(i['notification_date']) ).strftime('%Y-%m-%d %H:%M:%S')
+            calculate_time = parser.parse(cur_time) - parser.parse(notification_time)
+            data = Calculate_Hour_Minute_Second_Day(calculate_time.days * 24 * 3600 + calculate_time.seconds)
+            if data[0] == 0 and data[1] == 0 and data [2] == 0 and data[3] != 0:
+                i['notification_days'] = str(data[3]) + " seconds ago"
+            elif data[0] == 0 and data[1] == 0 and data[2] != 0 and data[3] != 0:
+                i['notification_days'] = str(data[2]) + " minutes ago"
+            elif data[0] == 0 and data[1] != 0 and data[2] != 0 and data[3] != 0:
+                i['notification_days'] = str(data[1]) + " hours ago"
+            elif data[0] != 0 and data[1] != 0 and data[2] != 0 and data[3] != 0:
+                i['notification_days'] = str(data[0]) + " days ago"
+            else:
+                i['notification_days'] = str(data[2]) + " 50 minutes ago"
+                
+        return Response({'status':200,'msg':'Show Notification.','payload':list(notification)})
+    except:
+        traceback.print_exc()
+        return Response({'status':403,'msg':'Something went wrong.'})
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Delete_Notification_Api(request):
+    try:
+        data = request.data
+        notification_id = data.get('notification_id',None)
+        user_id = data.get('user_id',None)
+        if user_id == 0 and notification_id != 0:
+            
+            Notifications.objects.filter(id = notification_id).delete()
+            return Response({'status':200,'msg':'Notification Deleted.'})
+        else:
+            Notifications.objects.filter(fk_user__id = user_id).delete()
+            return Response({'status':200,'msg':'All Notification Deleted.'})
+    
+    except:
+        return Response({'status':403,'msg':'Something went wrong.'})
+        
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Nofication_Seen_Api(request):
+    try:
+        data = request.data
+        notification_id = data.get('notification_id',None)
+        Notifications.objects.filter(id = notification_id).update(is_seen = True)
+        return Response({'status':200,'msg':'Notification View Successfully.'})
+    except:
+        return Response({'status':403,'msg':'Something went wrong.'})
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Reviews_Rating_Feedback(request):
+    try:
+        data = request.data
+        sid = data.get('id',None)
+        vendor_id = data.get('vendor_id',None)
+        rating = data.get('rating',None)
+        feedback = data.get('feedback',None)
+        vendor_obj = VendorDetails.objects.get(id = vendor_id)
+        order_obj = OrderDetails.objects.get(id = sid)
+        cur_date = datetime.now().date()
+        ReviewsandFeedback.objects.create(fk_orderdetails = order_obj , fk_vendor = vendor_obj , rating = rating , feedback = feedback , review_date = cur_date)
+        return Response({'status':200,'msg':'Thank you for your Feedback.'})
+    except:
+        traceback.print_exc()
+        return Response({'status':403,'msg':'Something went wrong.'})
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Show_Review_Feedback(request):
+    try:
+        data = request.data
+        order_id = data.get('order_id',None)
+        
+        feedback = ReviewsandFeedback.objects.filter(fk_orderdetails__order_id = order_id).values('fk_vendor__full_name','fk_vendor__profile_image','rating','feedback')
+        print(feedback)
+        return Response({'status':200,'msg':'Review and Feedback.','payload':feedback})
+    except:
+        return Response({'status':403,'msg':'Something went wrong.'})
+
+
+def send_notification(token_list, message_title, message_body, data_message,order_status,user_type):
     try:
         api_key = str(settings.API_KEY_NOTIFICATION)
         
@@ -1205,6 +1485,8 @@ def send_notification(token_list, message_title, message_body, data_message):
                 "notification" : {
                     "title":message_title,
                     "body":message_body,
+                    "order_status":order_status,
+                    "user_type":user_type
                 },
                 "registration_ids":token_list
             }
@@ -1214,7 +1496,7 @@ def send_notification(token_list, message_title, message_body, data_message):
             }
             response = requests.post(url, headers=headers, data = json.dumps(payload))
             print(response.text)
-            print(response)
+            print(response.json)
         return "success"
     except:
         print(str(traceback.format_exc()))
@@ -1233,17 +1515,34 @@ def Send_Message(vendor_id , status,customer_name):
     else:
         pass
     message_title = "Doorap"
+    order_status = ""
+    user_type = ""
+    cur_date_time = datetime.now()
     if status =="Completed":
+        order_status = "Completed"
+        user_type = "Vendor"
         message_body = "Dear Vendor Customer Job Completed."
+        Notifications.objects.create(fk_user = user_obj , notification = message_body , notification_date = cur_date_time)
     elif status == "Cancelled":
+        order_status = "Cancelled"
+        user_type = "Vendor"
         message_body = "Dear Vendor We are sorry to inform you that your job has been " +status + " by Customer."
+        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
     elif status =="Vendor_Order":
+        order_status = "Pending"
+        user_type = "Vendor"
         message_body = "Dear Vendor you have receive a new job from " + str(customer_name)
+        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
     else:
+        order_status = "Cancelled"
+        user_type = "Vendor"
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
+        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
     data_message = {
         'title':message_title,
         "body":message_body,
+        "order_status":order_status,
+        "user_type":user_type,
         "action":"Program",
         "action_id":str(user_obj.id),
         "current_datetime":str(datetime.now()).split(".")[0],
@@ -1253,8 +1552,64 @@ def Send_Message(vendor_id , status,customer_name):
         "sound": "alarm.mp3",
         "click_action": "FLUTTER_NOTIFICATION_CLICK",
     }
-    res = send_notification(token_list, message_title, message_body, data_message)
+    res = send_notification(token_list, message_title, message_body, data_message,order_status,user_type)
     print("notification responsre..................",res) 
                 
         
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def test(request):
+    try:
+        data = request.data
+        customer_id = data.get('customer_id',None)
+        category_id = data.get('category_id',None)
+        country_name = data.get('country_name',None)
+        coupon = data.get('coupon',None)
+        cancel_status = data.get('cancel_status',None)
+        applied_id = data.get('applied_id',None)
         
+        customer_obj = MyUser.objects.get( id = customer_id)
+        country_obj = CountryMaster.objects.get(country_name = country_name)
+        category_obj = CategoryMaster.objects.get( id = category_id)
+        
+        print(coupon)
+        
+        if OrderDetails.objects.filter(user_promocode__exact = coupon , fk_customer = customer_obj , fk_category = category_obj , customer_country = country_name).exists():
+            print("---------fsdfsdfsdfsd")
+            return Response({'status':403,'msg':'Sorry! You have already used promocode '+ coupon+'.'})
+        else:
+            if Offers.objects.filter(fk_country = country_obj , fk_category = category_obj ,offer_code__exact = coupon).exists():
+                if Offers.objects.filter(fk_country = country_obj , fk_category = category_obj ,offer_code__exact = coupon,offercode_status ="Active").exists():
+                    offer_code = Offers.objects.get(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon)
+                   
+                    if cancel_status == "False":
+                        AppliedOfferCode.objects.create(fk_customer = customer_obj , fk_offer = offer_code , is_applied = True) 
+                    
+                        offer_obj = Offers.objects.get(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon)
+                        update_offercode = offer_obj.used_offercode + 1
+                        Offers.objects.filter(id = offer_obj.id).update(used_offercode = update_offercode)
+                        
+                        return Response({'status':200,'msg':'Applied Sucessfully'})
+                    else:
+                        
+                        AppliedOfferCode.objects.filter(id = applied_id).delete()
+                        offer_obj = Offers.objects.get(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon)
+                        if offer_obj.used_offercode == 0:
+                            pass
+                        else:
+                            update_offercode = offer_obj.used_offercode - 1
+                            Offers.objects.filter(id = offer_obj.id).update(used_offercode = update_offercode)
+                        
+                        return Response({'status':200,'msg':'Promocode code cancel successfully.'})
+                else:
+                    return Response({'status':403,'msg':'Promocode is Expired.'})
+            else:
+                return Response({'status':403,'msg':'Invalid Promocode.'})
+    except:
+        traceback.print_exc()
+        return Response({'status':403,'msg':'Something went wrong.'})
+

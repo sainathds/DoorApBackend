@@ -121,7 +121,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -205,6 +206,7 @@ API_KEY_NOTIFICATION = "AAAAkmWW0vg:APA91bGcSLvDBl1IpdJ98UJ8aj7bE_kj2kclBvHs6pSp
 
 # cron setting for subscription expiry
 CRONJOBS = [
-    ('00 01 * * *', 'Doorap_App.cron.Update_Status'), # fire cron in every day 11:59 PM.
+    ('01 00 * * *', 'Doorap_App.cron.Update_Status'), # fire cron in every day 12:01 AM.
+    ('59 23 * * *', 'Doorap_App.cron.Update_Status'), # fire cron in every day 23:50 PM
      
 ]

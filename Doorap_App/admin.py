@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 # Register your models here.
 class MyUserAdmin(BaseUserAdmin):
     fieldsets = (
-        (None, {'fields': ('id', 'name', 'email', 'is_vendor', 'is_customer', 'firebase_token','is_staff', 'login_type','last_login')}),
+        (None, {'fields': ('id', 'name', 'email', 'is_vendor', 'is_customer', 'firebase_token','is_staff', 'login_type','last_login','stripe_customer_id')}),
         ('Permissions', {'fields': (
             'is_superuser',
             'groups', 
@@ -23,7 +23,7 @@ class MyUserAdmin(BaseUserAdmin):
         ),
     )
 
-    list_display = ('id','name','email','password',  'is_vendor', 'is_customer', 'firebase_token','is_staff', 'login_type','last_login')
+    list_display = ('id','name','email','password',  'is_vendor', 'is_customer', 'firebase_token','is_staff', 'login_type','last_login','stripe_customer_id')
     readonly_fields = ('id',)
     list_filter = ('is_staff', 'is_superuser', 'groups')
     search_fields = ('email',)
@@ -123,7 +123,7 @@ class CommisionMasterAdmin(admin.ModelAdmin):
 
 @admin.register(OrderDetails)
 class OrderDetailsAdmin(admin.ModelAdmin):
-    list_display = ['id','order_id','fk_vendor','fk_customer','quantity','fk_city','address','city','zip_code','lat','lng','sub_total','discount','convenience_fee','total_amount','duration','booking_date','booking_start_time','booking_end_time','user_promocode','vendor_pay_amount','order_status','status','booking_time']
+    list_display = ['id','order_id','fk_vendor','fk_category','fk_customer','sub_total','discount','convenience_fee','total_amount','user_promocode','order_status','status','payment_status','current_booking_time','current_booking_date']
     
     
 @admin.register(OrderService)
@@ -139,3 +139,12 @@ class LikeDislikeAdmin(admin.ModelAdmin):
 @admin.register(AppliedOfferCode)
 class AppliedOfferCodeAdmin(admin.ModelAdmin):
     list_display = ['id','fk_customer','fk_offer','is_applied']
+ 
+ 
+@admin.register(Notifications)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ['id','fk_user','notification','notification_date','is_seen']
+    
+@admin.register(ReviewsandFeedback)
+class ReviewsandFeedback(admin.ModelAdmin):
+    list_display = ['id','fk_orderdetails','fk_vendor','rating','feedback','is_feedback','review_date']

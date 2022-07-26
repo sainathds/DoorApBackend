@@ -13,7 +13,12 @@
     width: 350px !important;
 	height: auto !important;
 	}
-	
+	.custom-select{
+	width: 50px!important;
+	}
+	.dataTables_filter{
+	margin-top:15px!important;
+	}
 </style>
 <!-- Content Wrapper. Contains page content -->
   <!-- <div class="content-wrapper"> -->
@@ -26,7 +31,7 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-3">
-            <h3>Vendor Details</h3>
+            <h4>Vendor Details</h4>
           </div> 
         
         </div>
@@ -38,71 +43,76 @@
             </div>
             <div class="col-md-9">
               <div class="card mb-3">
-                <div class="card-body" style="padding:40px;">
-                  <div class="row">
-                    <div class="col-sm-3" style="display:inline-flex;">
-                      <h6 class="mb-0">Full Name:- </h6>
-					  <span style="margin-left:20px;" class=" text-secondary"> {{ obj_vender.full_name }} </span>
-                    </div>
-					
-					<div class="col-sm-3" style="display:inline-flex;">
-                      <h6 class="mb-0">About me:-</h6>
-					  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.abount_me == "" %} - {% else %}  {{ obj_vender.abount_me }} {% endif %}</span>
-                    </div>
-					
-					<div class="col-sm-2" style="display:inline-flex;">
-                     <h6 class="mb-0">Mobile:-</h6>
-					  <span style="margin-left:20px;" class=" text-secondary"> {{ obj_vender.mobile_no }} </span>
-                    </div>
-					
-					 
-					 <div class="col-sm-4" style="display:inline-flex; padding-left: 50px;">
-                     <h6 class="mb-0">Business name:</h6>
-					  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.business_name == "" %} - {% else %}  {{ obj_vender.business_name }} {% endif %} </span>
-                    </div>
-					
-					 </div>
-					   <br>
-
-					 <div class="row">
-						<div class="col-sm-6" style="display:inline-flex;">
-						  <h6 class="mb-0">Location:</h6>
-						  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.google_address == "" %} - {% else %} {{ obj_vender.google_address }} {% endif %}</span>
-						</div>
+                <div class="card-body" style="padding:20px;">
+						  <div class="row">
+									<div class="col-sm-4" style="display:inline-flex;">
+										  <h6 class="mb-0">Full Name:- </h6>
+										  <span style="margin-left:20px;" class=" text-secondary"> {{ obj_vender.full_name }} </span>
+									</div>
+									
+									<div class="col-sm-4" style="display:inline-flex;">
+										  <h6 class="mb-0">About me:-</h6>
+										  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.abount_me == "" %} - {% else %}  {{ obj_vender.abount_me }} {% endif %}</span>
+									</div>
+									<br>
+								</div>
+								<br>
+								<div class="row">
+									<div class="col-sm-4" style="display:inline-flex;">
+										 <h6 class="mb-0">Mobile:-</h6>
+										  <span style="margin-left:20px;" class=" text-secondary"> {{ obj_vender.mobile_no }} </span>
+									</div>
+								
+								 
+									 <div class="col-sm-4" style="display:inline-flex;">
+										 <h6 class="mb-0">Business Name:-</h6>
+										  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.business_name == "" %} - {% else %}  {{ obj_vender.business_name }} {% endif %} </span>
+									</div>
+							</div>
+							
+				</div>
+			 </div>
+			 
+					   <!-- <br> -->
+			<div class="card mb-3">
+				<div class="card-body" style="padding:20px;">
+						 <div class="row">
+										<div class="col-sm-6" style="display:inline-flex;">
+											  <h6 class="mb-0">Location:</h6>
+											  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.google_address == "" %} - {% else %} {{ obj_vender.google_address }} {% endif %}</span>
+										</div>
+							
+										<div class="col-sm-6" style="display:inline-flex;">
+											  <h6 class="mb-0">Address Line 1:</h6>
+											  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.address_line_one == "" %} - {% else %} {{ obj_vender.address_line_one }} {% endif %}</span>
+										</div>
 						
-						<div class="col-sm-6" style="display:inline-flex;">
-						  <h6 class="mb-0">Address line one:</h6>
-						  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.address_line_one == "" %} - {% else %} {{ obj_vender.address_line_one }} {% endif %}</span>
-						</div>
+							</div>
+						<br>
+						<div class="row">
+									<div class="col-sm-6" style="display:inline-flex;">
+										  <h6 class="mb-0">Address Line 2:</h6>
+										  <span style="margin-left:20px;" class=" text-secondary"> {% if obj_vender.address_line_two == "" %} - {% else %} {{ obj_vender.address_line_two }} {% endif %}</span>
+									</div>
 					
-					
-					
-					</div>
-                   <br>
-					<div class="row">
-						<div class="col-sm-6" style="display:inline-flex;">
-						  <h6 class="mb-0">Address line two:</h6>
-						  <span style="margin-left:20px;" class=" text-secondary"> {% if obj_vender.address_line_two == "" %} - {% else %} {{ obj_vender.address_line_two }} {% endif %}</span>
-						</div>
-					
-						<div class="col-sm-2" style="display:inline-flex;">
-						  <h6 class="mb-0">Country:</h6>
-						  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.fk_country.country_name == "" %} - {% else %} {{ obj_vender.fk_country.country_name }} {% endif %}</span> 
-						</div>
+									<div class="col-sm-2" style="display:inline-flex;">
+										  <h6 class="mb-0">Country:</h6>
+										  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.fk_country.country_name == "" %} - {% else %} {{ obj_vender.fk_country.country_name }} {% endif %}</span> 
+									</div>
 						
-						<div class="col-sm-2" style="display:inline-flex;">
-                     <h6 class="mb-0">City:</h6>
-					  <span style="margin-left:20px;" class=" text-secondary">  {{ obj_vender.fk_city.city_name }} </span>
-                    </div>
+									<div class="col-sm-2" style="display:inline-flex;">
+										 <h6 class="mb-0">City:</h6>
+										  <span style="margin-left:20px;" class=" text-secondary">  {{ obj_vender.fk_city.city_name }} </span>
+									</div>
 					
 					
-                    <div class="col-sm-2" style="display:inline-flex;">
-                      <h6 class="mb-0">Zip code:</h6>
-					  <span style="margin-left:20px;" class=" text-secondary">  {{ obj_vender.zip_code }} </span>
-                    </div>
-					</div>
+									<div class="col-sm-2" style="display:inline-flex;">
+										  <h6 class="mb-0">Zip code:</h6>
+										  <span style="margin-left:20px;" class=" text-secondary">  {{ obj_vender.zip_code }} </span>
+									</div>
+						</div>
 					
-               </div>
+				</div>
               </div>
 
             </div>
@@ -110,18 +120,19 @@
 	</div>
 </div>
 </section>
-<br>
+<!-- <br> -->
 <hr>
 	
-		<section class="col-11" style="margin-left:2%;" >
-		 <div class="content-header"  >
+		<section class="col-11" style="margin-left:2%; margin-top:-20px" >
+		 <!-- <div class="content-header"  > -->
    
-            <h3 style="margin-left:20%; width:50%;">Vendor Service Details</h13>
+            <h4 style="margin-left:20%; width:50%; padding-top:20px;">Vendor Service Details</h4>
         
-    </div>
+		<!-- </div> -->
+	<div  class="yaman">
       <div class="container-fluid" style="margin-left:1%;">
         
-		<hr>
+		<!-- <hr> -->
         <div class="row" style="background-color:white; margin-left: 15rem;">
 			<div class="table">
 				<table id="datatable" class="table table-striped datatable">
@@ -146,28 +157,28 @@
 							<td>{{i.category_name}}</td>
 							<td>{{i.service_name}}
 								
-							<select class="form-control" onchange="showfacility('{{forloop.counter}}')" id="service_id{{forloop.counter}}">
+							<!-- <select class="form-control" onchange="showfacility('{{forloop.counter}}')" id="service_id{{forloop.counter}}"> -->
 									
-									{% for j in i.service %}
-										<option value="{{j.0}}">{{j.1}}</option>
-									{% endfor %}
-							</select>
+									<!-- {% for j in i.service %} -->
+										<!-- <option value="{{j.0}}">{{j.1}}</option> -->
+									<!-- {% endfor %} -->
+							<!-- </select> -->
 							
 							</td>
 							<td>
 								
 								<select class="form-control" id="facility{{forloop.counter}}">
-									{% for k in i.first_facilities %}
+									{% for k in i.facility_name %}
 										<option value="{{k}}">{{k}}</option>
 									{% endfor %}
 								</select>
 							</td>
 							
-							<td id="price{{forloop.counter}}">{{i.first_price}}</td>
+							<td id="price{{forloop.counter}}">{{i.price}}</td>
 							
 							
 
-							<td id="hour{{forloop.counter}}">{{i.first_hour}}</td>
+							<td id="hour{{forloop.counter}}">{{i.hour}}</td>
 							
 						</tr>
 					{% endfor %}
@@ -176,6 +187,7 @@
 			</div>
         </div>
       </div>
+	  </div>
     </section>
 	<br>
 	<br>

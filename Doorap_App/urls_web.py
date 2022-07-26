@@ -59,5 +59,7 @@ urlpatterns = [
    path('order_accept_decline/',views_web.Order_Accept_Decline , name ='order_accept_decline'),
    path('order_start_job/',views_web.Order_Start_Job , name = 'order_start_job'),
    path('show_running_job/',views_web.Show_Running_Job , name='show_running_job'),
+   path('show_vendor_order_detail/',views_web.Show_Vendor_Detail_Order , name='show_vendor_order_detail'),
+   path('show_account_detail/',views_web.Show_Bank_Account , name='show_account_detail'),
    
 ]

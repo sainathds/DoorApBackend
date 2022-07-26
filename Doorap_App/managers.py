@@ -5,7 +5,7 @@ from django.utils import timezone
 
 
 class MyCustomManager(BaseUserManager):
-	def _create_user(self, name, email, password,is_staff, is_superuser, firebase_token, is_vendor, is_customer, created_datime, login_type, login_id, **extra_fields):
+	def _create_user(self, name, email, password,is_staff, is_superuser, firebase_token, is_vendor, is_customer, created_datime, login_type, login_id,stripe_customer_id, **extra_fields):
 		if not email:
 			raise ValueError('Users must have email...')
 
@@ -24,6 +24,7 @@ class MyCustomManager(BaseUserManager):
 			created_datime=now,
 			login_type=login_type,
 			login_id=login_id,
+            stripe_customer_id=stripe_customer_id,
 			**extra_fields
 		)
 		user.set_password(password)
@@ -34,5 +35,5 @@ class MyCustomManager(BaseUserManager):
 		return self._create_user(email, password, False, False, **extra_fields)
 
 	def create_superuser(self, email, password, **extra_fields):
-		user=self._create_user("", email, password, True, True, "", False, False, None, "", "", **extra_fields)
+		user=self._create_user("", email, password, True, True, "", False, False, None, "", "","", **extra_fields)
 		return user

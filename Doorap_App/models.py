@@ -40,6 +40,9 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     login_type = models.CharField(max_length=50, blank=True, null=True)
     login_id = models.CharField(max_length=50, blank=True, null=True)
     is_profile_create = models.BooleanField(default = False)
+    
+    stripe_customer_id = models.CharField(max_length = 100 , blank = True , null = True)
+    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
@@ -65,7 +68,7 @@ class VendorDetails(models.Model):
     fk_city = models.ForeignKey(CityMaster, on_delete=models.CASCADE, null=True, blank=True)
     zip_code = models.CharField(max_length=20, blank=True, null=True)
     user_status = models.CharField(max_length=20, blank=True, null=True, default="Pending")
-    is_available = models.BooleanField(default=False)
+    is_available = models.BooleanField(default=True)
     is_service_created = models.BooleanField(default = False)
     #set schedule
     is_monday = models.BooleanField(default = False)
@@ -205,10 +208,13 @@ class OrderDetails(models.Model):
     order_id = models.CharField(max_length = 200 , blank = True , null = True)
     fk_vendor = models.ForeignKey(VendorDetails, on_delete=models.CASCADE, null=True, blank=True)
     fk_customer = models.ForeignKey(MyUser, on_delete=models.CASCADE, null=True, blank=True)
+    fk_category = models.ForeignKey(CategoryMaster , on_delete = models.CASCADE , null = True , blank = True)
     quantity = models.IntegerField( blank = True , null = True)
-    address = models.CharField(max_length = 400 , blank = True ,null = True)
+    address = models.TextField( blank = True ,null = True)
+    fk_country_customer = models.ForeignKey(CountryMaster , on_delete = models.CASCADE , null = True , blank = True)
     fk_city = models.ForeignKey(CityMaster , on_delete = models.CASCADE , null = True , blank = True)
-    city = models.CharField(max_length =200 , blank = True , null = True)
+    customer_country = models.CharField(max_length =200 , blank = True , null = True)
+    customer_city = models.CharField(max_length = 200 , blank = True , null = True)
     zip_code = models.CharField( max_length = 200 , blank = True , null = True)
     lat = models.FloatField(blank = True , null = True)
     lng = models.FloatField( blank = True , null = True)
@@ -221,11 +227,26 @@ class OrderDetails(models.Model):
     booking_start_time = models.TimeField( blank = True , null = True)
     booking_end_time = models.TimeField( blank = True , null = True)
     user_promocode = models.CharField(max_length = 50 , blank = True , null = True)
+    vendor_convenience_fee = models.FloatField(blank = True , null = True)
     vendor_pay_amount = models.FloatField( blank = True , null = True)
-    booking_time = models.TimeField(blank = True , null = True)
+    
+    current_booking_time = models.TimeField(blank = True , null = True)
+    current_booking_date = models.DateField(blank = True , null = True)
     
     order_status = models.CharField(max_length = 200 , default = "Pending")
     status = models.BooleanField(default = False)
+    
+    
+    
+    # stripe payment
+    payment_intent_id = models.CharField(max_length = 100 , blank = True , null = True)
+    payment_status = models.CharField(max_length = 100 , blank = True , null = True)
+    
+    #Stripe refund  payment 
+    stripe_refund_txtid = models.CharField(max_length = 100 , blank = True , null = True)
+    stripe_refund_id = models.CharField(max_length = 100 , blank = True , null = True)   
+    stripe_refund_status = models.CharField(max_length = 100 , blank = True , null = True)
+    
     
 
 class OrderService(models.Model):
@@ -243,3 +264,22 @@ class LikeDislike(models.Model):
     fk_vendor = models.ForeignKey(VendorDetails , on_delete = models.CASCADE , blank = True , null = True)
     fk_customer = models.ForeignKey(MyUser, on_delete=models.CASCADE, null=True, blank=True)
     like_dislike = models.BooleanField(default = False)
+    
+    
+    
+class Notifications(models.Model):
+    fk_user = models.ForeignKey(MyUser, on_delete=models.CASCADE, null=True, blank=True)
+    notification = models.TextField(blank = True , null = True)
+    notification_date = models.DateTimeField(blank = True , null = True)
+    is_seen =  models.BooleanField(default = False)
+    # status = models.BooleanField(default = False)
+    
+
+class ReviewsandFeedback(models.Model):
+    fk_orderdetails = models.ForeignKey(OrderDetails, on_delete=models.CASCADE, null=True, blank=True)
+    fk_vendor = models.ForeignKey(VendorDetails, on_delete=models.CASCADE, null=True, blank=True)
+    rating = models.FloatField(default = 0.0 ,blank = True , null = True)
+    feedback = models.TextField(blank = True , null = True)
+    review_date = models.DateField(blank = True , null = True)
+    is_feedback = models.BooleanField(default = True)
+    status = models.BooleanField(default = False)
