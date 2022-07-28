@@ -87,7 +87,7 @@ def Show_location_wise_vendor(request):
         temp_list = []
         for i in vendor_obj:
             
-            data = VenderServices.objects.filter(fk_category = category_obj ,fk_vendor = i).values('fk_vendor__id','fk_vendor__full_name','fk_vendor__profile_image','fk_category__category_name').distinct()
+            data = VenderServices.objects.filter(fk_category = category_obj ,fk_vendor = i).values('fk_vendor__fk_user__id','fk_vendor__id','fk_vendor__full_name','fk_vendor__profile_image','fk_category__category_name').distinct()
             
             like_dislike = LikeDislike.objects.filter( fk_vendor = i , fk_customer = customer_obj )
             
@@ -1152,18 +1152,37 @@ def Show_Current_Order(request):
         customer_obj = MyUser.objects.get(id = customer_id)
 
         status_list = ['Completed','Cancelled','Rejected']
-        order_details = OrderDetails.objects.filter(fk_customer = customer_obj).exclude(order_status__in = status_list).order_by('-id').values('id','order_id','fk_vendor','fk_vendor__profile_image','fk_vendor__full_name','fk_vendor__google_address','fk_vendor__google_address_lat','fk_vendor__google_address_lng','fk_vendor__address_line_one','fk_vendor__address_line_two','fk_vendor__fk_country__country_name','fk_vendor__fk_city__city_name','duration','total_amount','order_status')
+        order_details = OrderDetails.objects.filter(fk_customer = customer_obj).exclude(order_status__in = status_list).order_by('-id').values('id','order_id','fk_vendor','fk_vendor__fk_user__id','fk_vendor__profile_image','fk_vendor__full_name','fk_vendor__google_address','fk_vendor__google_address_lat','fk_vendor__google_address_lng','fk_vendor__address_line_one','fk_vendor__address_line_two','fk_vendor__fk_country__country_name','fk_vendor__fk_city__city_name','duration','total_amount','order_status')
          
         for k in order_details:
+            
             temp_dict = {}
             service_list = []
             order_service = OrderService.objects.filter(fk_order__id = k['id'])
             for j in order_service:
                 service_list.append(j.fk_service.fk_service.service_name)
             temp_dict['service_name'] = service_list
-                
+            
             k['service'] = temp_dict
-            k['rating'] = 5
+            
+            
+            rating = ReviewsandFeedback.objects.filter(fk_vendor = k['fk_vendor']).values('rating')
+            count = ReviewsandFeedback.objects.filter(fk_vendor = k['fk_vendor']).count()
+            total_rateing = 0
+            
+            for j in rating:
+                total_rateing = total_rateing + j['rating']
+            
+            if total_rateing == 0 and count == 0:
+                
+                k['rating'] = 0.0                    
+            else:
+                
+                k['rating'] = total_rateing / count
+                    
+                    
+            
+            
         return Response({'status':200 ,'msg':'Customer Current Order.','payload':order_details}) 
     except:
         traceback.print_exc()
@@ -1182,7 +1201,7 @@ def Show_Customer_All_Order(request):
         
         # status = ['Accept','Started']
         
-        order_details = OrderDetails.objects.filter(fk_customer = customer_obj).order_by('-id').values('id','fk_customer','fk_customer__name','order_id','fk_vendor','fk_vendor__full_name','booking_date','total_amount','order_status','booking_start_time','quantity','booking_date')
+        order_details = OrderDetails.objects.filter(fk_customer = customer_obj).order_by('-id').values('id','fk_customer','fk_customer__name','order_id','fk_vendor','fk_vendor__fk_user__id','fk_vendor__full_name','booking_date','total_amount','order_status','booking_start_time','quantity','booking_date')
        
         return Response({'status':200,'msg':'Customer Orders','payload':order_details})
     except:
@@ -1202,7 +1221,7 @@ def Show_Customer_Detail_Order(request):
         
         order_data =OrderDetails.objects.filter( id = sid).values('id','order_id','fk_customer','fk_vendor','booking_date','order_status','booking_start_time','address')
         order_service = OrderService.objects.filter(fk_order__id = sid).values('fk_service__fk_service__service_name','fk_service__fk_service__service_image','fk_service__price','fk_service__hour')
-        vendor_details = OrderService.objects.filter(fk_order__id = sid).values('fk_vendor__full_name','fk_vendor__profile_image','fk_service__fk_category__category_name').distinct()
+        vendor_details = OrderService.objects.filter(fk_order__id = sid).values('fk_vendor__fk_user__id','fk_vendor__full_name','fk_vendor__profile_image','fk_service__fk_category__category_name').distinct()
         payment_information = OrderDetails.objects.filter( id = sid).values('quantity','sub_total','discount','convenience_fee','total_amount')
         feedback = ReviewsandFeedback.objects.filter(fk_orderdetails__id = sid).values('rating','feedback')
         print(feedback)

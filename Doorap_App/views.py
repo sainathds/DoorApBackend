@@ -122,7 +122,13 @@ def DeleteCustomer(request):
     try:
         if request.method == "POST":
             sid = request.POST.get('id')
-            MyUser.objects.filter(id=sid).delete()
+            if MyUser.objects.filter(id = sid,is_vendor = True , is_customer = True).exists():
+                MyUser.objects.filter(id=sid).update(is_customer = False)
+            elif MyUser.objects.filter(id = sid,is_vendor = False , is_customer = True).exists():
+                MyUser.objects.filter(id =sid).delete()
+            else:
+                pass
+            
             return JsonResponse({"status":"1","msg":"Account Deleted Successfully.."})
         else:
             return JsonResponse({"status":"0","msg":"Something went wrong."})
@@ -338,7 +344,14 @@ def Delete_Vendor(request):
         if request.session.get('email'):
             if request.method == "POST":
                 vendor_id = request.POST.get('vendor_id',None)
-                MyUser.objects.filter(id = vendor_id).delete()
+                if MyUser.objects.filter(id = vendor_id,is_vendor = True , is_customer = False).exists():
+                    MyUser.objects.filter(id = vendor_id).delete()
+                    VendorDetails.objects.filter(fk_user__id = vendor_id).delete()
+                elif MyUser.objects.filter(id = vendor_id,is_vendor = True , is_customer = True).exists():
+                    VendorDetails.objects.filter(fk_user__id = vendor_id).delete()
+                    MyUser.objects.filter(id = vendor_id).update(is_vendor = False)
+                else:
+                    pass
                 return JsonResponse({'status':'1','msg':'Account Deleted Successfully.'})
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
