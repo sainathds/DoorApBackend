@@ -81,36 +81,38 @@ def Show_location_wise_vendor(request):
         [vendor_list.append(vendor.id) for vendor in result]
         
         vendor_obj = VendorDetails.objects.filter(id__in = vendor_list ,is_available = True)
-        print(vendor_obj)
+        
         category_obj = CategoryMaster.objects.get( id = category_id)
         
         temp_list = []
         for i in vendor_obj:
-            
-            data = VenderServices.objects.filter(fk_category = category_obj ,fk_vendor = i).values('fk_vendor__fk_user__id','fk_vendor__id','fk_vendor__full_name','fk_vendor__profile_image','fk_category__category_name').distinct()
-            
-            like_dislike = LikeDislike.objects.filter( fk_vendor = i , fk_customer = customer_obj )
-            
-            if data.exists():
+            if i.fk_user.firebase_token == "":
+                pass
+            else:
+                data = VenderServices.objects.filter(fk_category = category_obj ,fk_vendor = i).values('fk_vendor__fk_user__id','fk_vendor__id','fk_vendor__full_name','fk_vendor__profile_image','fk_category__category_name').distinct()
                 
-                for i in data:
-                    rating = ReviewsandFeedback.objects.filter(fk_vendor__id = i['fk_vendor__id']).values('rating')
-                    count = ReviewsandFeedback.objects.filter(fk_vendor__id = i['fk_vendor__id']).count()
-                    total_rateing = 0
-                    for k in rating:
-                        total_rateing = total_rateing + k['rating']
+                like_dislike = LikeDislike.objects.filter( fk_vendor = i , fk_customer = customer_obj )
+                
+                if data.exists():
                     
-                    if total_rateing == 0 and count == 0:
-                        i['rating'] = 0.0
-                    else:
-                        i['rating'] = total_rateing / count
-                    if like_dislike.exists():
-                        for j in like_dislike: 
-                            i['like_dislike'] = j.like_dislike
-                            print(j.like_dislike)
-                    else:
-                        i['like_dislike'] = False
-                temp_list.append(data[0]) 
+                    for i in data:
+                        rating = ReviewsandFeedback.objects.filter(fk_vendor__id = i['fk_vendor__id']).values('rating')
+                        count = ReviewsandFeedback.objects.filter(fk_vendor__id = i['fk_vendor__id']).count()
+                        total_rateing = 0
+                        for k in rating:
+                            total_rateing = total_rateing + k['rating']
+                        
+                        if total_rateing == 0 and count == 0:
+                            i['rating'] = 0.0
+                        else:
+                            i['rating'] = total_rateing / count
+                        if like_dislike.exists():
+                            for j in like_dislike: 
+                                i['like_dislike'] = j.like_dislike
+                                print(j.like_dislike)
+                        else:
+                            i['like_dislike'] = False
+                    temp_list.append(data[0]) 
         
         if len(temp_list) < 0:
             return Response({'status':403,'msg':'Vendor not found.'})
@@ -539,18 +541,18 @@ def Promocode_check(request):
         
         print(country_name)
         
-        if OrderDetails.objects.filter(user_promocode__contains = coupon , fk_customer = customer_obj , fk_category = category_obj , customer_country = country_name).exists():
+        if OrderDetails.objects.filter(user_promocode__exact = coupon , fk_customer = customer_obj , fk_category = category_obj , customer_country = country_name).exists():
             print("---------")
             return Response({'status':403,'msg':'Sorry! You have already used promocode '+ coupon+'.'})
         else:
-            if Offers.objects.filter(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon).exists():
-                if Offers.objects.filter(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon,offercode_status ="Active").exists():
-                    offer_code = Offers.objects.get(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon)
+            if Offers.objects.filter(fk_country = country_obj , fk_category = category_obj ,offer_code__exact = coupon).exists():
+                if Offers.objects.filter(fk_country = country_obj , fk_category = category_obj ,offer_code__exact = coupon,offercode_status ="Active").exists():
+                    offer_code = Offers.objects.get(fk_country = country_obj , fk_category = category_obj ,offer_code__exact = coupon)
                    
                     if cancel_status == "False":
                         AppliedOfferCode.objects.create(fk_customer = customer_obj , fk_offer = offer_code , is_applied = True) 
                     
-                        offer_obj = Offers.objects.get(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon)
+                        offer_obj = Offers.objects.get(fk_country = country_obj , fk_category = category_obj ,offer_code__exact = coupon)
                         update_offercode = offer_obj.used_offercode + 1
                         Offers.objects.filter(id = offer_obj.id).update(used_offercode = update_offercode)
                         
@@ -558,7 +560,7 @@ def Promocode_check(request):
                     else:
                         
                         AppliedOfferCode.objects.filter(id = applied_id).delete()
-                        offer_obj = Offers.objects.get(fk_country = country_obj , fk_category = category_obj ,offer_code__contains = coupon)
+                        offer_obj = Offers.objects.get(fk_country = country_obj , fk_category = category_obj ,offer_code__exact = coupon)
                         if offer_obj.used_offercode == 0:
                             pass
                         else:
@@ -1562,7 +1564,7 @@ def Send_Message(vendor_id , status,customer_name):
         "body":message_body,
         "order_status":order_status,
         "user_type":user_type,
-        "action":"Program",
+        "action":"Home",
         "action_id":str(user_obj.id),
         "current_datetime":str(datetime.now()).split(".")[0],
         "image_url":"",

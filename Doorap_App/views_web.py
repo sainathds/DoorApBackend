@@ -1207,7 +1207,7 @@ def Send_Message(customer_id , status):
         "body":message_body,
         "order_status":order_status,
         "user_type":user_type,
-        "action":"Program",
+        "action":"Home",
         "action_id":str(user_obj.id),
         "current_datetime":str(datetime.datetime.now()).split(".")[0],
         "image_url":"",
