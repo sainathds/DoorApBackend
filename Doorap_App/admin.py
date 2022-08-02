@@ -143,7 +143,7 @@ class AppliedOfferCodeAdmin(admin.ModelAdmin):
  
 @admin.register(Notifications)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ['id','fk_user','notification','notification_date','is_seen']
+    list_display = ['id','fk_user','fk_order','notification','notification_date','is_seen','user_type']
     
 @admin.register(ReviewsandFeedback)
 class ReviewsandFeedback(admin.ModelAdmin):

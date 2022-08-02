@@ -179,7 +179,7 @@ def ApproveReject(request):
                     "click_action": "FLUTTER_NOTIFICATION_CLICK",
                 }
                 res = send_notification(token_list, message_title, message_body, data_message,order_status,user_type)
-                Notifications.objects.create(fk_user = vender_obj.fk_user , notification = message_body , notification_date = cur_date_time)
+                Notifications.objects.create(fk_user = vender_obj.fk_user , notification = message_body , notification_date = cur_date_time , user_type = "Vendor")
                 print("notification responsre..................",res)
                 
                 # End Send nofication on mobile app code
@@ -221,7 +221,7 @@ def ApproveReject(request):
                     "click_action": "FLUTTER_NOTIFICATION_CLICK",
                 }
                 res = send_notification(token_list, message_title, message_body, data_message,order_status,user_type)
-                Notifications.objects.create(fk_user = vender_obj.fk_user, notification = message_body ,notification_date = cur_date_time)
+                Notifications.objects.create(fk_user = vender_obj.fk_user, notification = message_body ,notification_date = cur_date_time , user_type = "Vendor")
                 print("notification responsre..................",res)
                 
                 # End Send nofication on mobile app code

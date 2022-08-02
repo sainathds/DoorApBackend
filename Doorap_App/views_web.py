@@ -1029,7 +1029,7 @@ def Order_Accept_Decline(request):
         
         order_obj = OrderDetails.objects.get(id = sid , order_id = order_id)
         OrderDetails.objects.filter( id = sid , order_id = order_id).update(order_status = order_status)
-        Send_Message(customer_id , order_status)
+        Send_Message(customer_id , order_status , sid)
         if order_status == "Rejected":
             refund = stripe.Refund.create(payment_intent=order_obj.payment_intent_id, amount=(int((str(order_obj.total_amount).split('.'))[0])) * 100)
             OrderDetails.objects.filter( id = sid , order_id = order_id).update(stripe_refund_id = refund['id'] , stripe_refund_txtid = refund['balance_transaction'] , stripe_refund_status = refund['status'])
@@ -1063,7 +1063,7 @@ def Order_Start_Job(request):
             return Response({'status':403,'msg':'You have already started job.Please complete your previous job and start a new job.'})
         else:
             OrderDetails.objects.filter( id = sid , order_id = order_id).update(order_status = order_status)
-            Send_Message(customer_id , order_status)
+            Send_Message(customer_id , order_status , sid)
             return Response({'status':200,'msg':'You are ready to start new job.'})
     except:
         traceback.print_exc()
@@ -1165,9 +1165,10 @@ def send_notification(token_list, message_title, message_body, data_message,orde
         return "error"
         
 
-def Send_Message(customer_id , status):
+def Send_Message(customer_id , status ,ord_id):
     user_obj = MyUser.objects.get(id = customer_id)
     
+    ord_obj = OrderDetails.objects.get(id = ord_id)
     token_list = []
     token = user_obj.firebase_token
     if token:
@@ -1180,28 +1181,33 @@ def Send_Message(customer_id , status):
     cur_date_time = datetime.datetime.now()
     if status =="Accepted":
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
-        
-        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
-        order_status = "Accepted"
         user_type = "Customer"
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj ,  notification = message_body, notification_date = cur_date_time , user_type = user_type)
+        order_status = "Accepted"
+        
     elif status == "Cancelled":
         message_body = "Dear " + str(user_obj.name)+ " We are sorry to inform you that your order has been " +status +" by vendor."
-        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
-        order_status = "Cancelled"
         user_type = "Customer"
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type)
+        order_status = "Cancelled"
+        
     elif status == "Rejected":
         message_body = "Dear " + str(user_obj.name)+ " We are sorry to inform you that your order has been " +status +" by vendor."
-        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
-        order_status = "Rejected"
         user_type = "Customer"
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type)
+        order_status = "Rejected"
+        
     elif status == "Started":
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
-        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
         order_status = "Started"
         user_type = "Customer"
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type)
+        
     else:
+        order_status = "Started"
+        user_type = "Customer"
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
-        Notifications.objects.create(fk_user = user_obj , notification = message_body, notification_date = cur_date_time)
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type)
     data_message = {
         'title':message_title,
         "body":message_body,

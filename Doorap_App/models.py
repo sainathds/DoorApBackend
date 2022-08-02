@@ -269,9 +269,11 @@ class LikeDislike(models.Model):
     
 class Notifications(models.Model):
     fk_user = models.ForeignKey(MyUser, on_delete=models.CASCADE, null=True, blank=True)
+    fk_order = models.ForeignKey( OrderDetails , on_delete = models.CASCADE ,blank = True , null = True)
     notification = models.TextField(blank = True , null = True)
     notification_date = models.DateTimeField(blank = True , null = True)
     is_seen =  models.BooleanField(default = False)
+    user_type = models.CharField(max_length = 50 , blank = True , null = True)
     # status = models.BooleanField(default = False)
     
 
