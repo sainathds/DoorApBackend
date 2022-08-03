@@ -886,6 +886,11 @@ def Show_item_detail(request):
 #********************** End Mobile App Send Nofification Function ********************************* 
  
 
+def Terms_and_Policy(request):
+    return render(request,'admin_panel/terms_and_policy.html')
+
+        
+
 
 
 # def test(request):

@@ -62,4 +62,7 @@ urlpatterns = [
    path('show_vendor_order_detail/',views_web.Show_Vendor_Detail_Order , name='show_vendor_order_detail'),
    path('show_account_detail/',views_web.Show_Bank_Account , name='show_account_detail'),
    
+   
+   path('social_signup/',views_web.social_sign_up , name='social_signup'),
+   path('social_otp/',views_web.get_otp_Social , name='social_otp'),
 ]

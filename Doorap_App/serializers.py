@@ -29,6 +29,7 @@ class MyUserSerializer(serializers.ModelSerializer):
         
         user.save()
         return user
+  
 
 
 class CustomerSignUp(serializers.ModelSerializer):
@@ -237,6 +238,65 @@ class VenderFacilitySerializer(serializers.ModelSerializer):
         user_info = VenderFacility.objects.create(**validated_data)  # saving post object
         
         return user_info
+   
+   
+
+
+
+
+
+
+
+
+class CustomerSignUpSocial(serializers.ModelSerializer):
+    
+    class Meta:
+        model = MyUser
+        fields = "__all__"
+        
+    def update(self,instance, validated_data):
+        print(instance)
+        instance.firebase_token=validated_data['firebase_token'],
+        instance.is_customer = validated_data['is_customer']
+        instance.save()
+        return instance
+        
+        
+class VenderSignUpSocial(serializers.ModelSerializer):
+    
+    class Meta:
+        model = MyUser
+        fields = "__all__"
+        
+    def update(self,instance, validated_data):
+        instance.firebase_token=validated_data['firebase_token'],
+        instance.is_vendor = validated_data['is_vendor']
+        instance.save()
+        return instance 
+
+        
+class MyUserSerializerTest(serializers.ModelSerializer):
+    
+    class Meta:
+        model = MyUser
+        fields = "__all__"
+        
+    def create(self, validated_data ):
+        """ Creates and returns a new user """
+
+        # Validating Data
+        print(validated_data)
+        user = MyUser(
+        name = validated_data['name'],
+        email=validated_data['email'],
+        firebase_token=validated_data['firebase_token'],
+        is_vendor =validated_data['is_vendor'],
+        is_customer = validated_data['is_customer'],
+        )
+        user.set_password(validated_data['password'])
+        
+        user.save()
+        return user
     
         
         

@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 # Register your models here.
 class MyUserAdmin(BaseUserAdmin):
     fieldsets = (
-        (None, {'fields': ('id', 'name', 'email', 'is_vendor', 'is_customer', 'firebase_token','is_staff', 'login_type','last_login','stripe_customer_id')}),
+        (None, {'fields': ('id', 'name', 'email', 'is_vendor', 'is_customer', 'firebase_token','is_staff', 'customer_login_type','customer_login_id','vendor_login_id','vendor_login_type','last_login','stripe_customer_id')}),
         ('Permissions', {'fields': (
             'is_superuser',
             'groups', 
@@ -23,7 +23,7 @@ class MyUserAdmin(BaseUserAdmin):
         ),
     )
 
-    list_display = ('id','name','email','password',  'is_vendor', 'is_customer', 'firebase_token','is_staff', 'login_type','last_login','stripe_customer_id')
+    list_display = ('id','name','email','password',  'is_vendor', 'is_customer', 'firebase_token','is_staff', 'customer_login_type','customer_login_id','vendor_login_id','vendor_login_type','last_login','stripe_customer_id')
     readonly_fields = ('id',)
     list_filter = ('is_staff', 'is_superuser', 'groups')
     search_fields = ('email',)

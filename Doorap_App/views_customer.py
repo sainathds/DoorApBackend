@@ -40,6 +40,7 @@ import time
 from dateutil import parser
 from django.db.models import Q
 import stripe
+from django.utils import timezone
 #*************************************************************************** START CUSTOMER APP API  *****************************************************************
 
 @api_view(['GET'])
@@ -1414,13 +1415,17 @@ def Show_Nofification_Api(request):
         user_id = data.get('user_id',None)
         user_type = data.get('user_type',None)
         notification = Notifications.objects.filter(fk_user__id = user_id , user_type = user_type).values('id','fk_user','fk_order__id','fk_order__order_id','fk_user__name','notification','notification_date','is_seen','user_type')
+        
         for i in notification:
             if i['fk_order__id'] == None and i['fk_order__order_id'] == None:
-                i['fk_order__id'] = ""
-                i['fk_order__order_id'] = ""
+                i['fk_order__id'] = 0
+                i['fk_order__order_id'] = "0"
+                i['fk_user__name'] = "Admin"
             cur_date_time = datetime.now()
-            print(cur_date_time)
+            # print(cur_date_time)
             cur_time = datetime.fromisoformat(str(cur_date_time) ).strftime('%Y-%m-%d %H:%M:%S')
+            
+            # print(cur_time)
             notification_time = datetime.fromisoformat(str(i['notification_date']) ).strftime('%Y-%m-%d %H:%M:%S')
             calculate_time = parser.parse(cur_time) - parser.parse(notification_time)
             data = Calculate_Hour_Minute_Second_Day(calculate_time.days * 24 * 3600 + calculate_time.seconds)

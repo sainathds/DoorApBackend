@@ -42,6 +42,7 @@ urlpatterns = [
     path('show_item_detail/',views.Show_item_detail , name='show_item_detail'),
     path('test/',views.test , name='test'),
    
+    path('term_and_policy/',views.Terms_and_Policy , name='term_and_policy'),
     # path('test/',views.test , name='test')
     
 ]

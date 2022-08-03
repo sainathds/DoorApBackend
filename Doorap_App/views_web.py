@@ -1,4 +1,3 @@
-import random
 import string
 import traceback
 import requests
@@ -26,8 +25,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.viewsets import ModelViewSet
 from django.db.models import Q
 import datetime
-from django.conf import settings
-from django.core.mail import send_mail
 import random
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import types
@@ -1224,4 +1221,157 @@ def Send_Message(customer_id , status ,ord_id):
     }
     res = send_notification(token_list, message_title, message_body, data_message,order_status,user_type)
     print("notification responsre..................",res)
+               
+               
+               
+#******************************************** Test Social login api ************************************
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+@csrf_exempt
+def get_otp_Social(request):
+    try:
+        data = request.data
+        email = data.get('email', None)
+
+        if (email == "" or email==None):
+            return Response({'status': 403, "msg": 'Please check your request keys.'})
+        elif MyUser.objects.filter(email=data['email']).exists():
+            user_obj = MyUser.objects.get(email = email)
+            
+            if user_obj.is_vendor == True and user_obj.is_customer == True:
+                return Response({'status': 403,  "msg": 'This Email already registered as Vendor and Customer..'})
+            if user_obj.is_vendor == True:
+                temp_dict = {}
+                temp_dict["otp"] = 0
+                temp_dict["signup_msg"] = "This email is associated with Vendor. Do you want to continue as Customer?."
+                temp_dict["is_vendor"] = "True"
+                temp_dict["is_customer"] = "False"
+                return Response({'status': 200,"msg":"","payload":temp_dict})
+            if user_obj.is_customer == True:
+                temp_dict = {}
+                temp_dict["otp"] = 0
+                temp_dict["signup_msg"] = "This email is associated with Customer. Do you want to continue as Vendor?."
+                temp_dict["is_vendor"] = "False"
+                temp_dict["is_customer"] = "True"
+                return Response({'status': 200,"msg":"","payload":temp_dict})
+        else:
+            temp_dict = {}
+            otp = random.randint(1000,9999)
+            send_mail('Doorap Account Verification', f'Your OTP is {otp}.\nUse this OTP to complete your Account Verification.\nNote: Please do not share your OTP or password with anyone.\nIf you have any questions or if we can further assist you in any way, please feel free email us at noreplydoorap@gmail.com\nThank You,\nTeam Doorap', settings.EMAIL_HOST_USER, [email])
+            temp_dict['otp'] = otp
+            temp_dict["signup_msg"] = ""
+
+            return Response({'status': 200, "msg": 'OTP Sent Successfully.', 'payload': temp_dict})
+    except BaseException as e:
+        traceback.print_exc()
+        return Response({'status': 403, "msg": 'Something went wrong.'})
+
+
+
+
+
+
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+@csrf_exempt
+def social_sign_up(request):
+    try:
+        data = request.data
+        name = data.get('name', None)
+        email = data.get('email', None)
+        password = data.get('password',None)
+        firebase_token = data.get('firebase_token', None)
+        is_vendor1 = data.get('is_vendor', None)
+        is_customer1 = data.get('is_customer',None)
+        login_id = data.get('login_id',None)
+        login_type = data.get('login_type',None)
+        
+        if MyUser.objects.filter(email = email,is_vendor = True).exists():
+            
+            user_obj = MyUser.objects.get(email=email)
+            serializer1 = CustomerSignUpSocial(user_obj,data = request.data)
+            if serializer1.is_valid():
+
+                serializer1.save()
+
+                #generate token
+                temp_obj = MyTokenObtainPairSerializer()
+                token = temp_obj.validate(user_obj)
+
+                temp_dict = {}
+                temp_dict['id'] = serializer1.data.get('id',None)
+                temp_dict['email'] = serializer1.data.get('email',None)
+                temp_dict['firebase_token'] = serializer1.data.get('firebase_token',None)
+                temp_dict['password'] = serializer1.data.get('password',None)
+                temp_dict['api_token'] = token
+
+                return Response({'status': 200, "msg": 'SignUp successfully.', 'payload': temp_dict})
+            else:
+                print(serializer1.errors)
+                return Response({'status': 403, "msg": 'Something went wrong.'})
+        elif MyUser.objects.filter(email = email , is_customer = True):
+            
+            user_obj = MyUser.objects.get(email=email)
+            serializer1 = VenderSignUpSocial(user_obj,data = request.data)
+            if serializer1.is_valid():
+                serializer1.save()
+
+                #generate token
+                temp_obj = MyTokenObtainPairSerializer()
+                token = temp_obj.validate(user_obj)
+
+                temp_dict = {}
+                temp_dict['id'] = serializer1.data.get('id',None)
+                temp_dict['email'] = serializer1.data.get('email',None)
+                temp_dict['firebase_token'] = serializer1.data.get('firebase_token',None)
+                temp_dict['password'] = serializer1.data.get('password',None)
+                temp_dict['api_token'] = token
+
+
+                return Response({'status': 200, "msg": 'SignUp successfully.', 'payload': temp_dict})
+            else:
+                print(serializer1.errors)
+                return Response({'status': 403, "msg": 'Something went wrong.'})
+        else:
+            print("######################")
+            if(email == "" or email == None) or (name == "" or name == None) or (password == "" or password == None) or (firebase_token == "" or firebase_token == None) or (is_vendor1 == "" or is_vendor1 == None) or (is_customer1 == "" or is_customer1 == None):
+                return Response({'status':403, "msg":'Please check your request keys.'})
+            else:
                 
+                serializer1 = MyUserSerializerTest(data = request.data)
+                if serializer1.is_valid():
+                    serializer1.save()
+                    host_url = request.build_absolute_uri().rsplit('/', 3)[0]
+                    data = {
+                        'email': email,
+                        'password': password,
+                    }
+                    URL = f'{host_url}/gettoken/'
+                    headers = {'content-Type':'application/json'}
+                    json_data = json.dumps(data)
+                    r = requests.post(url = URL,headers=headers, data=json_data)
+
+                    temp_dict = {}
+                    temp_dict['id'] = serializer1.data.get('id',None)
+                    temp_dict['email'] = serializer1.data.get('email',None)
+                    temp_dict['firebase_token'] = serializer1.data.get('firebase_token',None)
+                    temp_dict['password'] = serializer1.data.get('password',None)
+                    
+                    temp_dict['api_token'] = r.json()
+
+                    return Response({'status': 200, "msg": 'SignUp successfully.', 'payload': temp_dict})
+                else:
+                    print(serializer1.errors)
+                    return Response({'status': 403, "msg": 'Something went wrong.'})
+    except BaseException as e:
+        traceback.print_exc()
+        return Response({'status': 403, "msg": 'Something went wrong.'})
+
+
+
+
+
+
+
+
+#**************************************** ***************************************** ***************************
