@@ -179,7 +179,7 @@ def ApproveReject(request):
                     "click_action": "FLUTTER_NOTIFICATION_CLICK",
                 }
                 res = send_notification(token_list, message_title, message_body, data_message,order_status,user_type)
-                Notifications.objects.create(fk_user = vender_obj.fk_user , notification = message_body , notification_date = cur_date_time , user_type = "Vendor")
+                Notifications.objects.create(fk_user = vender_obj.fk_user , notification = message_body , notification_date = cur_date_time , user_type = "Vendor" , title_name = vender_obj.full_name)
                 print("notification responsre..................",res)
                 
                 # End Send nofication on mobile app code
@@ -221,7 +221,7 @@ def ApproveReject(request):
                     "click_action": "FLUTTER_NOTIFICATION_CLICK",
                 }
                 res = send_notification(token_list, message_title, message_body, data_message,order_status,user_type)
-                Notifications.objects.create(fk_user = vender_obj.fk_user, notification = message_body ,notification_date = cur_date_time , user_type = "Vendor")
+                Notifications.objects.create(fk_user = vender_obj.fk_user, notification = message_body ,notification_date = cur_date_time , user_type = "Vendor",title_name = vender_obj.full_name)
                 print("notification responsre..................",res)
                 
                 # End Send nofication on mobile app code
@@ -886,8 +886,15 @@ def Show_item_detail(request):
 #********************** End Mobile App Send Nofification Function ********************************* 
  
 
-def Terms_and_Policy(request):
-    return render(request,'admin_panel/terms_and_policy.html')
+
+def Privacy_Policy(request):
+    return render(request,'admin_panel/privacy_policy.html')
+
+def Terms_of_Service(request):
+    return render(request,'admin_panel/terms_of_service.html')
+
+def Refund_Policy(request):
+    return render(request,'admin_panel/refund_policy.html')
 
         
 

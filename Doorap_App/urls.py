@@ -42,7 +42,9 @@ urlpatterns = [
     path('show_item_detail/',views.Show_item_detail , name='show_item_detail'),
     path('test/',views.test , name='test'),
    
-    path('term_and_policy/',views.Terms_and_Policy , name='term_and_policy'),
+    path('privacy_policy/',views.Privacy_Policy ,name='privacy_policy'),
+    path('terms_of_service/',views.Terms_of_Service , name='terms_of_service'),
+    path('refund_policy/',views.Refund_Policy , name = 'refund_policy')
     # path('test/',views.test , name='test')
     
 ]

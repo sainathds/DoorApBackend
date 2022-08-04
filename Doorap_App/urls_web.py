@@ -65,4 +65,5 @@ urlpatterns = [
    
    path('social_signup/',views_web.social_sign_up , name='social_signup'),
    path('social_otp/',views_web.get_otp_Social , name='social_otp'),
+   path('social_login/',views_web.Vender_login_social , name='social_login'),
 ]

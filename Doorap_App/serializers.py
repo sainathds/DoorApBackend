@@ -255,9 +255,12 @@ class CustomerSignUpSocial(serializers.ModelSerializer):
         fields = "__all__"
         
     def update(self,instance, validated_data):
-        print(instance)
-        instance.firebase_token=validated_data['firebase_token'],
+        print("---------")
+        instance.firebase_token=validated_data['firebase_token']
         instance.is_customer = validated_data['is_customer']
+        instance.customer_login_id = validated_data['customer_login_id']
+        instance.customer_login_type = validated_data['customer_login_type']
+        
         instance.save()
         return instance
         
@@ -269,8 +272,10 @@ class VenderSignUpSocial(serializers.ModelSerializer):
         fields = "__all__"
         
     def update(self,instance, validated_data):
-        instance.firebase_token=validated_data['firebase_token'],
+        instance.firebase_token=validated_data['firebase_token']
         instance.is_vendor = validated_data['is_vendor']
+        instance.vendor_login_id = validated_data['vendor_login_id']
+        instance.vendor_login_type = validated_data['vendor_login_type']
         instance.save()
         return instance 
 
@@ -285,18 +290,62 @@ class MyUserSerializerTest(serializers.ModelSerializer):
         """ Creates and returns a new user """
 
         # Validating Data
-        print(validated_data)
+        print(validated_data,'------------------------------+++')
+        # print(self.context,'................')
+        
+        # user = MyUser.objects.create(**validated_data)
+        # return urser
+        
         user = MyUser(
         name = validated_data['name'],
         email=validated_data['email'],
         firebase_token=validated_data['firebase_token'],
         is_vendor =validated_data['is_vendor'],
         is_customer = validated_data['is_customer'],
+        vendor_login_id = validated_data['vendor_login_id'],
+        vendor_login_type = validated_data['vendor_login_type'],
+        customer_login_id = validated_data['customer_login_id'],
+        customer_login_type = validated_data['customer_login_type']
         )
-        user.set_password(validated_data['password'])
         
+        if 'password' in validated_data:
+            print(validated_data['password'],'-----------------------------------')
+            if validated_data['password'] != "" and validated_data['password'] != "null" and validated_data['password'] != None and validated_data['password'] != "None":
+                user.set_password(validated_data['password'])
+            else:
+                print('without password','-----------------------------------')
         user.save()
         return user
+
+
+
+
+class MyUserLoginSerializerSocial(serializers.ModelSerializer):
+    email = serializers.EmailField(required=False, allow_blank=True)
+    password = serializers.CharField(style={'input_type': 'password'})
+    
+    class Meta:
+        model = MyUser
+        fields = '__all__'
+    
+    def validate(self, data):
+        username = data.get('email',None)
+        password = data.get('password',None)
+        
+        if username and password:
+            user = authenticate(username = username , password = password)
+            user.firebase_token = data.get('firebase_token')
+            user.save()
+            
+            if not user:
+                msg = _('Invalid Credentials.')
+                raise serializers.ValidationError(msg, code='authorization')
+        else:
+            msg = _('Must include "username" and "password".')
+            raise serializers.ValidationError(msg, code='blank')
+        
+        return user
+        
     
         
         

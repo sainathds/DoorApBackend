@@ -295,7 +295,7 @@ def Vender_login(request):
         email = data.get('email',None)
         password = data.get('password',None)
         firebase_token = data.get('firebase_token',None)
-        if (email == "" or email == None) or (password == "" or password == None) or (firebase_token == "" or firebase_token == None):
+        if (email == "" or email == None)  or (firebase_token == "" or firebase_token == None):
            return Response({'status':403, "msg":'Please check your request keys.'})
         else:
             try:
@@ -360,6 +360,7 @@ def Vender_login(request):
                 else:
                     return Response({"status": 403, "msg": 'Login failed'})
             except ValidationError as e:
+                traceback.print_exc()
                 return Response({"status": 403, "msg": 'Invalid credentials'})
             except:
                 traceback.print_exc()
@@ -1026,7 +1027,7 @@ def Order_Accept_Decline(request):
         
         order_obj = OrderDetails.objects.get(id = sid , order_id = order_id)
         OrderDetails.objects.filter( id = sid , order_id = order_id).update(order_status = order_status)
-        Send_Message(customer_id , order_status , sid)
+        Send_Message(customer_id , order_status , sid,order_obj.fk_vendor.full_name)
         if order_status == "Rejected":
             refund = stripe.Refund.create(payment_intent=order_obj.payment_intent_id, amount=(int((str(order_obj.total_amount).split('.'))[0])) * 100)
             OrderDetails.objects.filter( id = sid , order_id = order_id).update(stripe_refund_id = refund['id'] , stripe_refund_txtid = refund['balance_transaction'] , stripe_refund_status = refund['status'])
@@ -1060,7 +1061,8 @@ def Order_Start_Job(request):
             return Response({'status':403,'msg':'You have already started job.Please complete your previous job and start a new job.'})
         else:
             OrderDetails.objects.filter( id = sid , order_id = order_id).update(order_status = order_status)
-            Send_Message(customer_id , order_status , sid)
+            vendor_obj = VendorDetails.objects.get(fk_user__id = vendor_id)
+            Send_Message(customer_id , order_status , sid,vendor_obj.full_name)
             return Response({'status':200,'msg':'You are ready to start new job.'})
     except:
         traceback.print_exc()
@@ -1162,7 +1164,7 @@ def send_notification(token_list, message_title, message_body, data_message,orde
         return "error"
         
 
-def Send_Message(customer_id , status ,ord_id):
+def Send_Message(customer_id , status ,ord_id,title):
     user_obj = MyUser.objects.get(id = customer_id)
     
     ord_obj = OrderDetails.objects.get(id = ord_id)
@@ -1179,32 +1181,32 @@ def Send_Message(customer_id , status ,ord_id):
     if status =="Accepted":
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
         user_type = "Customer"
-        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj ,  notification = message_body, notification_date = cur_date_time , user_type = user_type)
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj ,  notification = message_body, notification_date = cur_date_time , user_type = user_type,title_name = title)
         order_status = "Accepted"
         
     elif status == "Cancelled":
         message_body = "Dear " + str(user_obj.name)+ " We are sorry to inform you that your order has been " +status +" by vendor."
         user_type = "Customer"
-        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type)
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type,title_name = title)
         order_status = "Cancelled"
         
     elif status == "Rejected":
         message_body = "Dear " + str(user_obj.name)+ " We are sorry to inform you that your order has been " +status +" by vendor."
         user_type = "Customer"
-        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type)
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type,title_name = title)
         order_status = "Rejected"
         
     elif status == "Started":
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
         order_status = "Started"
         user_type = "Customer"
-        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type)
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type,title_name = title)
         
     else:
         order_status = "Started"
         user_type = "Customer"
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
-        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type)
+        Notifications.objects.create(fk_user = user_obj , fk_order = ord_obj , notification = message_body, notification_date = cur_date_time , user_type = user_type,title_name = title)
     data_message = {
         'title':message_title,
         "body":message_body,
@@ -1283,13 +1285,11 @@ def social_sign_up(request):
         firebase_token = data.get('firebase_token', None)
         is_vendor1 = data.get('is_vendor', None)
         is_customer1 = data.get('is_customer',None)
-        login_id = data.get('login_id',None)
-        login_type = data.get('login_type',None)
         
         if MyUser.objects.filter(email = email,is_vendor = True).exists():
-            
+            print("***********************",data)
             user_obj = MyUser.objects.get(email=email)
-            serializer1 = CustomerSignUpSocial(user_obj,data = request.data)
+            serializer1 = CustomerSignUpSocial(user_obj,data = data)
             if serializer1.is_valid():
 
                 serializer1.save()
@@ -1310,9 +1310,10 @@ def social_sign_up(request):
                 print(serializer1.errors)
                 return Response({'status': 403, "msg": 'Something went wrong.'})
         elif MyUser.objects.filter(email = email , is_customer = True):
-            
+            print("-------------")
             user_obj = MyUser.objects.get(email=email)
-            serializer1 = VenderSignUpSocial(user_obj,data = request.data)
+            print(data)
+            serializer1 = VenderSignUpSocial(user_obj,data = data)
             if serializer1.is_valid():
                 serializer1.save()
 
@@ -1334,30 +1335,36 @@ def social_sign_up(request):
                 return Response({'status': 403, "msg": 'Something went wrong.'})
         else:
             print("######################")
-            if(email == "" or email == None) or (name == "" or name == None) or (password == "" or password == None) or (firebase_token == "" or firebase_token == None) or (is_vendor1 == "" or is_vendor1 == None) or (is_customer1 == "" or is_customer1 == None):
+            if(email == "" or email == None) or (name == "" or name == None)  or (firebase_token == "" or firebase_token == None) or (is_vendor1 == "" or is_vendor1 == None) or (is_customer1 == "" or is_customer1 == None):
                 return Response({'status':403, "msg":'Please check your request keys.'})
             else:
                 
-                serializer1 = MyUserSerializerTest(data = request.data)
+                
+                # serializer1 = MyUserSerializerTest(data = data, context={'login_id':data['login_id'], 'login_type':data['login_type']})
+                print(data)
+                serializer1 = MyUserSerializerTest(data = data)
                 if serializer1.is_valid():
                     serializer1.save()
-                    host_url = request.build_absolute_uri().rsplit('/', 3)[0]
-                    data = {
-                        'email': email,
-                        'password': password,
-                    }
-                    URL = f'{host_url}/gettoken/'
-                    headers = {'content-Type':'application/json'}
-                    json_data = json.dumps(data)
-                    r = requests.post(url = URL,headers=headers, data=json_data)
-
+                    # host_url = request.build_absolute_uri().rsplit('/', 3)[0]
+                    # data = {
+                        # 'email': email,
+                        # 'password': password,
+                    # }
+                    # URL = f'{host_url}/gettoken/'
+                    # headers = {'content-Type':'application/json'}
+                    # json_data = json.dumps(data)
+                    # r = requests.post(url = URL,headers=headers, data=json_data)
+                    print(type(serializer1.data))
+                    user_obj = MyUser.objects.get(email = email)
+                    temp_obj = MyTokenObtainPairSerializer()
+                    token = temp_obj.validate(user_obj)
                     temp_dict = {}
                     temp_dict['id'] = serializer1.data.get('id',None)
                     temp_dict['email'] = serializer1.data.get('email',None)
                     temp_dict['firebase_token'] = serializer1.data.get('firebase_token',None)
                     temp_dict['password'] = serializer1.data.get('password',None)
                     
-                    temp_dict['api_token'] = r.json()
+                    temp_dict['api_token'] = token
 
                     return Response({'status': 200, "msg": 'SignUp successfully.', 'payload': temp_dict})
                 else:
@@ -1366,8 +1373,101 @@ def social_sign_up(request):
     except BaseException as e:
         traceback.print_exc()
         return Response({'status': 403, "msg": 'Something went wrong.'})
+        
+        
 
 
+@api_view(['POST'])
+@permission_classes((AllowAny,))
+@csrf_exempt
+def Vender_login_social(request):
+    try:
+        data = request.data
+        email = data.get('email',None)
+        password = data.get('password',None)
+        firebase_token = data.get('firebase_token',None)
+        if (email == "" or email == None)  or (firebase_token == "" or firebase_token == None):
+           return Response({'status':403, "msg":'Please check your request keys.'})
+        else:
+            temp_dict = {}
+            if MyUser.objects.filter(email = email , password = None).exists():
+                MyUser.objects.filter(email = email).update(firebase_token = firebase_token)
+                user_obj = MyUser.objects.get(email = email)
+                temp_obj = MyTokenObtainPairSerializer()
+                token = temp_obj.validate(user_obj)
+                temp_dict['id'] = user_obj.id
+                temp_dict['name'] = user_obj.name
+                temp_dict['email'] = user_obj.email
+                temp_dict['firebase_token'] = user_obj.firebase_token
+                temp_dict['is_vendor'] = user_obj.is_vendor
+                temp_dict['is_customer'] = user_obj.is_customer
+                temp_dict['is_profile_create'] = user_obj.is_profile_create
+                temp_dict['api_token'] = token
+                return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
+            else:
+                try:
+                    serializer = MyUserLoginSerializerSocial(data = data)
+                    if serializer.is_valid(raise_exception = True):
+                        
+                        user_obj = MyUser.objects.get(email = email)
+                        temp_obj = MyTokenObtainPairSerializer()
+                        token = temp_obj.validate(user_obj)
+
+                        
+                        if serializer.data.get('is_vendor',None) == True and serializer.data.get('is_customer',None) == True:
+                            print("*****************1")
+                            vender = serializer.data.get('is_vendor',None)
+                            user_id = MyUser.objects.get(id = serializer.data.get('id',None))
+
+                            temp_dict['id'] = serializer.data.get('id',None)
+                            temp_dict['name'] = serializer.data.get('name',None)
+                            temp_dict['email'] = serializer.data.get('email',None)
+                            temp_dict['firebase_token'] = serializer.data.get('firebase_token',None)
+                            temp_dict['is_vendor'] = serializer.data.get('is_vendor',None)
+                            temp_dict['is_customer'] = serializer.data.get('is_customer',None)
+                            temp_dict['is_profile_create'] = user_id.is_profile_create
+                            temp_dict['api_token'] = token
+                            return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
+                        elif serializer.data.get('is_vendor',None) == True:
+                            print("*****************2")
+                            vender = serializer.data.get('is_vendor',None)
+                            user_id = MyUser.objects.get(id = serializer.data.get('id',None))
+
+                            temp_dict['id'] = serializer.data.get('id',None)
+                            temp_dict['name'] = serializer.data.get('name',None)
+                            temp_dict['email'] = serializer.data.get('email',None)
+                            temp_dict['firebase_token'] = serializer.data.get('firebase_token',None)
+                            temp_dict['is_vendor'] = serializer.data.get('is_vendor',None)
+                            temp_dict['is_customer'] = serializer.data.get('is_customer',None)
+                            temp_dict['is_profile_create'] = user_id.is_profile_create
+                            temp_dict['api_token'] = token
+                            return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
+                        elif serializer.data.get('is_customer',None) == True:
+                            print("*****************3")
+                            vender = serializer.data.get('is_vendor',None)
+                            user_id = MyUser.objects.get(id = serializer.data.get('id',None))
+                            temp_dict['id'] = serializer.data.get('id',None)
+                            temp_dict['name'] = serializer.data.get('name',None)
+                            temp_dict['email'] = serializer.data.get('email',None)
+                            temp_dict['firebase_token'] = serializer.data.get('firebase_token',None)
+                            temp_dict['is_vendor'] = serializer.data.get('is_vendor',None)
+                            temp_dict['is_customer'] = serializer.data.get('is_customer',None)
+                            temp_dict['is_profile_create'] = user_id.is_profile_create
+                            temp_dict['api_token'] = token
+                            return Response({'status': 200, "msg": 'Logged In Successfully.', 'payload': temp_dict})
+                        else:
+                            pass
+                    else:
+                        return Response({"status": 403, "msg": 'Login failed'})
+                except ValidationError as e:
+                    traceback.print_exc()
+                    return Response({"status": 403, "msg": 'Invalid credentials'})
+                except:
+                    traceback.print_exc()
+                    return Response({"status": 403, "msg": 'Invalid credentials'})
+    except:
+        traceback.print_exc()
+        return Response({'status':403, "msg":'Something went wrong'})
 
 
 

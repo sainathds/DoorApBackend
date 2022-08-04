@@ -859,7 +859,7 @@ def Save_Order_Details(request):
             AppliedOfferCode.objects.filter(id = applied_id).delete()
         user_obj = MyUser.objects.get( email = vendor_obj.fk_user)
         
-        Send_Message(user_obj.id,"Vendor_Order",customer_obj.name,order_obj.id )
+        Send_Message(user_obj.id,"Vendor_Order",customer_obj.name,order_obj.id,customer_obj.name )
         return Response({'status':200,'msg':'Order Details Save Sucessfully.','payload':payload})
     except:
         traceback.print_exc()
@@ -1271,7 +1271,8 @@ def Customer_Cancel_Order(request):
                 # OrderDetails.objects.filter(id = sid, order_id = order_id).update(order_status = "Cancelled")
                 
                 vendor_obj = VendorDetails.objects.get(id = vendor_id)
-                data = Send_Message(vendor_obj.fk_user.id,"Cancelled",None,sid)
+                user_obj = OrderDetails.objects.get(id = sid)
+                data = Send_Message(vendor_obj.fk_user.id,"Cancelled",None,sid,user_obj.fk_customer.name)
                 
                 return Response({'status':200,'msg':'Order Cancelled Successfully.'})
             else:
@@ -1296,7 +1297,8 @@ def Order_Completed(request):
         else:
             OrderDetails.objects.filter( id = sid , order_id = order_id).update(order_status = "Completed")
             vendor_obj = VendorDetails.objects.get(id = vendor_id)
-            Send_Message(vendor_obj.fk_user.id ,"Completed",None,sid)
+            user_obj = OrderDetails.objects.get( id = sid)
+            Send_Message(vendor_obj.fk_user.id ,"Completed",None,sid , user_obj.fk_customer.name)
             return Response({'status':200,'msg':'Order Completed.'})
     except:
         traceback.print_exc()
@@ -1414,13 +1416,13 @@ def Show_Nofification_Api(request):
         data = request.data
         user_id = data.get('user_id',None)
         user_type = data.get('user_type',None)
-        notification = Notifications.objects.filter(fk_user__id = user_id , user_type = user_type).values('id','fk_user','fk_order__id','fk_order__order_id','fk_user__name','notification','notification_date','is_seen','user_type')
+        notification = Notifications.objects.filter(fk_user__id = user_id , user_type = user_type).order_by('-id').values('id','fk_user','fk_order__id','fk_order__order_id','title_name','notification','notification_date','is_seen','user_type')
         
         for i in notification:
             if i['fk_order__id'] == None and i['fk_order__order_id'] == None:
                 i['fk_order__id'] = 0
                 i['fk_order__order_id'] = "0"
-                i['fk_user__name'] = "Admin"
+                i['title_name'] = "Admin"
             cur_date_time = datetime.now()
             # print(cur_date_time)
             cur_time = datetime.fromisoformat(str(cur_date_time) ).strftime('%Y-%m-%d %H:%M:%S')
@@ -1541,9 +1543,10 @@ def send_notification(token_list, message_title, message_body, data_message,orde
         return "error"
         
 
-def Send_Message(vendor_id , status,customer_name,ord_id):
+def Send_Message(vendor_id , status,customer_name,ord_id,title):
     if customer_name == None:
         pass
+    
     user_obj = MyUser.objects.get(id = vendor_id)
     order_obj = OrderDetails.objects.get( id = ord_id)
     token_list = []
@@ -1559,23 +1562,23 @@ def Send_Message(vendor_id , status,customer_name,ord_id):
     if status =="Completed":
         order_status = "Completed"
         user_type = "Vendor"
-        message_body = "Dear Vendor Customer Job Completed."
-        Notifications.objects.create(fk_user = user_obj , fk_order = order_obj , notification = message_body , notification_date = cur_date_time , user_type = "Vendor")
+        message_body = "Dear "+ str(user_obj.name) +" job is completed by " + title +"."
+        Notifications.objects.create(fk_user = user_obj , fk_order = order_obj , notification = message_body , notification_date = cur_date_time , user_type = "Vendor",title_name = title)
     elif status == "Cancelled":
         order_status = "Cancelled"
         user_type = "Vendor"
-        message_body = "Dear Vendor We are sorry to inform you that your job has been " +status + " by Customer."
-        Notifications.objects.create(fk_user = user_obj , fk_order = order_obj ,  notification = message_body, notification_date = cur_date_time , user_type = "Vendor")
+        message_body = "Dear "+ str(user_obj.name) +" We are sorry to inform you that your job has been " +status + " by Customer."
+        Notifications.objects.create(fk_user = user_obj , fk_order = order_obj ,  notification = message_body, notification_date = cur_date_time , user_type = "Vendor",title_name = title)
     elif status =="Vendor_Order":
         order_status = "Pending"
         user_type = "Vendor"
-        message_body = "Dear Vendor you have receive a new job from " + str(customer_name)
-        Notifications.objects.create(fk_user = user_obj , fk_order = order_obj , notification = message_body, notification_date = cur_date_time , user_type = "Vendor")
+        message_body = "Dear "+ str(user_obj.name) +" you have receive a new job from " + str(customer_name)
+        Notifications.objects.create(fk_user = user_obj , fk_order = order_obj , notification = message_body, notification_date = cur_date_time , user_type = "Vendor" , title_name = title)
     else:
         order_status = "Cancelled"
         user_type = "Vendor"
         message_body = "Dear " + str(user_obj.name)+ " We would gladly like to inform you that your order has been "+status
-        Notifications.objects.create(fk_user = user_obj , fk_order = order_obj , notification = message_body, notification_date = cur_date_time , user_type = "Vendor")
+        Notifications.objects.create(fk_user = user_obj , fk_order = order_obj , notification = message_body, notification_date = cur_date_time , user_type = "Vendor" , title_name = title)
     data_message = {
         'title':message_title,
         "body":message_body,
