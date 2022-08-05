@@ -15,6 +15,8 @@
 	.custom-select{
 	width: 50px!important;
 	}
+	
+	
 </style>
 
 <!-- Content Wrapper. Contains page content -->
@@ -36,64 +38,63 @@
         </div>
 		<hr>
 		<div class="row">
-			<div class="col-md-2" style="margin-left:15.5rem;">
-				<div class="form-group">
-					<label for="exampleFormControlSelect1">Select Country</label>
-					<select class="form-control" id="country">
-					  <option>Select Country</option>
-					  {% for i in country %}
-						<option value={{i.id}}>{{i.country_name}}</option>
-					  {% endfor %}
-					  
-					</select>
-					<span id="errmsg1" style="color:red;  "></span><br>
+				<div class="col-md-2" style="margin-left:15.5rem;">
+					<div class="form-group">
+						<label for="exampleFormControlSelect1">Select Country</label>
+						<select class="form-control" id="country">
+						  <option>Select Country</option>
+						  {% for i in country %}
+							<option value={{i.id}}>{{i.country_name}}</option>
+						  {% endfor %}
+						  
+						</select>
+						<span id="errmsg1" style="color:red;  "></span><br>
+					</div>
+
 				</div>
-
-			</div>
 		
-		<div class="col-md-2" style="">
-			<div class="form-group">
-				<label for="exampleFormControlSelect1">Select Category</label>
-				<select class="form-control" id="category">
-				  <option>Select Category</option>
-				  {% for i in category %}
-					<option value={{i.id}}>{{i.category_name}}</option>
-				  {% endfor %}	
-				  
-				</select>
-				<span id="errmsg2" style="color:red;  "></span><br>
-			</div>
+				<div class="col-md-2" style="">
+					<div class="form-group">
+						<label for="exampleFormControlSelect1">Select Category</label>
+						<select class="form-control" id="category">
+						  <option>Select Category</option>
+						  {% for i in category %}
+							<option value={{i.id}}>{{i.category_name}}</option>
+						  {% endfor %}	
+						  
+						</select>
+						<span id="errmsg2" style="color:red;  "></span><br>
+					</div>
 
-		</div>
+				</div>
 		
-		<div class="col-md-2"> 
+				<div class="col-md-2"> 
 
-			 <div class="form-group">
-					<label for="exampleFormControlInput1">Promo Code</label><span>(max 8 char)</span>
-					<input type="text" class="form-control" id="offercode" placeholder="Enter Promocode" maxlength="8">
-					<span id="errmsg3" style="color:red;  "></span><br>
-			</div>
-		</div>
+					 <div class="form-group">
+							<label for="exampleFormControlInput1">Promo Code</label><span>(max 8 char)</span>
+							<input type="text" class="form-control" id="offercode" placeholder="Enter Promocode" maxlength="8">
+							<span id="errmsg3" style="color:red;  "></span><br>
+					</div>
+				</div>
 		
-		<div class="col-md-2"> 
+				<div class="col-md-2"> 
 
-			 <div class="form-group">
-					<label for="exampleFormControlInput1">Discount</label><span>(%)</span>
-					<input type="text" class="form-control" id="discount" placeholder="Enter Discount in %" maxlength="5" max="100" min="1" oninput="this.value = this.value.replace(/[^0-9+.]/g, '').replace(/(\..*)\./g, '$1');" onKeyDown="if(this.value.length==3 && event.keyCode>47 && event.keyCode < 58)return false;">
-					<span id="errmsg4" style="color:red;  "></span><br>
-			</div>
-		</div>
+					 <div class="form-group">
+							<label for="exampleFormControlInput1">Discount</label><span>(%)</span>
+							<input type="text" class="form-control" id="discount" placeholder="Enter Discount in %" maxlength="5" max="100" min="1" oninput="this.value = this.value.replace(/[^0-9+.]/g, '').replace(/(\..*)\./g, '$1');" onKeyDown="if(this.value.length==3 && event.keyCode>47 && event.keyCode < 58)return false;">
+							<span id="errmsg4" style="color:red;  "></span><br>
+					</div>
+				</div>
 		
-		<div class="col-md-2"> 
-
-			 <div class="form-group">
-					<label for="exampleFormControlInput1">Expiry Date</label>
-					<input type="date" class="form-control" id="expirydate" placeholder="Enter Discount" min="{% now 'Y-m-d' %}">
-					<span id="errmsg5" style="color:red;  "></span><br>
-			</div>
-		</div>
+				<div class="col-md-2" id="expiry"> 
+					 <div class="form-group">
+							<label for="exampleFormControlInput1">Expiry Date</label>
+							<input type="date" class="form-control" id="expirydate" placeholder="Enter Discount" min="{% now 'Y-m-d' %}">
+							<span id="errmsg5" style="color:red;  "></span><br>
+					</div>
+				</div>
 			<div class="col-md-4" style="margin: -35px auto;"> 
-					<button style="width:50%;     width: 50%;margin-left: 245px;margin-top: 22px;" type="button" class="btn btn-success" value="save" onclick="save_offer()">Save </button>
+					<button style="width:50%;     width: 50%;margin-left: 245px;margin-top: 22px;" type="button" id="offer_btn" class="btn btn-success" value="save" onclick="save_offer()">Save </button>
 			</div>
 		
 		</div>
@@ -106,7 +107,7 @@
 		<hr>
         <div class="row" style="background-color:white; margin-left: 15rem;">
 			<div class="table">
-				<table id="datatable1" class="table table-striped datatable" style="text-align:center;">
+				<table id="datatable1" class="table table-striped datatable">
 					 <thead>
 					<tr>
 					  <th scope="col">Sr No</th>

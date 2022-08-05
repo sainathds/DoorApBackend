@@ -47,12 +47,12 @@
 						  <div class="row">
 									<div class="col-sm-4" style="display:inline-flex;">
 										  <h6 class="mb-0">Full Name:- </h6>
-										  <span style="margin-left:20px;" class=" text-secondary"> {{ obj_vender.full_name }} </span>
+										  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary"> {{ obj_vender.full_name }} </span>
 									</div>
 									
 									<div class="col-sm-4" style="display:inline-flex;">
 										  <h6 class="mb-0">About me:-</h6>
-										  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.abount_me == "" %} - {% else %}  {{ obj_vender.abount_me }} {% endif %}</span>
+										  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary">{% if obj_vender.abount_me == "" %} - {% else %}  {{ obj_vender.abount_me }} {% endif %}</span>
 									</div>
 									<br>
 								</div>
@@ -60,13 +60,13 @@
 								<div class="row">
 									<div class="col-sm-4" style="display:inline-flex;">
 										 <h6 class="mb-0">Mobile:-</h6>
-										  <span style="margin-left:20px;" class=" text-secondary"> {{ obj_vender.mobile_no }} </span>
+										  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary"> {{ obj_vender.mobile_no }} </span>
 									</div>
 								
 								 
-									 <div class="col-sm-4" style="display:inline-flex;">
+									 <div class="col-sm-5" style="display:inline-flex;">
 										 <h6 class="mb-0">Business Name:-</h6>
-										  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.business_name == "" %} - {% else %}  {{ obj_vender.business_name }} {% endif %} </span>
+										  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary">{% if obj_vender.business_name == "" %} - {% else %}  {{ obj_vender.business_name }} {% endif %} </span>
 									</div>
 							</div>
 							
@@ -79,12 +79,12 @@
 						 <div class="row">
 										<div class="col-sm-6" style="display:inline-flex;">
 											  <h6 class="mb-0">Location:</h6>
-											  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.google_address == "" %} - {% else %} {{ obj_vender.google_address }} {% endif %}</span>
+											  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary">{% if obj_vender.google_address == "" %} - {% else %} {{ obj_vender.google_address }} {% endif %}</span>
 										</div>
 							
 										<div class="col-sm-6" style="display:inline-flex;">
 											  <h6 class="mb-0">Address Line 1:</h6>
-											  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.address_line_one == "" %} - {% else %} {{ obj_vender.address_line_one }} {% endif %}</span>
+											  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary">{% if obj_vender.address_line_one == "" %} - {% else %} {{ obj_vender.address_line_one }} {% endif %}</span>
 										</div>
 						
 							</div>
@@ -92,24 +92,25 @@
 						<div class="row">
 									<div class="col-sm-6" style="display:inline-flex;">
 										  <h6 class="mb-0">Address Line 2:</h6>
-										  <span style="margin-left:20px;" class=" text-secondary"> {% if obj_vender.address_line_two == "" %} - {% else %} {{ obj_vender.address_line_two }} {% endif %}</span>
+										  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary"> {% if obj_vender.address_line_two == "" %} - {% else %} {{ obj_vender.address_line_two }} {% endif %}</span>
 									</div>
 					
-									<div class="col-sm-2" style="display:inline-flex;">
+									<div class="col-sm-3" style="display:inline-flex;">
 										  <h6 class="mb-0">Country:</h6>
-										  <span style="margin-left:20px;" class=" text-secondary">{% if obj_vender.fk_country.country_name == "" %} - {% else %} {{ obj_vender.fk_country.country_name }} {% endif %}</span> 
+										  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary">{% if obj_vender.fk_country.country_name == "" %} - {% else %} {{ obj_vender.fk_country.country_name }} {% endif %}</span> 
 									</div>
 						
-									<div class="col-sm-2" style="display:inline-flex;">
+									<div class="col-sm-3" style="display:inline-flex;">
 										 <h6 class="mb-0">City:</h6>
-										  <span style="margin-left:20px;" class=" text-secondary">  {{ obj_vender.fk_city.city_name }} </span>
+										  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary">  {{ obj_vender.fk_city.city_name }} </span>
 									</div>
-					
-					
-									<div class="col-sm-2" style="display:inline-flex;">
-										  <h6 class="mb-0">Zip code:</h6>
-										  <span style="margin-left:20px;" class=" text-secondary">  {{ obj_vender.zip_code }} </span>
-									</div>
+						</div>
+						<br>
+						<div class="row">
+							<div class="col-sm-2" style="display:inline-flex;">
+								  <h6 class="mb-0">Zip code:</h6>
+								  <span style="margin-left:20px; margin-top: -2px;" class=" text-secondary">  {{ obj_vender.zip_code }} </span>
+							</div>
 						</div>
 					
 				</div>

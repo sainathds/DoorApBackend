@@ -587,6 +587,8 @@ pre code {
   }
 }
 
+  
+
 .row {
   display: -ms-flexbox;
   display: flex;
@@ -52248,3 +52250,36 @@ a.text-muted:hover {
   border-color: #4b545c !important;
 }
 /*# sourceMappingURL=adminlte.css.map */
+
+
+@media(min-width: 1366px) and  (max-width: 1366px) {
+	#offer_btn {
+		margin-left: 243px !important;
+		margin-top: 17px !important;
+	}	
+	#expiry{
+		margin-left: 70.5rem;
+		margin-top: -110px;
+	}
+	#pills-tab{
+		padding-left: 625px !important;
+	}
+	
+	.commision_btn{
+		width: 50% !important;
+		margin-left: 550px !important;
+		margin-top: -151px !important;
+	}
+	.col-sm-12
+	{
+		width:100% !important;
+	}
+	
+	#datatable1_filter{
+		margin-top:-55px !important;
+	}
+	#datatable_vendor_filter
+	{
+		margin-top:-55px !important;
+	}
+}

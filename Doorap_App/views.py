@@ -48,14 +48,20 @@ def logout(request):
 def Dashboard(request):
     if request.session.get('email'):
         count_customer = MyUser.objects.filter(is_customer = True).count()
-        count_vendor = MyUser.objects.filter(is_vendor = True).count()
+        
         active_offer = Offers.objects.filter(offercode_status = "Active").count()
         expired_offer = Offers.objects.filter(offercode_status = "Expired").count()
+        pending = VendorDetails.objects.filter(user_status = "Pending").count()
+        approve = VendorDetails.objects.filter(user_status = "Approve").count()
+        reject = VendorDetails.objects.filter(user_status = "Reject").count()
+        count_vendor = VendorDetails.objects.all().count()
         context = {
             "customer":count_customer,
             "vendor":count_vendor,
-            "active_offer":active_offer,
-            "expired_offer":expired_offer
+            "pending":pending,
+            "approve":approve,
+            "reject":reject,
+            "count_vendor":count_vendor
             }
         return render(request,"admin_panel/dashboard.html",context)
     else:
@@ -623,10 +629,10 @@ def Save_Customer_Commision(request):
                 category_obj = CategoryMaster.objects.get( id = category)
                 
                 if CommisionMaster.objects.filter(fk_country = country_obj , fk_category = category_obj , user_type = "Customer").exists():
-                    return JsonResponse({'status':'0','msg':'Commision Already Added.'})
+                    return JsonResponse({'status':'0','msg':'Commission Already Added.'})
                 else:
                     CommisionMaster.objects.create(fk_country = country_obj , fk_category = category_obj , commision = commision , user_type = "Customer")
-                    return JsonResponse({'status':'1','msg':'Commsion Added Successfully.'})
+                    return JsonResponse({'status':'1','msg':'Commission added successfully.'})
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
@@ -651,7 +657,7 @@ def Edit_Commision(request):
                     return JsonResponse({"status":"0","msg":"Something Went Wrong."})
                 else: 
                     CommisionMaster.objects.filter(id = commision_id).update(fk_country = country_obj , fk_category = category_obj ,  commision = commision)
-                    return JsonResponse({'status':'1','msg':'Commision Updated Successfully.'})
+                    return JsonResponse({'status':'1','msg':'Commission updated successfully.'})
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
@@ -669,7 +675,7 @@ def Delete_Commision(request):
                 
                 CommisionMaster.objects.filter(id = commision_id).delete()
                 
-                return JsonResponse({'status':'1','msg':'Commision Deleted Successfully.'})
+                return JsonResponse({'status':'1','msg':'Commission deleted duccessfully.'})
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:

@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="{% static 'admin_panel/plugins/select2/select2/select2.min.css' %}">
   <!-- Theme style -->
   <link rel="stylesheet" href="{% static 'admin_panel/dist/css/adminlte.min.css' %}">
+  <link rel="stylesheet" href="{% static 'admin_panel/dist/css/adminlte.css' %}">
   <!-- overlayScrollbars -->
   <link rel="stylesheet" href="{% static 'admin_panel/plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
   <!-- Daterange picker -->
@@ -138,31 +139,33 @@ li.nav-item.menu-open {
 					
 					<a href = "{% url 'customservice' %}" >
 						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Custom Services
-							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+							<!-- <i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i> -->
+							<i class="fab fa-servicestack" style="float: right; margin-right: 15px; "></i>
 						</li>
 					</a>
 					
 					<a href = "{% url 'Show_banner' %}" >
 						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Banner 
-							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+							<i class='fas fa-photo-video' style="float: right;margin-right: 15px;"></i>
 						</li>
 					</a>
 					
 					<a href = "{% url 'commision' %}" >
-						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Commision 
-							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Commission 
+							<i class='fas fa-percent' style="float: right;margin-right: 15px;"></i>
 						</li>
 					</a>
 					
 					
 					<a href = "{% url 'offer' %}" >
 						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Promo Code 
-							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+							<i class="fas fa-gift fa-1x" style="float: right;margin-right: 15px;"></i>
 						</li>
 					</a>
 					<a href = "{% url 'orders' %}" >
 						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Orders 
-							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
+							<!-- <i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i> -->
+							<i class='fas fa-store' style="float: right;margin-right: 15px;"></i>
 						</li>
 					</a>
 					
@@ -182,7 +185,8 @@ li.nav-item.menu-open {
 				<!-- </a> -->
 				<a href="{% url 'logout' %}">
 					<li class="nav-item menu-open" style="margin-left:5px;cursor:pointer;color:lightgray;">Logout
-						<i class="fas fa-sign-out-alt" style="float: right;margin-right: 12px;"></i>				
+						<!-- <i class="fas fa-sign-out-alt" style="float: right;margin-right: 12px;"></i> -->
+						<i class='fas fa-power-off' style="float: right;margin-right: 17px;"></i>
 					</li>
 				</a>
 				

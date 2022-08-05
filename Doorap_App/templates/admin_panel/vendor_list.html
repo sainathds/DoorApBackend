@@ -15,6 +15,25 @@
 	.custom-select{
 	width: 50px!important;
 	}
+	@media(min-width: 1366px) and  (max-width: 1366px) {
+	
+	#datatable_filter
+	{
+		margin-top:-55px !important;
+	}
+	#sr_no{
+		width:84px !important;
+	}
+	#mb_no{
+		width:35rem !important;
+	}
+	#bname{
+		width:50rem !important;
+	}
+	#cd{
+		width:50rem !important;
+	}
+}
 </style>
 <!-- Content Wrapper. Contains page content -->
   <!-- <div class="content-wrapper"> -->
@@ -44,14 +63,14 @@
 				<table id="datatable" class="table table-striped datatable table-responsive ">
 					 <thead>
 					<tr>
-					  <th scope="col">Sr No</th>
+					  <th scope="col" id="sr_no">Sr No</th>
 					  <th scope="col">Name</th>
-					  <th scope="col">Mobile No.</th>
+					  <th scope="col" id="mb_no">Mobile No.</th>
 					  <th scope="col">Email</th>
-					  <th scope="col">Business Name</th>
-					  <th scope="col">Created Date</th>
+					  <th scope="col" id="bname">Business Name</th>
+					  <th scope="col" id="cd">Created Date</th>
 					  <th scope="col">Status</th>
-					  <th scope="col" style="    width: 152.4375px;">Action</th>
+					  <th scope="col">Action</th>
 					  <th scope="col">View</th>
 					  
 					</tr>
@@ -65,7 +84,7 @@
 							  <td>{{i.mobile_no}}</td>
 							  <td>{{i.email}}</td>
 							  <td>{{i.business_name}}</td>
-							  <td>{{i.created_date.date}}
+							  <td>{{i.created_date.date}}</td>
 							  <td>{{i.user_status}}</td>
 							  <td>
 									{% if i.user_status == "Pending" %}

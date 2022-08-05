@@ -15,6 +15,13 @@
 	.custom-select{
 	width: 50px!important;
 	}
+	@media(min-width: 1366px) and  (max-width: 1366px) {
+	
+	#datatable_filter
+	{
+		margin-top:-55px !important;
+	}
+}
 </style>
 
 <!-- Content Wrapper. Contains page content -->
@@ -25,7 +32,7 @@
       <div class="container-fluid">
 			<div class="row mb-2">
 				  <div class="col-sm-6" style="margin-left:15.5rem;">
-					<h3 class="m-0">Commision</h3>
+					<h3 class="m-0">Commission</h3>
 				  </div>
 			</div>
 			<hr>
@@ -33,7 +40,7 @@
 	</div>
 
 			<div class="row" style="padding-bottom:15px;">
-					<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist" style="padding-left:770px;">
+					<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist" style="padding-left:700px;">
 						  <li class="nav-item">
 							<a style="    width: 197px; text-align: center;" class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true" onclick="customer_tab()">Customer</a>
 						  </li>
@@ -46,7 +53,7 @@
 			<hr>
 <div id="customer">
 		<div class="row">
-				<div class="col-md-2" style="margin-left:26.5rem;">
+				<div class="col-md-2" style="margin-left:23.5rem;">
 					<div class="form-group">
 						<label for="exampleFormControlSelect1">Select Country</label>
 						<select class="form-control" id="cust_country">
@@ -77,13 +84,13 @@
 				<div class="col-md-2"> 
 
 					 <div class="form-group">
-							<label for="exampleFormControlInput1">Commision</label><span>(%)</span>
-							<input type="text" class="form-control" id="cust_commision" placeholder="Enter Commision in %" maxlength="3">
+							<label for="exampleFormControlInput1">Commission</label><span>(%)</span>
+							<input type="text" class="form-control" id="cust_commision" placeholder="Enter Commission in %" maxlength="3">
 							<span id="errmsg3" style="color:red;  "></span><br>
 					</div>
 				</div>
 				<div class="col-md-3" style="margin:0 auto;"> 
-							<button style="width:50%;     width: 50%;margin-left: 0px;margin-top: 31px;" type="button" class="btn btn-success" value="save" onclick="customer_commision()">Save </button>
+							<button style="width:50%;     width: 50%;margin-left: 0px;margin-top: 31px;" id="commision_btn" type="button" class="btn btn-success commision_btn" value="save" onclick="customer_commision()">Save </button>
 				</div>
 		</div>
 		<section class="content" style="margin-left: 15px;" id="customer_table">
@@ -97,7 +104,7 @@
 										  <th scope="col">Sr No</th>
 										  <th scope="col">Country</th>
 										  <th scope="col">Category</th>
-										  <th scope="col">Commision</th>
+										  <th scope="col">Commission</th>
 										  <th scope="col">Action</th>					  
 										  
 										</tr>
@@ -131,7 +138,7 @@
 </div>
 <div id="vendor">
 		<div class="row">
-				<div class="col-md-2" style="margin-left:26.5rem;">
+				<div class="col-md-2" style="margin-left:23.5rem;">
 					<div class="form-group">
 						<label for="exampleFormControlSelect1">Select Country</label>
 						<select class="form-control" id="vend_country">
@@ -162,13 +169,13 @@
 				<div class="col-md-2"> 
 
 					 <div class="form-group">
-							<label for="exampleFormControlInput1">Commision</label><span>(%)</span>
-							<input type="text" class="form-control" id="vend_commision" placeholder="Enter Commision in %" maxlength="3">
+							<label for="exampleFormControlInput1">Commission</label><span>(%)</span>
+							<input type="text" class="form-control" id="vend_commision" placeholder="Enter Commission in %" maxlength="3">
 							<span id="errmsg6" style="color:red;  "></span><br>
 					</div>
 				</div>
 				<div class="col-md-3" style="margin:0 auto;"> 
-							<button style="width:50%;     width: 50%;margin-left: 0px;margin-top: 31px;" type="button" class="btn btn-success" value="save" onclick="vendor_commision()">Save </button>
+							<button style="width:50%;     width: 50%;margin-left: 0px;margin-top: 31px;" type="button" class="btn btn-success commision_btn" value="save" onclick="vendor_commision()">Save </button>
 				</div>
 		</div>
 		<section class="content" style="margin-left: 15px;" id="customer_table">
@@ -182,7 +189,7 @@
 										  <th scope="col">Sr No</th>
 										  <th scope="col">Country</th>
 										  <th scope="col">Category</th>
-										  <th scope="col">Commision</th>
+										  <th scope="col">Commission</th>
 										  <th scope="col">Action</th>					  
 										</tr>
 								  </thead>
@@ -222,7 +229,7 @@
 				  <!-- Modal content-->
 				  <div class="modal-content">
 					<div class="modal-header" style="background:grey;" >
-					   <h4 class="modal-title" style="color: #fff;">Update Customer Commision</h4>
+					   <h4 class="modal-title" style="color: #fff;">Update Customer Commission</h4>
 					  <button type="button" class="close"  style="color: #fff;" data-dismiss="modal" onclick="clear_data()">&times;</button>
 
 					</div>
