@@ -9,6 +9,15 @@
     right: 0px;
     left: 0px;
 	}
+	@media(min-width: 1366px) and  (max-width: 1366px) {
+	.data{
+	width: 280px;
+	}
+	.data1{
+	margin-left: 25px;
+	width: 280px;
+	}
+}
 </style>
 <div role="tabpanel" class="tab-pane fade active show" id="Dashboard">
     
@@ -45,18 +54,18 @@
 			<!-- </div> -->
 			
 			<div class="col-lg-3 col-6" >
-				<div class="small-box bg-success" style="height:140px; ">
+				<div class="small-box bg-success data" style="height:140px; ">
 					<h3 style="font-size: 20px;text-align: center; color:#1F2D3D;">Vendor </h3>
-					<hr>
+					<hr style="margin:1px 0 !important;">
 					<div class="row">
 						<div class="col-md-3">
 							<p style="margin-left:7px;">Pending</p>
 						</div>
 						<div class="col-md-3">
-							<p>Approve</p>
+							<p>Approved</p>
 						</div>
 						<div class="col-md-3">
-							<p>Reject</p>
+							<p>Rejected</p>
 						</div>
 						<div class="col-md-3">
 							<p>Total</p>
@@ -89,9 +98,9 @@
 			
 			<div class="col-lg-3 col-6" >
 			
-				<div class="small-box bg-warning" style="height:140px;">
+				<div class="small-box bg-warning data1" style="height:140px;">
 					<h3 style="font-size: 20px;text-align: center;">Customer </h3>
-					<hr>
+					<hr style="margin:1px 0 !important;">
 					<div class="inner">
 						<h4 style="text-align: center;">{{customer}}</h4>
 					</div>

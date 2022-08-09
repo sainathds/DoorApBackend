@@ -123,47 +123,47 @@ li.nav-item.menu-open {
 					<!-- </li> -->
 				<!-- </a> -->
 				<!-- <a href="/customer_list_page/"> -->
-					<a href="{% url 'vender_list' %}"><li  class="nav-item menu-open customer" style="margin-left:5px;cursor:pointer;color:lightgray;" >Vendor List
+					<a href="{% url 'vender_list' %}" id="vendorlist"><li  class="nav-item menu-open vendor" style="margin-left:5px;cursor:pointer;color:lightgray;" >Vendor List
 						<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
 						<!-- <i class="fa-regular fa-list" style="float: right;margin-right: 15px;"></i> -->
 					</li>
 					</a>
 				<!-- </a> -->
 				<!-- <a href="/commuter_list_page/" > -->
-					<a href = "{% url 'customerpage' %}" >
-						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Customer List
+					<a href = "{% url 'customerpage' %}" id="customerlist">
+						<li  class="nav-item menu-open customer" style="margin-left:5px;cursor:pointer;color:lightgray;" >Customer List
 							<i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i>
 						</li>
 					</a>
 					
 					
 					<a href = "{% url 'customservice' %}" >
-						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Custom Services
+						<li  class="nav-item menu-open customservice" style="margin-left:5px;cursor:pointer;color:lightgray;" >Custom Services
 							<!-- <i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i> -->
 							<i class="fab fa-servicestack" style="float: right; margin-right: 15px; "></i>
 						</li>
 					</a>
 					
 					<a href = "{% url 'Show_banner' %}" >
-						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Banner 
+						<li  class="nav-item menu-open banner" style="margin-left:5px;cursor:pointer;color:lightgray;" >Banner 
 							<i class='fas fa-photo-video' style="float: right;margin-right: 15px;"></i>
 						</li>
 					</a>
 					
 					<a href = "{% url 'commision' %}" >
-						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Commission 
+						<li  class="nav-item menu-open commision" style="margin-left:5px;cursor:pointer;color:lightgray;" >Commission 
 							<i class='fas fa-percent' style="float: right;margin-right: 15px;"></i>
 						</li>
 					</a>
 					
 					
 					<a href = "{% url 'offer' %}" >
-						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Promo Code 
+						<li  class="nav-item menu-open promocode" style="margin-left:5px;cursor:pointer;color:lightgray;" >Promo Code 
 							<i class="fas fa-gift fa-1x" style="float: right;margin-right: 15px;"></i>
 						</li>
 					</a>
 					<a href = "{% url 'orders' %}" >
-						<li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" >Orders 
+						<li  class="nav-item menu-open orders" style="margin-left:5px;cursor:pointer;color:lightgray;" >Orders 
 							<!-- <i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i> -->
 							<i class='fas fa-store' style="float: right;margin-right: 15px;"></i>
 						</li>
@@ -197,3 +197,11 @@ li.nav-item.menu-open {
     <!-- /.sidebar -->
   </aside>
   
+  <script>
+ 
+
+$("#customerlist").click(function(){
+  console.log("The paragraph was clicked.");
+});
+  
+  </script>

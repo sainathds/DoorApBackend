@@ -258,9 +258,8 @@ class CustomerSignUpSocial(serializers.ModelSerializer):
         print("---------")
         instance.firebase_token=validated_data['firebase_token']
         instance.is_customer = validated_data['is_customer']
-        instance.customer_login_id = validated_data['customer_login_id']
-        instance.customer_login_type = validated_data['customer_login_type']
-        
+        login_id = validated_data['login_id'],
+        login_type = validated_data['login_type']
         instance.save()
         return instance
         
@@ -274,8 +273,8 @@ class VenderSignUpSocial(serializers.ModelSerializer):
     def update(self,instance, validated_data):
         instance.firebase_token=validated_data['firebase_token']
         instance.is_vendor = validated_data['is_vendor']
-        instance.vendor_login_id = validated_data['vendor_login_id']
-        instance.vendor_login_type = validated_data['vendor_login_type']
+        login_id = validated_data['login_id'],
+        login_type = validated_data['login_type']
         instance.save()
         return instance 
 
@@ -302,10 +301,8 @@ class MyUserSerializerTest(serializers.ModelSerializer):
         firebase_token=validated_data['firebase_token'],
         is_vendor =validated_data['is_vendor'],
         is_customer = validated_data['is_customer'],
-        vendor_login_id = validated_data['vendor_login_id'],
-        vendor_login_type = validated_data['vendor_login_type'],
-        customer_login_id = validated_data['customer_login_id'],
-        customer_login_type = validated_data['customer_login_type']
+        login_id = validated_data['login_id'],
+        login_type = validated_data['login_type']
         )
         
         if 'password' in validated_data:

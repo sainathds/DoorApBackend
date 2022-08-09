@@ -37,6 +37,10 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     is_vendor = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=False)
     created_datime = models.DateTimeField(auto_now_add=True, blank=True,null=True)
+    
+    login_id = models.CharField(max_length = 50 , blank = True , null = True)
+    login_type = models.CharField(max_length = 50 , blank = True , null = True)
+    
     customer_login_type = models.CharField(max_length=50, blank=True, null=True)
     customer_login_id = models.CharField(max_length=50, blank=True, null=True)
     vendor_login_type = models.CharField(max_length=50, blank=True, null=True)

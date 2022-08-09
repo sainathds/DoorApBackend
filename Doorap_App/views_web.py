@@ -70,20 +70,73 @@ def get_otp(request):
             user_obj = MyUser.objects.get(email = email)
             if user_obj.is_vendor == True and user_obj.is_customer == True:
                 return Response({'status': 403,  "msg": 'This Email already registered as Vendor and Customer..'})
-            if user_obj.is_vendor == True:
+            
+            elif user_obj.is_vendor == True and user_obj.login_id == None and user_obj.login_type == None:
                 temp_dict = {}
                 temp_dict["otp"] = 0
                 temp_dict["signup_msg"] = "This email is associated with Vendor. Do you want to continue as Customer?."
                 temp_dict["is_vendor"] = "True"
                 temp_dict["is_customer"] = "False"
                 return Response({'status': 200,"msg":"","payload":temp_dict})
-            if user_obj.is_customer == True:
+            elif user_obj.is_customer == True and user_obj.login_id == None and user_obj.login_type == None:
                 temp_dict = {}
                 temp_dict["otp"] = 0
                 temp_dict["signup_msg"] = "This email is associated with Customer. Do you want to continue as Vendor?."
                 temp_dict["is_vendor"] = "False"
                 temp_dict["is_customer"] = "True"
                 return Response({'status': 200,"msg":"","payload":temp_dict})
+            else:
+                temp_dict = {}
+                temp_dict["otp"] = 0
+                temp_dict["signup_msg"] = "This email is associated with Customer as Google. Do you want to continue as Vendor?."
+                temp_dict["is_vendor"] = "False"
+                temp_dict["is_customer"] = "True"
+                return Response({'status': 200,"msg":"","payload":temp_dict})
+                # if user_obj.is_vendor == True and user_obj.login_type == "Facebook":
+                    # temp_dict = {}
+                    # temp_dict["otp"] = 0
+                    # temp_dict["signup_msg"] = "This email is associated with Vendor as Facebook. Do you want to continue as Customer?."
+                    # temp_dict["is_vendor"] = "True"
+                    # temp_dict["is_customer"] = "False"
+                    # return Response({'status': 200,"msg":"","payload":temp_dict})
+                # elif user_obj.is_vendor == True and  user_obj.login_type == "Google":
+                    # temp_dict = {}
+                    # temp_dict["otp"] = 0
+                    # temp_dict["signup_msg"] = "This email is associated with Vendor as Google. Do you want to continue as Customer?."
+                    # temp_dict["is_vendor"] = "True"
+                    # temp_dict["is_customer"] = "False"
+                    # return Response({'status': 200,"msg":"","payload":temp_dict})
+                # elif user_obj.is_vendor == True and user_obj.login_type == "Apple":
+                    # temp_dict = {}
+                    # temp_dict["otp"] = 0
+                    # temp_dict["signup_msg"] = "This email is associated with Vendor as Apple. Do you want to continue as Customer?."
+                    # temp_dict["is_vendor"] = "True"
+                    # temp_dict["is_customer"] = "False"
+                    # return Response({'status': 200,"msg":"","payload":temp_dict})
+                # elif user_obj.is_customer == True and user_obj.login_type == "Facebook" :
+                    # temp_dict = {}
+                    # temp_dict["otp"] = 0
+                    # temp_dict["signup_msg"] = "This email is associated with Customer as Facebook. Do you want to continue as Vendor?."
+                    # temp_dict["is_vendor"] = "False"
+                    # temp_dict["is_customer"] = "True"
+                    # return Response({'status': 200,"msg":"","payload":temp_dict})
+                # elif user_obj.is_customer == True and user_obj.login_type == "Google":    
+                    # temp_dict = {}
+                    # temp_dict["otp"] = 0
+                    # temp_dict["signup_msg"] = "This email is associated with Customer as Google. Do you want to continue as Vendor?."
+                    # temp_dict["is_vendor"] = "False"
+                    # temp_dict["is_customer"] = "True"
+                    # return Response({'status': 200,"msg":"","payload":temp_dict})
+                # elif user_obj.is_customer == True and user_obj.login_type == "Apple":    
+                    # temp_dict = {}
+                    # temp_dict["otp"] = 0
+                    # temp_dict["signup_msg"] = "This email is associated with Customer as Apple. Do you want to continue as Vendor?."
+                    # temp_dict["is_vendor"] = "False"
+                    # temp_dict["is_customer"] = "True"
+                    # return Response({'status': 200,"msg":"","payload":temp_dict})
+                
+                
+                
         else:
             temp_dict = {}
             otp = random.randint(1000,9999)
@@ -1234,28 +1287,98 @@ def get_otp_Social(request):
     try:
         data = request.data
         email = data.get('email', None)
-
+        print("---------------")
         if (email == "" or email==None):
             return Response({'status': 403, "msg": 'Please check your request keys.'})
         elif MyUser.objects.filter(email=data['email']).exists():
             user_obj = MyUser.objects.get(email = email)
-            
             if user_obj.is_vendor == True and user_obj.is_customer == True:
                 return Response({'status': 403,  "msg": 'This Email already registered as Vendor and Customer..'})
-            if user_obj.is_vendor == True:
+            
+            elif user_obj.is_vendor == True and user_obj.login_id == None and user_obj.login_type == None:
                 temp_dict = {}
                 temp_dict["otp"] = 0
                 temp_dict["signup_msg"] = "This email is associated with Vendor. Do you want to continue as Customer?."
                 temp_dict["is_vendor"] = "True"
                 temp_dict["is_customer"] = "False"
+                temp_dict['login_id'] = "" if user_obj.login_id == None else user_obj.login_id
+                temp_dict['login_type'] = "" if user_obj.login_type == None else user_obj.login_type
                 return Response({'status': 200,"msg":"","payload":temp_dict})
-            if user_obj.is_customer == True:
+            elif user_obj.is_customer == True and user_obj.login_id == None and user_obj.login_type == None:
                 temp_dict = {}
                 temp_dict["otp"] = 0
                 temp_dict["signup_msg"] = "This email is associated with Customer. Do you want to continue as Vendor?."
                 temp_dict["is_vendor"] = "False"
                 temp_dict["is_customer"] = "True"
+                temp_dict['login_id'] = "" if user_obj.login_id == None else user_obj.login_id
+                temp_dict['login_type'] = "" if user_obj.login_type == None else user_obj.login_type
                 return Response({'status': 200,"msg":"","payload":temp_dict})
+            else:
+                
+                if user_obj.is_vendor == True and user_obj.login_type == "Facebook":
+                    temp_dict = {}
+                    temp_dict["otp"] = 0
+                    temp_dict["signup_msg"] = "This email is associated with Vendor as Facebook. Do you want to continue as Customer?."
+                    temp_dict["is_vendor"] = "True"
+                    temp_dict["is_customer"] = "False"
+                    temp_dict['login_id'] = "" if user_obj.login_id == None else user_obj.login_id
+                    temp_dict['login_type'] = "" if user_obj.login_type == None else user_obj.login_type
+                    return Response({'status': 200,"msg":"","payload":temp_dict})
+                elif user_obj.is_vendor == True and  user_obj.login_type == "Google":
+                    temp_dict = {}
+                    temp_dict["otp"] = 0
+                    temp_dict["signup_msg"] = "This email is associated with Vendor as Google. Do you want to continue as Customer?."
+                    temp_dict["is_vendor"] = "True"
+                    temp_dict["is_customer"] = "False"
+                    temp_dict['login_id'] = "" if user_obj.login_id == None else user_obj.login_id
+                    temp_dict['login_type'] = "" if user_obj.login_type == None else user_obj.login_type
+                    return Response({'status': 200,"msg":"","payload":temp_dict})
+                elif user_obj.is_vendor == True and user_obj.login_type == "Apple":
+                    temp_dict = {}
+                    temp_dict["otp"] = 0
+                    temp_dict["signup_msg"] = "This email is associated with Vendor as Apple. Do you want to continue as Customer?."
+                    temp_dict["is_vendor"] = "True"
+                    temp_dict["is_customer"] = "False"
+                    temp_dict['login_id'] = "" if user_obj.login_id == None else user_obj.login_id
+                    temp_dict['login_type'] = "" if user_obj.login_type == None else user_obj.login_type
+                    return Response({'status': 200,"msg":"","payload":temp_dict})
+                elif user_obj.is_customer == True and user_obj.login_type == "Facebook" :
+                    temp_dict = {}
+                    temp_dict["otp"] = 0
+                    temp_dict["signup_msg"] = "This email is associated with Customer as Facebook. Do you want to continue as Vendor?."
+                    temp_dict["is_vendor"] = "False"
+                    temp_dict["is_customer"] = "True"
+                    temp_dict['login_id'] = "" if user_obj.login_id == None else user_obj.login_id
+                    temp_dict['login_type'] = "" if user_obj.login_type == None else user_obj.login_type
+                    return Response({'status': 200,"msg":"","payload":temp_dict})
+                elif user_obj.is_customer == True and user_obj.login_type == "Google":    
+                    temp_dict = {}
+                    temp_dict["otp"] = 0
+                    temp_dict["signup_msg"] = "This email is associated with Customer as Google. Do you want to continue as Vendor?."
+                    temp_dict["is_vendor"] = "False"
+                    temp_dict["is_customer"] = "True"
+                    temp_dict['login_id'] = "" if user_obj.login_id == None else user_obj.login_id
+                    temp_dict['login_type'] = "" if user_obj.login_type == None else user_obj.login_type
+                    return Response({'status': 200,"msg":"","payload":temp_dict})
+                elif user_obj.is_customer == True and user_obj.login_type == "Apple":    
+                    temp_dict = {}
+                    temp_dict["otp"] = 0
+                    temp_dict["signup_msg"] = "This email is associated with Customer as Apple. Do you want to continue as Vendor?."
+                    temp_dict["is_vendor"] = "False"
+                    temp_dict["is_customer"] = "True"
+                    temp_dict['login_id'] = "" if user_obj.login_id == None else user_obj.login_id
+                    temp_dict['login_type'] = "" if user_obj.login_type == None else user_obj.login_type
+                    return Response({'status': 200,"msg":"","payload":temp_dict})
+                    
+                else:
+                    temp_dict = {}
+                    temp_dict["otp"] = 0
+                    temp_dict["signup_msg"] = "This email is associated with Customer as Google. Do you want to continue as Vendor?."
+                    temp_dict["is_vendor"] = "False"
+                    temp_dict["is_customer"] = "True"
+                    temp_dict['login_id'] = "" 
+                    temp_dict['login_type'] = "" 
+                    return Response({'status': 200,"msg":"","payload":temp_dict})
         else:
             temp_dict = {}
             otp = random.randint(1000,9999)
@@ -1338,23 +1461,14 @@ def social_sign_up(request):
             if(email == "" or email == None) or (name == "" or name == None)  or (firebase_token == "" or firebase_token == None) or (is_vendor1 == "" or is_vendor1 == None) or (is_customer1 == "" or is_customer1 == None):
                 return Response({'status':403, "msg":'Please check your request keys.'})
             else:
-                
-                
+               
                 # serializer1 = MyUserSerializerTest(data = data, context={'login_id':data['login_id'], 'login_type':data['login_type']})
-                print(data)
+                
                 serializer1 = MyUserSerializerTest(data = data)
                 if serializer1.is_valid():
                     serializer1.save()
-                    # host_url = request.build_absolute_uri().rsplit('/', 3)[0]
-                    # data = {
-                        # 'email': email,
-                        # 'password': password,
-                    # }
-                    # URL = f'{host_url}/gettoken/'
-                    # headers = {'content-Type':'application/json'}
-                    # json_data = json.dumps(data)
-                    # r = requests.post(url = URL,headers=headers, data=json_data)
-                    print(type(serializer1.data))
+                    
+                    
                     user_obj = MyUser.objects.get(email = email)
                     temp_obj = MyTokenObtainPairSerializer()
                     token = temp_obj.validate(user_obj)
@@ -1390,21 +1504,26 @@ def Vender_login_social(request):
            return Response({'status':403, "msg":'Please check your request keys.'})
         else:
             temp_dict = {}
-            if MyUser.objects.filter(email = email , password = None).exists():
-                MyUser.objects.filter(email = email).update(firebase_token = firebase_token)
-                user_obj = MyUser.objects.get(email = email)
-                temp_obj = MyTokenObtainPairSerializer()
-                token = temp_obj.validate(user_obj)
-                temp_dict['id'] = user_obj.id
-                temp_dict['name'] = user_obj.name
-                temp_dict['email'] = user_obj.email
-                temp_dict['firebase_token'] = user_obj.firebase_token
-                temp_dict['is_vendor'] = user_obj.is_vendor
-                temp_dict['is_customer'] = user_obj.is_customer
-                temp_dict['is_profile_create'] = user_obj.is_profile_create
-                temp_dict['api_token'] = token
-                return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
+            if password == "":
+                print("**************** Social login **********************")
+                if MyUser.objects.filter(email = email).exists():
+                    MyUser.objects.filter(email = email).update(firebase_token = firebase_token)
+                    user_obj = MyUser.objects.get(email = email)
+                    temp_obj = MyTokenObtainPairSerializer()
+                    token = temp_obj.validate(user_obj)
+                    temp_dict['id'] = user_obj.id
+                    temp_dict['name'] = user_obj.name
+                    temp_dict['email'] = user_obj.email
+                    temp_dict['firebase_token'] = user_obj.firebase_token
+                    temp_dict['is_vendor'] = user_obj.is_vendor
+                    temp_dict['is_customer'] = user_obj.is_customer
+                    temp_dict['is_profile_create'] = user_obj.is_profile_create
+                    temp_dict['api_token'] = token
+                    return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
+                else:
+                    return Response({'status':403,'msg':'Invalid User'})
             else:
+                print("---------------------")
                 try:
                     serializer = MyUserLoginSerializerSocial(data = data)
                     if serializer.is_valid(raise_exception = True):

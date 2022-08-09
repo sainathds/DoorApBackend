@@ -1407,6 +1407,7 @@ def Notification_count(request):
     except:
         return Response({'status':403,'msg':'Something went wrong.'})
   
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 @authentication_classes((JWTAuthentication,))
@@ -1419,6 +1420,7 @@ def Show_Nofification_Api(request):
         notification = Notifications.objects.filter(fk_user__id = user_id , user_type = user_type).order_by('-id').values('id','fk_user','fk_order__id','fk_order__order_id','title_name','notification','notification_date','is_seen','user_type')
         
         for i in notification:
+            print(i['notification_date'])
             if i['fk_order__id'] == None and i['fk_order__order_id'] == None:
                 i['fk_order__id'] = 0
                 i['fk_order__order_id'] = "0"
@@ -1455,7 +1457,7 @@ def Delete_Notification_Api(request):
     try:
         data = request.data               
         Notifications.objects.filter(fk_user__id = data.get('user_id',None) , user_type = data.get('user_type',None)).delete()
-        return Response({'status':200,'msg':'All Notification Deleted.'})
+        return Response({'status':200,'msg':'All Notifications Deleted.'})
     
     except:
         return Response({'status':403,'msg':'Something went wrong.'})

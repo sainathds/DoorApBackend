@@ -148,6 +148,8 @@ def ApproveReject(request):
             sid = request.POST.get('id')
             status = request.POST.get('status')
             cur_date_time = datetime.datetime.now()
+            
+            print("***************",cur_date_time)
             if status == "Approve":
                 
                 VendorDetails.objects.filter(fk_user__id=sid).update(user_status=status)
@@ -816,7 +818,7 @@ def Delete_Offer(request):
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
 
 
-
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def Orders(request):
     if request.session.get('email'):
         return render(request,'admin_panel/orders.html')
