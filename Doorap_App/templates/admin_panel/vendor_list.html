@@ -85,7 +85,7 @@
 							  <td>{{i.email}}</td>
 							  <td>{{i.business_name}}</td>
 							  <td>{{i.created_date.date}}</td>
-							  <td>{{i.user_status}}</td>
+							  <td>{% if i.user_status == "Approve" %} Approved {% elif i.user_status == "Reject" %} Rejected {% endif %} </td>
 							  <td>
 									{% if i.user_status == "Pending" %}
 										<button  class="btn btn-primary" style="width:auto;padding: 1px;" onclick="Change_Status('{{i.id}}', 'Approve')">Approve</button>

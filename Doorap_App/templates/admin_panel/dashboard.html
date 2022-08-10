@@ -17,8 +17,21 @@
 	margin-left: 25px;
 	width: 280px;
 	}
+	.approve
+	{
+		width:72px !important;
+	}
+	.reject
+	{
+		width:80px !important;
+	}
+	.pending
+	{
+		width:80px !important;
+	}
 }
 </style>
+
 <div role="tabpanel" class="tab-pane fade active show" id="Dashboard">
     
 	<div class="content-header" style="margin-left: 257px;">
@@ -39,7 +52,7 @@
 	<section class="content">
 		<div class="container-fluid">    
 		<!-- Small boxes (Stat box) -->
-		<div class="row" style="margin-left: 257px;">
+		<div class="row" style="margin-left: 233px;">
 			<!-- <div class="col-lg-3 col-6"> -->
 				<!-- <div class="small-box bg-info"> -->
 					<!-- <div class="inner"> -->
@@ -52,64 +65,158 @@
 					<!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
 				<!-- </div> -->
 			<!-- </div> -->
+			<div id="add_card_show"  >
+						
+                        <div class="row" style="margin-top: 41px;color:white;">
+							<div class="col-md-5 container card shadow users-container pt-2" style="margin-left: 30px; width:30%; height:160px;     background-image: linear-gradient(to bottom, #00b09b, #96c93d) !important;
+"> 
+								<h5 class="text-center" style="font-weight: 600;color:white;">Total Vendors</h5>
+								<h6 class="text-center"><a href="{% url 'vender_list' %}" style="text-decoration:none;color:white;cursor:pointer; font-weight: 700;font-size: 31px; margin-top:10px; ">{{vendor}} </a></h6>
+								<div style="border-bottom:1px solid rgb(219, 219, 219);margin-bottom: 11px;"></div>
+								<div class="row ">
+									<div class="col-md-3" style="margin-left:45px;">
+										<h6 class="text-center pending" style="font-weight: 500;">Pending</h6>
+										<p class="text-center">{{pending}}</p>
+										<!-- <p class="text-center">34</p> -->
+									</div>
+									<div class="col-md-3">
+										<h6 class="text-center approve" style="font-weight: 500;">Approved</h6>
+										<p class="text-center">{{approve}}</p>
+										<!-- <p class="text-center">34</p> -->
+									</div>
+									<div class="col-md-3">
+										<h6 class="text-center reject" style="font-weight: 500;">Rejected</h6>
+										<p class="text-center">{{reject}}</p>
+										<!-- <p class="text-center">34</p> -->
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-5 container card shadow users-container pt-2 " style="width:30%; height:160px; background-image: linear-gradient(to top, #ff0844 0%, #ffb199 100%) !important" > 
+								<h5 class="text-center" style="font-weight: 600;">Total Customer</h5>
+								<div style="border-bottom:1px solid rgb(219, 219, 219);margin-top: 11px;"></div>
+								<h6 class="text-center"  data-toggle="modal" onclick='window.location.href="/customerpage/"' data-target="#pendingEarningModal" style="font-weight: 500; font-size: 31px; cursor:pointer; margin-top:10px;"> {{customer}} </h6>
+								
+								<div class="row">
+									<!-- <div class="col-md-4"> -->
+										<!-- <br> -->
+										<!-- <P style="font-weight: 500;">NEW</P> -->
+										<!-- <p style="font-weight: 500;">RENEW</p> -->
+									<!-- </div> -->
+									<!-- <div class="col-md-4"> -->
+										<!-- <h6 class="text-center" style="font-weight: 500;">Monthly Plan</h6> -->
+										<!-- <p class="text-center">₹34</p> -->
+										<!-- <p class="text-center">₹34</p> -->
+									<!-- </div> -->
+									<!-- <div class="col-md-4"> -->
+										<!-- <h6 class="text-center" style="font-weight: 500;">Yearly Plan</h6> -->
+										<!-- <p class="text-center">₹34</p> -->
+										<!-- <p class="text-center">₹34</p> -->
+									<!-- </div> -->
+								</div>
+							</div>
+							<div class="col-md-5 container card shadow users-container pt-2 " style="width:30%; height:160px; background-image: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(139,147,92,1) 0%, rgba(0,212,255,1) 100%)!important;" > 
+								<h5 class="text-center" style="font-weight: 600;">Total Revenue</h5>																
+								<div style="border-bottom:1px solid rgb(219, 219, 219);margin-top: 11px;"></div>
+								<h6 class="text-center"  data-toggle="modal" onclick='window.location.href="/revenue_income/"' data-target="#pendingEarningModal" style="font-weight: 500; font-size: 31px; cursor:pointer; margin-top:10px;"> {{revenue| floatformat:2}} </h6>
+								
+								<!-- <div class="row"> -->
+									<!-- <div class="col-md-4"> -->
+										<!-- <br> -->
+										<!-- <P style="font-weight: 500;">NEW</P> -->
+										<!-- <p style="font-weight: 500;">RENEW</p> -->
+									<!-- </div> -->
+									<!-- <div class="col-md-4"> -->
+										<!-- <h6 class="text-center" style="font-weight: 500;">Monthly Plan</h6> -->
+										<!-- <p class="text-center">₹34</p> -->
+										<!-- <p class="text-center">₹34</p> -->
+									<!-- </div> -->
+									<!-- <div class="col-md-4"> -->
+										<!-- <h6 class="text-center" style="font-weight: 500;">Yearly Plan</h6> -->
+										<!-- <p class="text-center">₹34</p> -->
+										<!-- <p class="text-center">₹34</p> -->
+									<!-- </div> -->
+								<!-- </div> -->
+							</div>
+							
+							
+						</div>
+						<div class="col-md-5 container card shadow users-container pt-2 " style="width:30%; height:160px; background-image: linear-gradient(0deg, rgba(34,193,195,1) 0%, rgba(184,45,253,1) 100%) !important;" > 
+								<h5 class="text-center" style="font-weight: 600; color:white">Total Income</h5>	
+								<div style="border-bottom:1px solid rgb(219, 219, 219);margin-top: 11px;"></div>								
+								<h6 class="text-center"  data-toggle="modal" onclick='window.location.href="/revenue_income/"' data-target="#pendingEarningModal" style="font-weight: 500; font-size: 31px; cursor:pointer; margin-top:10px; color:white;"> {{income| floatformat:2}} </h6>
+								
+								
+								<!-- <div class="row"> -->
+									<!-- <div class="col-md-4"> -->
+										<!-- <br> -->
+										<!-- <P style="font-weight: 500;">NEW</P> -->
+										<!-- <p style="font-weight: 500;">RENEW</p> -->
+									<!-- </div> -->
+									<!-- <div class="col-md-4"> -->
+										<!-- <h6 class="text-center" style="font-weight: 500;">Monthly Plan</h6> -->
+										<!-- <p class="text-center">₹34</p> -->
+										<!-- <p class="text-center">₹34</p> -->
+									<!-- </div> -->
+									<!-- <div class="col-md-4"> -->
+										<!-- <h6 class="text-center" style="font-weight: 500;">Yearly Plan</h6> -->
+										<!-- <p class="text-center">₹34</p> -->
+										<!-- <p class="text-center">₹34</p> -->
+									<!-- </div> -->
+								<!-- </div> -->
+							</div>
+							
+							
+						</div>
+			</div>
+					
+			<!-- <div class="col-lg-3 col-6" > -->
+				<!-- <div class="small-box bg-success data" style="height:140px; "> -->
+					<!-- <h3 style="font-size: 20px;text-align: center; color:#1F2D3D;">Vendor </h3> -->
+					<!-- <hr style="margin:1px 0 !important;"> -->
+					<!-- <div class="row"> -->
+						<!-- <div class="col-md-3"> -->
+							<!-- <p style="margin-left:7px;">Pending</p> -->
+						<!-- </div> -->
+						<!-- <div class="col-md-3"> -->
+							<!-- <p>Approved</p> -->
+						<!-- </div> -->
+						<!-- <div class="col-md-3"> -->
+							<!-- <p>Rejected</p> -->
+						<!-- </div> -->
+						<!-- <div class="col-md-3"> -->
+							<!-- <p>Total</p> -->
+						<!-- </div> -->
+					<!-- </div> -->
+					<!-- <div class="row"> -->
+						<!-- <div class="col-md-3"> -->
+							<!-- <p style="margin-left:7px; text-align:center;">{{pending}}</p> -->
+						<!-- </div> -->
+						<!-- <div class="col-md-3"> -->
+							<!-- <p style="text-align:center;">{{approve}}</p> -->
+						<!-- </div> -->
+						<!-- <div class="col-md-3"> -->
+							<!-- <p style="text-align:center; margin-right:21px;">{{reject}}</p> -->
+						<!-- </div> -->
+						<!-- <div class="col-md-3"> -->
+							<!-- <p style="text-align:center; margin-right:28px;">{{count_vendor}}</p> -->
+						<!-- </div> -->
+					<!-- </div> -->
+					
+				<!-- </div> -->
+			<!-- </div> -->
 			
-			<div class="col-lg-3 col-6" >
-				<div class="small-box bg-success data" style="height:140px; ">
-					<h3 style="font-size: 20px;text-align: center; color:#1F2D3D;">Vendor </h3>
-					<hr style="margin:1px 0 !important;">
-					<div class="row">
-						<div class="col-md-3">
-							<p style="margin-left:7px;">Pending</p>
-						</div>
-						<div class="col-md-3">
-							<p>Approved</p>
-						</div>
-						<div class="col-md-3">
-							<p>Rejected</p>
-						</div>
-						<div class="col-md-3">
-							<p>Total</p>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-md-3">
-							<p style="margin-left:7px; text-align:center;">{{pending}}</p>
-						</div>
-						<div class="col-md-3">
-							<p style="text-align:center;">{{approve}}</p>
-						</div>
-						<div class="col-md-3">
-							<p style="text-align:center; margin-right:21px;">{{reject}}</p>
-						</div>
-						<div class="col-md-3">
-							<p style="text-align:center; margin-right:28px;">{{count_vendor}}</p>
-						</div>
-					</div>
+			<!-- <div class="col-lg-3 col-6" > -->
+			
+				<!-- <div class="small-box bg-warning data1" style="height:140px;"> -->
+					<!-- <h3 style="font-size: 20px;text-align: center;">Customer </h3> -->
+					<!-- <hr style="margin:1px 0 !important;"> -->
 					<!-- <div class="inner"> -->
-						<!-- <h3>5{{count_vendor}}</h3> -->
-						<!-- <p>Total Active Vendor</p> -->
+						<!-- <h4 style="text-align: center;">{{customer}}</h4> -->
 					<!-- </div> -->
-					<!-- <div class="icon"> -->
-						<!-- <i class="ion ion-stats-bars"></i> -->
-					<!-- </div> -->
-						<!-- <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a> -->
-				</div>
-			</div>
-			
-			<div class="col-lg-3 col-6" >
-			
-				<div class="small-box bg-warning data1" style="height:140px;">
-					<h3 style="font-size: 20px;text-align: center;">Customer </h3>
-					<hr style="margin:1px 0 !important;">
-					<div class="inner">
-						<h4 style="text-align: center;">{{customer}}</h4>
-					</div>
-					<!-- <div class="icon"> -->
-						<!-- <i class="ion ion-person"></i> -->
-					<!-- </div> -->
-					<!-- <a href="#" class="small-box-footer" onclick="Get_Commuter_List()">More info <i class="fas fa-arrow-circle-right"></i></a> -->
-				</div>
-			</div>
+					
+				<!-- </div> -->
+			<!-- </div> -->
 			
 			<!-- <div class="col-lg-3 col-6"> -->
 			

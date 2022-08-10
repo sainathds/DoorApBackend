@@ -40,6 +40,9 @@ urlpatterns = [
     path('show_orders/',views.Show_Orders , name = 'Show_Orders'),
     path('filter_order/',views.Filter_Order , name = 'filter_order'),
     path('show_item_detail/',views.Show_item_detail , name='show_item_detail'),
+    path('revenue_income/',views.Revenue_Income , name='revenue_income'),
+    path('filter_revenue_income/',views.Filter_Revenue_Income , name='filter_revenue_income'),
+    
     path('test/',views.test , name='test'),
    
     path('privacy_policy/',views.Privacy_Policy ,name='privacy_policy'),

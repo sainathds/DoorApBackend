@@ -13,6 +13,7 @@ import ast
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 import stripe
+import calendar
 def Login_page(request):
     return render(request,'admin_panel/login.html')
 
@@ -49,19 +50,31 @@ def Dashboard(request):
     if request.session.get('email'):
         count_customer = MyUser.objects.filter(is_customer = True).count()
         
-        active_offer = Offers.objects.filter(offercode_status = "Active").count()
-        expired_offer = Offers.objects.filter(offercode_status = "Expired").count()
+        
         pending = VendorDetails.objects.filter(user_status = "Pending").count()
         approve = VendorDetails.objects.filter(user_status = "Approve").count()
         reject = VendorDetails.objects.filter(user_status = "Reject").count()
-        count_vendor = VendorDetails.objects.all().count()
+        count_vendor = MyUser.objects.filter(is_vendor = True).count()
+        
+        today_date = datetime.datetime.today().replace(day=1)
+        date = datetime.datetime.date(today_date)
+        end_date = date.replace(day = calendar.monthrange(date.year, date.month)[1])
+            
+        income = 0
+        revenue = 0
+        orders = OrderDetails.objects.filter(current_booking_date__gte = today_date , current_booking_date__lte = end_date ,order_status = "Completed").order_by('-id')
+        for i in orders:
+            i.revenue = i.total_amount - i.vendor_pay_amount
+            revenue = i.revenue + revenue
+            income = i.total_amount + income
         context = {
             "customer":count_customer,
             "vendor":count_vendor,
             "pending":pending,
             "approve":approve,
             "reject":reject,
-            "count_vendor":count_vendor
+            "revenue":revenue,
+            "income":income
             }
         return render(request,"admin_panel/dashboard.html",context)
     else:
@@ -677,7 +690,7 @@ def Delete_Commision(request):
                 
                 CommisionMaster.objects.filter(id = commision_id).delete()
                 
-                return JsonResponse({'status':'1','msg':'Commission deleted duccessfully.'})
+                return JsonResponse({'status':'1','msg':'Commission deleted successfully.'})
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
@@ -891,6 +904,58 @@ def Show_item_detail(request):
     except:
         traceback.print_exc()
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
+        
+        
+        
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)       
+def Revenue_Income(request):
+    try:
+        if request.session.get('email'):
+            today_date = datetime.datetime.today().replace(day=1)
+            date = datetime.datetime.date(today_date)
+            end_date = date.replace(day = calendar.monthrange(date.year, date.month)[1])
+            
+            
+            orders = OrderDetails.objects.filter(current_booking_date__gte = today_date , current_booking_date__lte = end_date ,order_status = "Completed").order_by('-id')
+            for i in orders:
+                i.revenue = i.total_amount - i.vendor_pay_amount
+                
+            rendered = render_to_string("admin_panel/render_to_string/r_t_s_revenue_income.html",{'orders':orders})
+            context = {
+                'from_date':today_date,
+                'to_date':end_date,
+                'orders':rendered
+            }
+            return render(request,'admin_panel/revenue_income.html',context)
+        else:
+            print(request.session.get('email'))
+            return redirect('/login_page/')
+    except:
+        traceback.print_exc()
+        
+        return redirect('/login_page/')
+
+@csrf_exempt
+def Filter_Revenue_Income(request):
+    try:
+        if request.session.get('email'):
+            if request.method == 'POST':
+                from_date = request.POST.get('from_date')
+                to_date = request.POST.get('to_date')
+                orders = OrderDetails.objects.filter(current_booking_date__gte = from_date , current_booking_date__lte = to_date ,order_status = "Completed").order_by('-id')
+                for i in orders:
+                    i.revenue = i.total_amount - i.vendor_pay_amount
+                    
+                rendered = render_to_string("admin_panel/render_to_string/r_t_s_revenue_income.html",{'orders':orders})
+                return JsonResponse({'status':'1','response':rendered})
+            else:
+                return JsonResponse({'status':'0','msg':'Post method required'})
+        else:
+            return redirect('/login_page/')
+    except:
+        traceback.print_exc()
+        return JsonResponse({'status':'0','msg':'Something went wrong.'})
+        
 #********************** End Mobile App Send Nofification Function ********************************* 
  
 

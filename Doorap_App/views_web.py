@@ -1500,90 +1500,89 @@ def Vender_login_social(request):
         email = data.get('email',None)
         password = data.get('password',None)
         firebase_token = data.get('firebase_token',None)
-        if (email == "" or email == None)  or (firebase_token == "" or firebase_token == None):
-           return Response({'status':403, "msg":'Please check your request keys.'})
+        login_type = data.get('login_type')
+        login_id = data.get('login_id')
+        temp_dict = {}
+        if login_type != "" and login_type != "":
+            print("**************** Social login **********************")
+            if MyUser.objects.filter(login_id = login_id , login_type = login_type).exists():
+                MyUser.objects.filter(email = email).update(firebase_token = firebase_token)
+                user_obj = MyUser.objects.get(email = email)
+                temp_obj = MyTokenObtainPairSerializer()
+                token = temp_obj.validate(user_obj)
+                temp_dict['id'] = user_obj.id
+                temp_dict['name'] = user_obj.name
+                temp_dict['email'] = user_obj.email
+                temp_dict['firebase_token'] = user_obj.firebase_token
+                temp_dict['is_vendor'] = user_obj.is_vendor
+                temp_dict['is_customer'] = user_obj.is_customer
+                temp_dict['is_profile_create'] = user_obj.is_profile_create
+                temp_dict['api_token'] = token
+                return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
+            else:
+                return Response({'status':403,'msg':'Invalid User'})
         else:
-            temp_dict = {}
-            if password == "":
-                print("**************** Social login **********************")
-                if MyUser.objects.filter(email = email).exists():
-                    MyUser.objects.filter(email = email).update(firebase_token = firebase_token)
+            print("---------------------")
+            try:
+                serializer = MyUserLoginSerializerSocial(data = data)
+                if serializer.is_valid(raise_exception = True):
+                    
                     user_obj = MyUser.objects.get(email = email)
                     temp_obj = MyTokenObtainPairSerializer()
                     token = temp_obj.validate(user_obj)
-                    temp_dict['id'] = user_obj.id
-                    temp_dict['name'] = user_obj.name
-                    temp_dict['email'] = user_obj.email
-                    temp_dict['firebase_token'] = user_obj.firebase_token
-                    temp_dict['is_vendor'] = user_obj.is_vendor
-                    temp_dict['is_customer'] = user_obj.is_customer
-                    temp_dict['is_profile_create'] = user_obj.is_profile_create
-                    temp_dict['api_token'] = token
-                    return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
-                else:
-                    return Response({'status':403,'msg':'Invalid User'})
-            else:
-                print("---------------------")
-                try:
-                    serializer = MyUserLoginSerializerSocial(data = data)
-                    if serializer.is_valid(raise_exception = True):
-                        
-                        user_obj = MyUser.objects.get(email = email)
-                        temp_obj = MyTokenObtainPairSerializer()
-                        token = temp_obj.validate(user_obj)
 
-                        
-                        if serializer.data.get('is_vendor',None) == True and serializer.data.get('is_customer',None) == True:
-                            print("*****************1")
-                            vender = serializer.data.get('is_vendor',None)
-                            user_id = MyUser.objects.get(id = serializer.data.get('id',None))
+                    
+                    if serializer.data.get('is_vendor',None) == True and serializer.data.get('is_customer',None) == True:
+                        print("*****************1")
+                        vender = serializer.data.get('is_vendor',None)
+                        user_id = MyUser.objects.get(id = serializer.data.get('id',None))
 
-                            temp_dict['id'] = serializer.data.get('id',None)
-                            temp_dict['name'] = serializer.data.get('name',None)
-                            temp_dict['email'] = serializer.data.get('email',None)
-                            temp_dict['firebase_token'] = serializer.data.get('firebase_token',None)
-                            temp_dict['is_vendor'] = serializer.data.get('is_vendor',None)
-                            temp_dict['is_customer'] = serializer.data.get('is_customer',None)
-                            temp_dict['is_profile_create'] = user_id.is_profile_create
-                            temp_dict['api_token'] = token
-                            return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
-                        elif serializer.data.get('is_vendor',None) == True:
-                            print("*****************2")
-                            vender = serializer.data.get('is_vendor',None)
-                            user_id = MyUser.objects.get(id = serializer.data.get('id',None))
+                        temp_dict['id'] = serializer.data.get('id',None)
+                        temp_dict['name'] = serializer.data.get('name',None)
+                        temp_dict['email'] = serializer.data.get('email',None)
+                        temp_dict['firebase_token'] = serializer.data.get('firebase_token',None)
+                        temp_dict['is_vendor'] = serializer.data.get('is_vendor',None)
+                        temp_dict['is_customer'] = serializer.data.get('is_customer',None)
+                        temp_dict['is_profile_create'] = user_id.is_profile_create
+                        temp_dict['api_token'] = token
+                        return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
+                    elif serializer.data.get('is_vendor',None) == True:
+                        print("*****************2")
+                        vender = serializer.data.get('is_vendor',None)
+                        user_id = MyUser.objects.get(id = serializer.data.get('id',None))
 
-                            temp_dict['id'] = serializer.data.get('id',None)
-                            temp_dict['name'] = serializer.data.get('name',None)
-                            temp_dict['email'] = serializer.data.get('email',None)
-                            temp_dict['firebase_token'] = serializer.data.get('firebase_token',None)
-                            temp_dict['is_vendor'] = serializer.data.get('is_vendor',None)
-                            temp_dict['is_customer'] = serializer.data.get('is_customer',None)
-                            temp_dict['is_profile_create'] = user_id.is_profile_create
-                            temp_dict['api_token'] = token
-                            return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
-                        elif serializer.data.get('is_customer',None) == True:
-                            print("*****************3")
-                            vender = serializer.data.get('is_vendor',None)
-                            user_id = MyUser.objects.get(id = serializer.data.get('id',None))
-                            temp_dict['id'] = serializer.data.get('id',None)
-                            temp_dict['name'] = serializer.data.get('name',None)
-                            temp_dict['email'] = serializer.data.get('email',None)
-                            temp_dict['firebase_token'] = serializer.data.get('firebase_token',None)
-                            temp_dict['is_vendor'] = serializer.data.get('is_vendor',None)
-                            temp_dict['is_customer'] = serializer.data.get('is_customer',None)
-                            temp_dict['is_profile_create'] = user_id.is_profile_create
-                            temp_dict['api_token'] = token
-                            return Response({'status': 200, "msg": 'Logged In Successfully.', 'payload': temp_dict})
-                        else:
-                            pass
+                        temp_dict['id'] = serializer.data.get('id',None)
+                        temp_dict['name'] = serializer.data.get('name',None)
+                        temp_dict['email'] = serializer.data.get('email',None)
+                        temp_dict['firebase_token'] = serializer.data.get('firebase_token',None)
+                        temp_dict['is_vendor'] = serializer.data.get('is_vendor',None)
+                        temp_dict['is_customer'] = serializer.data.get('is_customer',None)
+                        temp_dict['is_profile_create'] = user_id.is_profile_create
+                        temp_dict['api_token'] = token
+                        return Response({'status': 200, "msg": 'Logged In successfully.', 'payload': temp_dict})
+                    elif serializer.data.get('is_customer',None) == True:
+                        print("*****************3")
+                        vender = serializer.data.get('is_vendor',None)
+                        user_id = MyUser.objects.get(id = serializer.data.get('id',None))
+                        temp_dict['id'] = serializer.data.get('id',None)
+                        temp_dict['name'] = serializer.data.get('name',None)
+                        temp_dict['email'] = serializer.data.get('email',None)
+                        temp_dict['firebase_token'] = serializer.data.get('firebase_token',None)
+                        temp_dict['is_vendor'] = serializer.data.get('is_vendor',None)
+                        temp_dict['is_customer'] = serializer.data.get('is_customer',None)
+                        temp_dict['is_profile_create'] = user_id.is_profile_create
+                        temp_dict['api_token'] = token
+                        return Response({'status': 200, "msg": 'Logged In Successfully.', 'payload': temp_dict})
                     else:
-                        return Response({"status": 403, "msg": 'Login failed'})
-                except ValidationError as e:
-                    traceback.print_exc()
-                    return Response({"status": 403, "msg": 'Invalid credentials'})
-                except:
-                    traceback.print_exc()
-                    return Response({"status": 403, "msg": 'Invalid credentials'})
+                        pass
+                else:
+                    return Response({"status": 403, "msg": 'Login failed'})
+            except ValidationError as e:
+                traceback.print_exc()
+                return Response({"status": 403, "msg": 'Invalid credentials'})
+            except:
+                traceback.print_exc()
+                return Response({"status": 403, "msg": 'Invalid credentials'})
     except:
         traceback.print_exc()
         return Response({'status':403, "msg":'Something went wrong'})

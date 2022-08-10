@@ -1,0 +1,372 @@
+{% include 'admin_panel/header.html' %}
+
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	.body{min-height: 756px !important;}
+.wrapper, body, html {
+    min-height: 750px !important;
+}
+.swal-back {
+    width: 350px !important;
+	height: auto !important;
+	}
+	.custom-select{
+	width: 60px!important;
+	}
+	#datatable1_length
+	{
+		margin-top:-18px !important;
+		}
+</style>
+
+
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+	
+    <div class="content-header" style="margin-top:1%;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6" style="margin-left:15.5rem;">
+            <h3 class="m-0">Revenue/Income</h3>
+			
+          </div><!-- /.col -->
+          <!-- <div class="col-sm-6"> -->
+            <!-- <ol class="breadcrumb float-sm-right"> -->
+              <!-- <li class="breadcrumb-item"><a href="#" onclick="Get_Dashboard_Data()">Home</a></li> -->
+              <!-- <li class="breadcrumb-item active">Sender List</li> -->
+            <!-- </ol> -->
+          <!-- </div> -->
+        </div>
+		<hr>
+<div class="row" style="margin-top:-11px;">
+				<div class="col-md-2" style="margin-left:15.5rem;">
+					<div class="form-group">
+							<label for="exampleFormControlInput1">From Date</label>
+							<input type="date" class="form-control" id="from_date" placeholder="Enter Discount" value="{{from_date|date:'Y-m-d'}}">
+							<span id="errmsg1" style="color:red;  "></span><br>
+					</div>
+
+				</div>
+		
+				<div class="col-md-2" style="">
+					<div class="form-group">
+						<label for="exampleFormControlInput1">To Date</label>
+							<input type="date" class="form-control" id="to_date" placeholder="Enter Discount" value="{{to_date|date:'Y-m-d'}}">
+							<span id="errmsg2" style="color:red;  "></span><br>
+					</div>
+
+				</div>
+		
+				<div class="col-md-2">
+					<div class="form-group">
+						<button style="width:50%;margin-top:30px;" type="button" class="btn btn-success" value="save" onclick="search()">Search </button>
+					</div>
+				</div>
+		
+			</div>
+			
+      </div>
+    </div>
+				
+				<div id="table_div">
+					{{orders}}
+				</div>
+							
+	</div>
+		<div class="modal hide fade in" id="myModal1" role="dialog" data-keyboard="false" data-backdrop="static">
+			<div class="modal-dialog">
+				
+				  <!-- Modal content-->
+					  <div class="modal-content">
+							<div class="modal-header" style="background:grey;" >
+							   <h4 class="modal-title" style="color: #fff;">Item Detail</h4>
+							  <button type="button" class="close"  style="color: #fff;" data-dismiss="modal" onclick="clear_data1()">&times;</button>
+
+							</div>
+							<div class="modal-body">
+							   <div id="item">
+							   </div>
+							</div>
+						
+					</div>
+					
+			</div>
+				  
+		</div>
+  </div>
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+
+<script>
+	$(document).ready(function(){
+		$('#datatable1').DataTable();
+		
+	});
+	$(".revenue_income").css({"color": "rgb(255, 255, 255)"});
+	 document.getElementById("from_date").onchange = function () {
+        var input = document.getElementById("to_date");
+        input.setAttribute("min", this.value);
+      }
+	
+</script>
+
+<script>	
+	 $(document).on('click', '.swal-button--confirm', function() {     
+		$(".swal-modal").attr("id", "yourIdName");
+		$("#yourIdName").css("width", "315px");
+	    $("#yourIdName").css("height","250px");
+    });
+	function ExportToExcel(type, fn, dl) {
+            var elt = document.getElementById('datatable1');
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+            return dl ?
+                XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }) :
+                XLSX.writeFile(wb, fn || ('Orders.' + (type || 'xlsx')));
+        }
+
+
+	function shwo_item_detail(id)
+	{
+		$.ajax({
+					type:"POST",
+					url: "/show_item_detail/",
+					data: {
+						'id':id
+					},
+					success: function (response) 
+					{
+						
+						<!-- $("#loader_img").hide(); -->
+						if (response.status == '1'){
+							$("#item").html(response.response);
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+	}
+</script>
+
+
+
+<script>
+	$("#from_date").change(function(){
+			$('#errmsg1').hide();
+		});
+	$("#to_date").change(function(){
+			$('#errmsg2').hide();
+		});
+	
+	function search()
+	{
+		
+		status = $("#status").val();
+		
+		from_date = $("#from_date").val();
+		to_date = $("#to_date").val();
+		
+		if (from_date == "" || from_date == null)
+		{
+			errmsg1.innerHTML = "Please Select FromDate..";
+			$("#errmsg1").show();
+		}
+	    else if (to_date == "" || to_date == null)
+		{
+			errmsg2.innerHTML = "Please Select ToDate..";
+			$("#errmsg2").show();
+		}
+		
+		else
+		{
+			$.ajax({
+					type:"POST",
+					url: "/filter_revenue_income/",
+					data: {
+						'from_date':from_date,
+						'to_date':to_date,
+						
+					},
+					success: function (response) 
+					{
+						<!-- $("#loader_img").hide(); -->
+						if (response.status == '1'){
+							$("#table_div").html("");
+							$("#table_div").html(response.response);
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+		}
+	}
+	
+	function alldata(status)
+	{
+		$("#show").show();
+		$("#loader_img").show();
+		$.ajax({
+					type:"POST",
+					url: "/show_orders/",
+					data: {
+						'status':status
+					},
+					success: function (response) 
+					{
+						$("#loader_img").hide();
+						if (response.status == '1'){
+							$("#table_div").html(response.response);
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+		
+	}
+	function completed(status)
+	{
+		$("#status").val(status);
+		$("#show").hide();
+		$.ajax({
+					type:"POST",
+					url: "/show_orders/",
+					data: {
+						'status':status
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							$("#table_div").html(response.response);
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+	}
+</script>
+
+
+<script>
+
+	function pending(status2)
+	{
+		$("#status").val(status);
+		$("#show").hide();
+		$.ajax({
+					type:"POST",
+					url: "/show_orders/",
+					data: {
+						'status':status2
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							$("#table_div").html(response.response);
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+	}
+	
+</script>
+
+<script>
+	function cancelled(status3)
+	{
+		$("#status").val(status);
+		$("#show").hide();
+		$.ajax({
+					type:"POST",
+					url: "/show_orders/",
+					data: {
+						'status':status3
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							$("#table_div").html(response.response);
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				});
+	}
+</script>
+
+
+<script>
+	function rejected(status4)
+	{
+		$("#status").val(status);
+		$("#show").hide();
+		$.ajax({
+					type:"POST",
+					url: "/show_orders/",
+					data: {
+						'status':status4
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							$("#table_div").html(response.response);
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "info",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				});
+	}
+	
+</script>
+
+{% include 'admin_panel/footer.html' %} 

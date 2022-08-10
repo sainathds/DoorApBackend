@@ -830,8 +830,10 @@ def Save_Order_Details(request):
         
         vendor_tax = CommisionMaster.objects.get( fk_category = category_obj , fk_country = country_obj , user_type ="Vendor")
         
-        print(vendor_tax.commision)
+        
         vendor_tax = sub_total * vendor_tax.commision / 100
+        
+        
         vendor_pay_amount = sub_total - vendor_tax
         # city_obj = CityMaster.objects.get(city_name = city)
         

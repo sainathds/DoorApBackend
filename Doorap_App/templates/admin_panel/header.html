@@ -168,27 +168,19 @@ li.nav-item.menu-open {
 							<i class='fas fa-store' style="float: right;margin-right: 15px;"></i>
 						</li>
 					</a>
+					<a href = "{% url 'revenue_income' %}" >
+						<li  class="nav-item menu-open revenue_income" style="margin-left:5px;cursor:pointer;color:lightgray;" >Revenue/Income 
+							<!-- <i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i> -->
+							<i class='fas fa-money-check-alt' style="float: right;margin-right: 15px;"></i>
+						</li>
+					</a>
 					
-					<!-- <li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" onclick="Get_Gig_Dashboard_Data('', '')">Gig Dashboard -->
-					<!-- <i class="fas fa-chart-line" style="float: right;margin-right: 15px;"></i> -->
-					<!-- </li> -->
-					
-					<!-- <li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" onclick="Get_Price_Setting()">Price Setting -->
-					<!-- <i class="fas fa-dollar-sign" style="float: right;margin-right: 15px;"></i> -->
-					<!-- </li> -->
-					
-					<!-- {% if admin_obj.user_type == "Admin" %} -->
-					<!-- <li  class="nav-item menu-open commuter" style="margin-left:5px;cursor:pointer;color:lightgray;" onclick="Get_Admin_User_List()">Admin Users -->
-					<!-- <i class="fas fa-users" style="float: right;margin-right: 15px;"></i> -->
-					<!-- </li> -->
-					<!-- {% endif %} -->
-				<!-- </a> -->
-				<a href="{% url 'logout' %}">
-					<li class="nav-item menu-open" style="margin-left:5px;cursor:pointer;color:lightgray;">Logout
-						<!-- <i class="fas fa-sign-out-alt" style="float: right;margin-right: 12px;"></i> -->
-						<i class='fas fa-power-off' style="float: right;margin-right: 17px;"></i>
-					</li>
-				</a>
+					<a href="{% url 'logout' %}">
+						<li class="nav-item menu-open" style="margin-left:5px;cursor:pointer;color:lightgray;">Logout
+							<!-- <i class="fas fa-sign-out-alt" style="float: right;margin-right: 12px;"></i> -->
+							<i class='fas fa-power-off' style="float: right;margin-right: 17px;"></i>
+						</li>
+					</a>
 				
 			</ul>
       </nav>
