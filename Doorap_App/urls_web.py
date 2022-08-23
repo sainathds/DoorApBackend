@@ -63,6 +63,11 @@ urlpatterns = [
    path('show_account_detail/',views_web.Show_Bank_Account , name='show_account_detail'),
    
    
+   
+   path('withdraw_request/',views_web.Withdraw_Request,name='withdraw_request'),
+   path('show_vendor_totalearning/',views_web.Show_Vendor_TotalEarning , name='show_vendor_totalearning'),
+   
+   
    path('social_signup/',views_web.social_sign_up , name='social_signup'),
    path('social_otp/',views_web.get_otp_Social , name='social_otp'),
    path('social_login/',views_web.Vender_login_social , name='social_login'),

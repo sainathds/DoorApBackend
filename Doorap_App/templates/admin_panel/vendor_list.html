@@ -8,6 +8,7 @@
 .wrapper, body, html {
     min-height: 750px !important;
 }
+
 .swal-back {
     width: 350px !important;
 	height: auto !important;
@@ -15,25 +16,7 @@
 	.custom-select{
 	width: 50px!important;
 	}
-	@media(min-width: 1366px) and  (max-width: 1366px) {
 	
-	#datatable_filter
-	{
-		margin-top:-55px !important;
-	}
-	#sr_no{
-		width:84px !important;
-	}
-	#mb_no{
-		width:35rem !important;
-	}
-	#bname{
-		width:50rem !important;
-	}
-	#cd{
-		width:50rem !important;
-	}
-}
 </style>
 <!-- Content Wrapper. Contains page content -->
   <!-- <div class="content-wrapper"> -->
@@ -55,12 +38,12 @@
     </div>
 	
 	<section class="content" style="margin-left: 15px;">
-      <div class="container-fluid" style="padding-left:0px; padding-right:0px; width:97%;">
+      <div class="container-fluid">
         
 		<hr>
         <div class="row" style="background-color:white; margin-left: 15rem;">
 			<div class="table">
-				<table id="datatable" class="table table-striped datatable table-responsive ">
+				<table id="vendor_list" class="table table-striped datatable table-responsive ">
 					 <thead>
 					<tr>
 					  <th scope="col" id="sr_no">Sr No</th>
@@ -85,21 +68,21 @@
 							  <td>{{i.email}}</td>
 							  <td>{{i.business_name}}</td>
 							  <td>{{i.created_date.date}}</td>
-							  <td>{% if i.user_status == "Approve" %} Approved {% elif i.user_status == "Reject" %} Rejected {% endif %} </td>
+							  <td>{% if i.user_status == "Approve" %} Approved {% elif i.user_status == "Reject" %} Rejected {% else %} - {% endif %} </td>
 							  <td>
 									{% if i.user_status == "Pending" %}
 										<button  class="btn btn-primary" style="width:auto;padding: 1px;" onclick="Change_Status('{{i.id}}', 'Approve')">Approve</button>
 										<button class="btn btn-danger" style="width:65;padding: 1px;" onclick="Change_Status('{{i.id}}', 'Reject')">Reject</button>
-										<button class="btn btn-primary" style="width:40px;padding: 1px;" onclick="Delete('{{i.id}}')"><i class="far fa-trash-alt"></i></button>
+										<button class="btn btn-primary" style="width:40px;padding: 1px; margin-top:3px;" onclick="Delete('{{i.id}}')"><i class="far fa-trash-alt"></i></button>
 									{% elif i.user_status == "Approve" %}
 										<button class="btn btn-danger" style="width:65;padding: 1px;" onclick="Change_Status('{{i.id}}', 'Reject')">Reject</button>
-										<button class="btn btn-primary" style="width:40px;padding: 1px;" onclick="Delete('{{i.id}}')"><i class="far fa-trash-alt"></i></button>
+										<button class="btn btn-primary" style="width:40px;padding: 1px; margin-top:3px;" onclick="Delete('{{i.id}}')"><i class="far fa-trash-alt"></i></button>
 									{% elif i.user_status == "-" %}
 										<!-- {{i.user_status}} -->
-										<button class="btn btn-primary" style="width:40px;padding: 1px;" onclick="Delete('{{i.id}}')"><i class="far fa-trash-alt"></i></button>
+										<button class="btn btn-primary" style="width:40px;padding: 1px; margin-top:3px;" onclick="Delete('{{i.id}}')"><i class="far fa-trash-alt"></i></button>
 									{% else %}
 										<button  class="btn btn-primary" style="width:auto;padding: 1px;" onclick="Change_Status('{{i.id}}', 'Approve')">Approve</button>
-										<button class="btn btn-primary" style="width:40px;padding: 1px;" onclick="Delete('{{i.id}}')"><i class="far fa-trash-alt"></i></button>
+										<button class="btn btn-primary" style="width:40px;padding: 1px; margin-top:3px;" onclick="Delete('{{i.id}}')"><i class="far fa-trash-alt"></i></button>
 									{% endif %}
 								</td>
 							<td>
@@ -127,11 +110,12 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>	
 <script>
 	$(document).ready(function(){
-		$('#datatable').DataTable({
+		$('#vendor_list').DataTable({
+			
 			});
-		 
+		$(".vendor").css({"color": "rgb(255, 255, 255)"});
 	});
-	$(".vendor").css({"color": "rgb(255, 255, 255)"});
+	
 </script>
 <script>
 	function Change_Status(id,status)

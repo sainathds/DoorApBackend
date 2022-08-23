@@ -47,6 +47,37 @@ li.nav-item.menu-open {
     padding: 10px;
     border-bottom: 1px solid white;
 }
+.vendor:hover {
+  color: rgb(255, 255, 255) !important;
+}
+.dashboard:hover {
+  color: rgb(255, 255, 255) !important;
+}
+.customer:hover {
+  color: rgb(255, 255, 255) !important;
+}
+.customservice:hover {
+  color: rgb(255, 255, 255) !important;
+}
+.commision:hover {
+  color: rgb(255, 255, 255) !important;
+}
+.promocode:hover {
+  color: rgb(255, 255, 255) !important;
+}
+.orders:hover {
+  color: rgb(255, 255, 255) !important;
+}
+.revenue_income:hover {
+  color: rgb(255, 255, 255) !important;
+}
+
+.logout:hover {
+  color: rgb(255, 255, 255) !important;
+}
+.banner:hover {
+  color: rgb(255, 255, 255) !important;
+}
 </style>
 <!-- <div class="text-center" id="loader"> -->
   <!-- <div class="spinner-border" role="status"> -->
@@ -171,12 +202,12 @@ li.nav-item.menu-open {
 					<a href = "{% url 'revenue_income' %}" >
 						<li  class="nav-item menu-open revenue_income" style="margin-left:5px;cursor:pointer;color:lightgray;" >Revenue/Income 
 							<!-- <i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i> -->
-							<i class='fas fa-money-check-alt' style="float: right;margin-right: 15px;"></i>
+							<i class='fas fa-dollar-sign' style="float: right;margin-right: 24px;"></i>
 						</li>
 					</a>
 					
 					<a href="{% url 'logout' %}">
-						<li class="nav-item menu-open" style="margin-left:5px;cursor:pointer;color:lightgray;">Logout
+						<li class="nav-item menu-open logout" style="margin-left:5px;cursor:pointer;color:lightgray;">Logout
 							<!-- <i class="fas fa-sign-out-alt" style="float: right;margin-right: 12px;"></i> -->
 							<i class='fas fa-power-off' style="float: right;margin-right: 17px;"></i>
 						</li>
@@ -189,11 +220,4 @@ li.nav-item.menu-open {
     <!-- /.sidebar -->
   </aside>
   
-  <script>
- 
-
-$("#customerlist").click(function(){
-  console.log("The paragraph was clicked.");
-});
   
-  </script>

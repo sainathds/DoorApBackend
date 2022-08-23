@@ -148,3 +148,8 @@ class NotificationAdmin(admin.ModelAdmin):
 @admin.register(ReviewsandFeedback)
 class ReviewsandFeedback(admin.ModelAdmin):
     list_display = ['id','fk_orderdetails','fk_vendor','rating','feedback','is_feedback','review_date']
+
+
+@admin.register(Vendor_Withdraw_Payment)
+class Vendor_Withdraw_PaymentAdmin(admin.ModelAdmin):
+    list_display = ['id','fk_vendor','payment_amount','withdraw_status']

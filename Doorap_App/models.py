@@ -88,7 +88,14 @@ class VendorDetails(models.Model):
     to_time = models.TimeField(blank = True , null = True)
     is_set_status = models.BooleanField(default = False)
     # is_profile_create = models.BooleanField(default = False)
-
+    
+    
+    #Vendor Earning
+    
+    vendor_earning = models.FloatField( default = 0)
+    withdraw_request = models.FloatField(default = 0)
+    withdraw_request_date = models.DateField(blank = True , null = True)
+    withdraw_request_status = models.BooleanField(default = False)
 
 
 class Vender_AccountDetails(models.Model):
@@ -292,3 +299,13 @@ class ReviewsandFeedback(models.Model):
     review_date = models.DateField(blank = True , null = True)
     is_feedback = models.BooleanField(default = True)
     status = models.BooleanField(default = False)
+
+
+
+class Vendor_Withdraw_Payment(models.Model):
+    fk_vendor = models.ForeignKey(VendorDetails, on_delete=models.CASCADE, null=True, blank=True)
+    payment_amount = models.FloatField(blank = True , null = True)
+    withdraw_status = models.CharField(max_length = 100, default="Pending")
+    withdraw_request_date = models.DateField(blank = True , null = True)
+    status = models.BooleanField(default = False)
+    

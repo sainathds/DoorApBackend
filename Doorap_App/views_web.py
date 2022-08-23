@@ -1589,6 +1589,57 @@ def Vender_login_social(request):
 
 
 
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Withdraw_Request(request):
+    try:
+        data = request.data
+        vendor_id = data.get('vendor_id',None)
+        withdraw_amount = request.data['withdraw_amount']
+        vendor_obj = VendorDetails.objects.get( id = vendor_id)
+        total_withdraw_amount = withdraw_amount + vendor_obj.withdraw_request
+        VendorDetails.objects.filter(id = vendor_id).update(withdraw_request = total_withdraw_amount , withdraw_request_status = True , withdraw_request_date =datetime.datetime.now())
+        Vendor_Withdraw_Payment.objects.create(fk_vendor = vendor_obj,payment_amount = withdraw_amount,withdraw_request_date=  datetime.datetime.now())
+        
+        return Response({'status':200,"msg":'Withdraw request send successfully.'})
+    except:
+        traceback.print_exc()
+        return Response({'status':403,"msg":"Something went wrong."})
+
+
+
+
+
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Show_Vendor_TotalEarning(request):
+    try:
+        data = request.data
+        vendor_id = data.get('vendor_id',None)
+        vendor_obj = VendorDetails.objects.get(id = vendor_id)
+        temp_dict ={}
+        if VendorDetails.objects.filter(withdraw_request_status = True).exists():
+            temp_dict['total_balance'] = vendor_obj.vendor_earning
+            temp_dict['withdraw_msg'] = f"Withdraw Request Pending of ${vendor_obj.withdraw_request}."
+            temp_dict['withdraw_request_status'] = vendor_obj.withdraw_request_status
+            return Response({'status':200,"msg":"Total Balance",'payload':temp_dict})
+        else:
+            temp_dict['total_balance'] = vendor_obj.vendor_earning
+            temp_dict['withdraw_msg'] = ""
+            temp_dict['withdraw_request_status'] = vendor_obj.withdraw_request_status
+            return Response({'status':200,"msg":"Total Balance",'payload':temp_dict})
+    except:
+        traceback.print_exc()
+        return Response({'status':403,"msg":"Something went wrong."})
+   
+
+
 
 
 

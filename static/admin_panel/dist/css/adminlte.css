@@ -52270,16 +52270,42 @@ a.text-muted:hover {
 		margin-left: 550px !important;
 		margin-top: -151px !important;
 	}
-	.col-sm-12
-	{
-		width:100% !important;
-	}
+	/* .col-sm-12 */
+	/* { */
+		/* width:100% !important; */
+	/* } */
 	
-	#datatable1_filter{
-		margin-top:-55px !important;
+	/* #datatable1_filter{ */
+		/* margin-top:-55px !important; */
+	/* } */
+	/* #datatable_vendor_filter */
+	/* { */
+		/* margin-top:-55px !important; */
+	/* } */
+	
+	/* .dataTables_filter */
+	/* { */
+		/* margin-top:-55px ; */
+	/* } */
+	
+	#sr_no{
+		width:84px !important;
 	}
-	#datatable_vendor_filter
+	#mb_no{
+		width:35rem !important;
+	}
+	#bname{
+		width:50rem !important;
+	}
+	#cd{
+		width:50rem !important;
+	}
+	.export1
 	{
-		margin-top:-55px !important;
+			margin-top:8px!important;
 	}
+}
+#datatable_filter
+{
+	margin-top: 13px;
 }

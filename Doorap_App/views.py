@@ -62,11 +62,15 @@ def Dashboard(request):
             
         income = 0
         revenue = 0
+        
         orders = OrderDetails.objects.filter(current_booking_date__gte = today_date , current_booking_date__lte = end_date ,order_status = "Completed").order_by('-id')
+        
         for i in orders:
-            i.revenue = i.total_amount - i.vendor_pay_amount
-            revenue = i.revenue + revenue
+            
+            revenue = revenue + i.convenience_fee + i.vendor_convenience_fee
+            
             income = i.total_amount + income
+        
         context = {
             "customer":count_customer,
             "vendor":count_vendor,
@@ -74,7 +78,8 @@ def Dashboard(request):
             "approve":approve,
             "reject":reject,
             "revenue":revenue,
-            "income":income
+            "income":income,
+            "orders":orders.count()
             }
         return render(request,"admin_panel/dashboard.html",context)
     else:
@@ -765,7 +770,7 @@ def Save_Offer(request):
                 else:
                     Offers.objects.create(fk_country = country_obj , fk_category = category_obj , offer_code = offercode , discount = discount , expirydate = expirydate )
                     
-                    return JsonResponse({'status':'1','msg':'Offers Added Successfully.'})
+                    return JsonResponse({'status':'1','msg':'Promocode Added Successfully.'})
            else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
@@ -804,7 +809,7 @@ def Edit_Offer(request):
                        
                     else:
                         pass
-                    return JsonResponse({'status':'1','msg':'Offers Updated Successfully.'})
+                    return JsonResponse({'status':'1','msg':'Promocode Updated Successfully.'})
            else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
@@ -918,7 +923,7 @@ def Revenue_Income(request):
             
             orders = OrderDetails.objects.filter(current_booking_date__gte = today_date , current_booking_date__lte = end_date ,order_status = "Completed").order_by('-id')
             for i in orders:
-                i.revenue = i.total_amount - i.vendor_pay_amount
+                i.revenue =  i.convenience_fee + i.vendor_convenience_fee
                 
             rendered = render_to_string("admin_panel/render_to_string/r_t_s_revenue_income.html",{'orders':orders})
             context = {
@@ -944,7 +949,7 @@ def Filter_Revenue_Income(request):
                 to_date = request.POST.get('to_date')
                 orders = OrderDetails.objects.filter(current_booking_date__gte = from_date , current_booking_date__lte = to_date ,order_status = "Completed").order_by('-id')
                 for i in orders:
-                    i.revenue = i.total_amount - i.vendor_pay_amount
+                    i.revenue =  i.convenience_fee + i.vendor_convenience_fee
                     
                 rendered = render_to_string("admin_panel/render_to_string/r_t_s_revenue_income.html",{'orders':orders})
                 return JsonResponse({'status':'1','response':rendered})

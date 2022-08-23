@@ -6,21 +6,22 @@
         <div class="row" style="background-color:white; margin-left: 15rem;">
 			<div class="table">
 				<table id="datatable1" class="table table-striped datatable" style="text-align:center;">
-					<button class="btn btn-primary btn-shadow btn-md" id="export" onclick="ExportToExcel('xlsx')" style="float: right; height: 35px;margin-top: 5px;padding-top: 4px;"><iaria-hidden="true" class="fa fa-file-excel-o"></i>Export</button>
+					<button class="btn btn-primary btn-shadow btn-md export1" id="export" onclick="ExportToExcel('xlsx')" style="float: right; height: 35px;margin-top: 5px;padding-top: 4px;"><iaria-hidden="true" class="fa fa-file-excel-o"></i>Export</button>
 					 <thead>
 					<tr>
 					  <th scope="col">Sr No</th>
 					  <th scope="col">Order No</th>
+					  <th scope="col">Booking Date</th>		
 					  <th scope="col">Customer Name</th>
 					  <th scope="col">Vendor Name</th>
 					  <!-- <th scope="col">Category Name</th> -->
 					  <th scope="col">Sub Total</th>
-					  <th scope="col">Convinience Fee</th>
+					  <th scope="col">Convenience Fee</th>
 					  <th scope="col">Discount</th>
 					  <!-- <th scope="col">PromoCode</th> -->
 					  <th scope="col">Total Income</th>
 					  <th scope="col">Revenue</th>
-					  <th scope="col">Booking Date</th>		
+					  
 					  <!-- <th scope="col">Status</th> -->
 					</tr>
 				  </thead>
@@ -30,6 +31,7 @@
 							<tr>
 							   <td scope="row">{{forloop.counter}}</td>
 							  <td>{{i.order_id}}</td>
+							  <td>{{i.current_booking_date}}</td>
 							  <td>{{i.fk_customer.name}}</td>
 							  <td>{{i.fk_vendor.full_name}}</td>
 							  <!-- <td>{{i.fk_category.category_name}}</td> -->
@@ -39,7 +41,7 @@
 							  <td>{{i.discount| floatformat:2}}</td>
 							  <td>{{i.total_amount| floatformat:2}}</td>
 							  <td>{{i.revenue| floatformat:2}}</td>
-							  <td>{{i.current_booking_date}}</td>
+							  
 							  <!-- <td>{{i.order_status}}</td>	 -->
 							</tr>
 						{% endfor %}

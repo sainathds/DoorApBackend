@@ -1300,6 +1300,8 @@ def Order_Completed(request):
             OrderDetails.objects.filter( id = sid , order_id = order_id).update(order_status = "Completed")
             vendor_obj = VendorDetails.objects.get(id = vendor_id)
             user_obj = OrderDetails.objects.get( id = sid)
+            total_earn_amount = user_obj.vendor_pay_amount + vendor_obj.vendor_earning
+            VendorDetails.objects.filter(id = vendor_id).update(vendor_earning = total_earn_amount)
             Send_Message(vendor_obj.fk_user.id ,"Completed",None,sid , user_obj.fk_customer.name)
             return Response({'status':200,'msg':'Order Completed.'})
     except:
