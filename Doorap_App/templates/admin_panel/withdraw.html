@@ -1,0 +1,300 @@
+{% include 'admin_panel/header.html' %}
+
+<style>	
+	div.dataTables_wrapper div.dataTables_length label {
+		margin-top: 15px!important;
+		margin-left: 15px!important;
+	}
+	.body{min-height: 756px !important;}
+.wrapper, body, html {
+    min-height: 750px !important;
+}
+.swal-back {
+    width: 350px !important;
+	height: auto !important;
+	}
+	.custom-select{
+	width: 60px!important;
+	}
+	#datatable1_filter
+	{
+		margin-top:15px!important;
+	}
+</style>
+
+
+<!-- Content Wrapper. Contains page content -->
+  <!-- <div class="content-wrapper"> -->
+    <!-- Content Header (Page header) -->
+	
+    <div class="content-header" style="margin-top:1%;">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6" style="margin-left:15.5rem;">
+            <h3 class="m-0">Withdraw Request</h3>
+			
+          </div><!-- /.col -->
+          <!-- <div class="col-sm-6"> -->
+            <!-- <ol class="breadcrumb float-sm-right"> -->
+              <!-- <li class="breadcrumb-item"><a href="#" onclick="Get_Dashboard_Data()">Home</a></li> -->
+              <!-- <li class="breadcrumb-item active">Sender List</li> -->
+            <!-- </ol> -->
+          <!-- </div> -->
+        </div>
+		<hr>
+<div class="row">
+				<div class="col-md-2" style="margin-left:15.5rem;">
+					<div class="form-group">
+							<label for="exampleFormControlInput1">From Date</label>
+							<input type="date" class="form-control" id="from_date" placeholder="Enter Discount" >
+							<span id="errmsg1" style="color:red;  "></span><br>
+					</div>
+
+				</div>
+		
+				<div class="col-md-2" style="">
+					<div class="form-group">
+						<label for="exampleFormControlInput1">To Date</label>
+							<input type="date" class="form-control" id="to_date" placeholder="Enter Discount" >
+							<span id="errmsg2" style="color:red;  "></span><br>
+					</div>
+
+				</div>
+		
+				<div class="col-md-2"> 
+
+					 <div class="form-group">
+							<label for="exampleFormControlSelect1">Select Status</label>
+							<select class="form-control" id="status">
+							  <option value="All">All</option>
+							  <option value="Pending">Pending</option>
+							  <option value="Accepted">Accepted</option>
+							  <option value="Rejected">Cancelled</option>
+							</select>
+							<span id="errmsg3" style="color:red;  "></span><br>
+					</div>
+				</div>
+		
+				<div class="col-md-2" id="ser">
+					<div class="form-group" id="d">
+						<button style="width:50%;margin-top:30px;" type="button" class="btn btn-success" value="save" onclick="search()">Search </button>
+					</div>
+				</div>
+				
+				<div class="col-md-2" style="margin-left:-121px; display:none;" id="approve">
+					<div class="form-group">
+						<button style="width:50%;margin-top:30px;" type="button" class="btn btn-success" value="save" onclick="payment('Accepted','Approved')">Approve</button>
+					</div>
+				</div>
+				<div class="col-md-2" style="text-align: right;margin-left: 74.5rem;margin-top: -6.9rem; display:none;" id="reject">
+					<div class="form-group">
+						<button style="width:50%;margin-top:30px;" type="button" class="btn btn-success" value="save" onclick="payment('Cancelled','Rejected')">Reject</button>
+					</div>
+				</div>
+		
+			</div>
+			
+      </div>
+    </div>
+				
+				<div id="table_div">
+					{{payment}}
+				</div>
+							
+	</div>
+		
+  </div>
+	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+
+<script>
+	$(document).ready(function(){
+		$('#datatable1').DataTable();
+		
+		"footerCallback": function ( row, data, start, end, display ) {
+				var api = this.api();
+				nb_cols = api.columns().nodes().length;
+				var j = 3;
+				while(j < nb_cols){
+					var pageTotal = api
+                .column( j, { page: 'current'} )
+                .data()
+                .reduce( function (a, b) {
+                    return Number(a) + Number(b);
+                }, 0 );
+          // Update footer
+          $( api.column( j ).footer() ).html(pageTotal);
+					j++;
+				} 
+			}
+	});
+	$(".withdraw").css({"color": "rgb(255, 255, 255)"});
+	 document.getElementById("from_date").onchange = function () {
+        var input = document.getElementById("to_date");
+        input.setAttribute("min", this.value);
+      }
+	
+</script>
+
+<script>	
+	 $(document).on('click', '.swal-button--confirm', function() {     
+		$(".swal-modal").attr("id", "yourIdName");
+		$("#yourIdName").css("width", "315px");
+	    $("#yourIdName").css("height","250px");
+    });
+	function ExportToExcel(type, fn, dl) {
+            var elt = document.getElementById('datatable1');
+            var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
+            return dl ?
+                XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }) :
+                XLSX.writeFile(wb, fn || ('PaymentList.' + (type || 'xlsx')));
+        }
+
+
+	function payment(status,msg)
+	{
+		
+		var payment_id = [];
+        $("input[name='pay']:checked").each(function () 
+        {
+            payment_id.push(parseInt($(this).val()));
+        });
+		console.log(payment_id)
+		$.ajax({
+					type:"POST",
+					url: "/payment_approve_reject/",
+					data: {
+						'payment_id':JSON.stringify(payment_id),
+						'status':status,
+						'msg':msg
+					},
+					success: function (response) 
+					{
+						if (response.status == '1'){
+							swal(""+response.msg+"", {
+							icon: "success",
+							button: "Ok",
+							closeOnClickOutside: false,
+							}).then((addcat)=>{
+						   if(addcat){
+						    window.location.reload();
+						   }
+						});
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "error",
+							button: "Ok",
+							closeOnClickOutside: false,
+							}).then((addcat)=>{
+							   if(addcat){
+								window.location.reload();
+							   }
+							});
+							
+						}
+					}
+					
+				});
+	}
+	
+	function BtnHideShow()
+	{
+		var count;
+		var item = $('[name="pay"]');
+		
+		count = 0;
+		$.each(item, function() {
+			  var $this = $(this);
+				
+				if($this.is(":checked")) 
+				{
+					count = count + 1; 
+					$("#approve").css('display','block');
+					$("#reject").css('display','block');
+				}
+			});	 
+		if (count == 0)
+		{
+			$.each(item, function() {
+				var $this = $(this);
+				var item1=$this;
+				$("#approve").css('display','none');
+				$("#reject").css('display','none');
+			 });	
+		}
+		
+	}
+
+</script>
+
+
+
+<script>
+	$("#from_date").change(function(){
+			$('#errmsg1').hide();
+		});
+	$("#to_date").change(function(){
+			$('#errmsg2').hide();
+		});
+	$("#status").change(function(){
+		$('#errmsg3').hide();
+	});
+	function search()
+	{
+		
+		status = $("#status").val();
+		
+		from_date = $("#from_date").val();
+		to_date = $("#to_date").val();
+		
+		if (from_date == "" || from_date == null)
+		{
+			errmsg1.innerHTML = "Please Select FromDate..";
+			$("#errmsg1").show();
+		}
+	    else if (to_date == "" || to_date == null)
+		{
+			errmsg2.innerHTML = "Please Select ToDate..";
+			$("#errmsg2").show();
+		}
+		else if (status == "" || status == null)
+		{
+			errmsg3.innerHTML = "Please Select Status..";
+			$("#errmsg3").show();
+		}
+		else
+		{
+			$.ajax({
+					type:"POST",
+					url: "/filter_order/",
+					data: {
+						'from_date':from_date,
+						'to_date':to_date,
+						'status':status
+					},
+					success: function (response) 
+					{
+						<!-- $("#loader_img").hide(); -->
+						if (response.status == '1'){
+							$("#table_div").html(response.response);
+							
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "error",
+							button: "Ok",
+							closeOnClickOutside: false,
+							});
+						}
+					}
+					
+				})
+		}
+	}
+
+</script>
+
+{% include 'admin_panel/footer.html' %} 

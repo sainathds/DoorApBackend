@@ -43,6 +43,10 @@ urlpatterns = [
     path('revenue_income/',views.Revenue_Income , name='revenue_income'),
     path('filter_revenue_income/',views.Filter_Revenue_Income , name='filter_revenue_income'),
     
+    
+    path('withdraw/',views.Withdraw,name ='withdraw'),
+    path('payment_approve_reject/',views.Payment_Approve_Reject,name='payment_approve_reject'),
+    
     path('test/',views.test , name='test'),
    
     path('privacy_policy/',views.Privacy_Policy ,name='privacy_policy'),

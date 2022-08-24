@@ -78,6 +78,9 @@ li.nav-item.menu-open {
 .banner:hover {
   color: rgb(255, 255, 255) !important;
 }
+.withdraw:hover {
+  color: rgb(255, 255, 255) !important;
+}
 </style>
 <!-- <div class="text-center" id="loader"> -->
   <!-- <div class="spinner-border" role="status"> -->
@@ -205,7 +208,12 @@ li.nav-item.menu-open {
 							<i class='fas fa-dollar-sign' style="float: right;margin-right: 24px;"></i>
 						</li>
 					</a>
-					
+					<a href = "{% url 'withdraw' %}" >
+						<li  class="nav-item menu-open withdraw" style="margin-left:5px;cursor:pointer;color:lightgray;" >Withdraw 
+							<!-- <i class="fas fa-clipboard-list" style="float: right;margin-right: 15px;"></i> -->
+							<i class='fas fa-dollar-sign' style="float: right;margin-right: 24px;"></i>
+						</li>
+					</a>
 					<a href="{% url 'logout' %}">
 						<li class="nav-item menu-open logout" style="margin-left:5px;cursor:pointer;color:lightgray;">Logout
 							<!-- <i class="fas fa-sign-out-alt" style="float: right;margin-right: 12px;"></i> -->

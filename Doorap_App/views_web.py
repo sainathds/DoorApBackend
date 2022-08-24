@@ -1598,20 +1598,15 @@ def Withdraw_Request(request):
         data = request.data
         vendor_id = data.get('vendor_id',None)
         withdraw_amount = request.data['withdraw_amount']
-        vendor_obj = VendorDetails.objects.get( id = vendor_id)
+        vendor_obj = VendorDetails.objects.get( fk_user__id = vendor_id)
         total_withdraw_amount = withdraw_amount + vendor_obj.withdraw_request
-        VendorDetails.objects.filter(id = vendor_id).update(withdraw_request = total_withdraw_amount , withdraw_request_status = True , withdraw_request_date =datetime.datetime.now())
+        VendorDetails.objects.filter(fk_user__id = vendor_id).update(withdraw_request = total_withdraw_amount , withdraw_request_status = True , withdraw_request_date =datetime.datetime.now())
         Vendor_Withdraw_Payment.objects.create(fk_vendor = vendor_obj,payment_amount = withdraw_amount,withdraw_request_date=  datetime.datetime.now())
         
         return Response({'status':200,"msg":'Withdraw request send successfully.'})
     except:
         traceback.print_exc()
         return Response({'status':403,"msg":"Something went wrong."})
-
-
-
-
-
 
 
 @api_view(['POST'])
@@ -1622,9 +1617,9 @@ def Show_Vendor_TotalEarning(request):
     try:
         data = request.data
         vendor_id = data.get('vendor_id',None)
-        vendor_obj = VendorDetails.objects.get(id = vendor_id)
+        vendor_obj = VendorDetails.objects.get(fk_user__id = vendor_id)
         temp_dict ={}
-        if VendorDetails.objects.filter(withdraw_request_status = True).exists():
+        if VendorDetails.objects.filter(fk_user__id = vendor_id ,withdraw_request_status = True).exists():
             temp_dict['total_balance'] = vendor_obj.vendor_earning
             temp_dict['withdraw_msg'] = f"Withdraw Request Pending of ${vendor_obj.withdraw_request}."
             temp_dict['withdraw_request_status'] = vendor_obj.withdraw_request_status
@@ -1639,7 +1634,19 @@ def Show_Vendor_TotalEarning(request):
         return Response({'status':403,"msg":"Something went wrong."})
    
 
-
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Show_Received_Payment(request):
+    try:
+        data = request.data
+        vendor_id = data.get('vendor_id',None)
+        received_payment = Vendor_Withdraw_Payment.objects.filter(fk_vendor__fk_user__id = vendor_id , withdraw_status = "Accepted").values('fk_vendor__full_name','payment_receive_date','payment_amount')
+        return Response({'status':200,"msg":"Received Payment.",'payload':list(received_payment)})
+    except:
+        traceback.print_exc()
+        return Response({'status':403,'msg':'Something went wrong.'})    
 
 
 

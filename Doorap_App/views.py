@@ -961,6 +961,48 @@ def Filter_Revenue_Income(request):
         traceback.print_exc()
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
         
+        
+        
+        
+def Withdraw(request):
+    try:
+        if request.session.get('email'):
+            
+            payment = Vendor_Withdraw_Payment.objects.all().order_by('-id')
+            rendered = render_to_string("admin_panel/render_to_string/r_t_s_withdraw.html",{'payment':payment})
+            
+            return render(request,'admin_panel/withdraw.html',{'payment':rendered})
+        else:
+            return redirect('/login_page/')
+    except:
+        traceback.print_exc()
+        return redirect('/login_page/')
+
+@csrf_exempt
+def Payment_Approve_Reject(request):
+    try:
+        if request.method == 'POST':
+            payment_id = json.loads(request.POST.get('payment_id'))
+            status = request.POST.get('status')
+            msg = request.POST.get('msg')
+            
+            for i in payment_id:
+                obj = Vendor_Withdraw_Payment.objects.get(id = i)
+                if status =="Accepted":
+                    
+                    updated_earning = obj.fk_vendor.vendor_earning - obj.payment_amount                    
+                    VendorDetails.objects.filter(id = obj.fk_vendor.id).update(vendor_earning = updated_earning,withdraw_request_status = False, withdraw_request = 0)
+                    Vendor_Withdraw_Payment.objects.filter(id = i).update(payment_receive_date = datetime.datetime.now())
+                else:
+                    VendorDetails.objects.filter(id = obj.fk_vendor.id).update(withdraw_request_status = False,withdraw_request = 0)
+                Vendor_Withdraw_Payment.objects.filter(id = i).update(withdraw_status = status)
+            return JsonResponse({'status':'1','msg':'Payment '+ msg + ' Successfully.'})
+        else:
+            return JsonResponse({'status':'0','msg':'Post method required.'})
+    except:
+        traceback.print_exc()
+        return JsonResponse({'status':'0','msg':'Something went wrong.'})
+        
 #********************** End Mobile App Send Nofification Function ********************************* 
  
 

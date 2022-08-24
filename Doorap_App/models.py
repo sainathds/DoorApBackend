@@ -307,5 +307,6 @@ class Vendor_Withdraw_Payment(models.Model):
     payment_amount = models.FloatField(blank = True , null = True)
     withdraw_status = models.CharField(max_length = 100, default="Pending")
     withdraw_request_date = models.DateField(blank = True , null = True)
+    payment_receive_date = models.DateField(blank = True , null = True)
     status = models.BooleanField(default = False)
     
