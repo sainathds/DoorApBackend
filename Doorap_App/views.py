@@ -1002,7 +1002,57 @@ def Payment_Approve_Reject(request):
     except:
         traceback.print_exc()
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
+    
+
+@csrf_exempt
+def Filter_Withdraw_Request(request):
+    try:
+        if request.method == 'POST':
+            from_date = request.POST.get('from_date')
+            to_date = request.POST.get('to_date')
+            status = request.POST.get('status')
+            rendered = None
+            if status == "All":
+                payment = Vendor_Withdraw_Payment.objects.filter(withdraw_request_date__gte = from_date , withdraw_request_date__lte = to_date).order_by('-id')
+                rendered = render_to_string("admin_panel/render_to_string/r_t_s_withdraw.html",{'payment':payment})
+            else:
+                
+                payment = Vendor_Withdraw_Payment.objects.filter(withdraw_request_date__gte = from_date , withdraw_request_date__lte = to_date,withdraw_status = status).order_by('-id')
+                rendered = render_to_string("admin_panel/render_to_string/r_t_s_withdraw.html",{'payment':payment})
+            return JsonResponse({'status':'1','response':rendered})
+        else:
+            return JsonResponse({'status':'0','msg':'Post method required.'})
+    except:
+        traceback.print_exc()
+        return JsonResponse({'status':'0','msg':'Something went wrong.'})
         
+
+@csrf_exempt
+def Bank_Account_Details(request):
+    try:
+        if request.method == 'POST':
+            vendor_id = request.POST.get('vendor_id')
+            account_detail = Vender_AccountDetails.objects.filter(fk_vender__id = vendor_id)
+            rendered = None
+            if account_detail.exists():
+                rendered = render_to_string("admin_panel/render_to_string/r_t_s_bank_account_details.html",{'account_detail':account_detail})
+            else:
+                temp_list=[]
+                temp_dict = {}
+                temp_dict['Bank_name'] = "---"
+                temp_dict['fk_vender.full_name'] = "---"
+                temp_dict['Account_no'] = "---"
+                temp_dict['IBAN_no'] = "---"
+                temp_dict['BIC_code'] = "---"
+                temp_list.append(temp_dict)
+                
+                rendered = render_to_string("admin_panel/render_to_string/r_t_s_bank_account_details.html",{'account_detail':temp_list})
+            return JsonResponse({'status':'1','response':rendered})
+        else:
+            return JsonResponse({'status':'0','msg':'Post method required.'})
+    except:
+        traceback.print_exc()
+        return JsonResponse({'status':'0','msg':'Something went wrong'})
 #********************** End Mobile App Send Nofification Function ********************************* 
  
 

@@ -12,8 +12,10 @@
 					  <th scope="col">Sr No</th>
 					  <th scope="col">Vendor Name</th>
 					  <th scope="col">Requested Date</th>
+					  <th scope="col">Received Date</th>
 					  <th scope="col">Amount</th>
 					  <th scope="col">Status</th>
+					  <th scope="col">Bank Account</th>
 					  <th scope="col">Action</th>
 					  
 					</tr>
@@ -23,8 +25,9 @@
 								<td></td>
 								<td></td>
 								<td></td>
-								<td>Totals</td>
-								<td></td>
+								<td id="lbl">Total Amount:-</td>
+								<td id="total"></td>
+								
 							</tr>
 						</tfoot>
 				  <tbody>
@@ -34,9 +37,11 @@
 							   <td scope="row">{{forloop.counter}}</td>
 							  <td>{{i.fk_vendor.full_name}}</td>
 							  <td>{{i.withdraw_request_date}}</td>
+							  <td>{% if i.payment_receive_date %}{{i.payment_receive_date}} {% else %} --- {% endif %} </td>
 							  <td>{{i.payment_amount}}</td>
 							  
 							  <td>{{i.withdraw_status}}</td>
+							  <td><i class="fa fa-eye" aria-hidden="true" style="cursor:pointer;" data-original-title="Edit" data-toggle="modal" data-target="#bankModal" data-sid="{{i.id}}" onclick="Bank_Account_Details('{{i.fk_vendor.id}}')"></i></td>
 							  <td>
 								   {% if i.withdraw_status == "Pending" %}	<input type="checkbox" id="pay" name="pay" value="{{i.id}}" onchange="BtnHideShow()">
 								   {% else %}
@@ -60,7 +65,32 @@
     </section>
 
 <script>
-	$(document).ready(function(){
-		$('#datatable1').DataTable();
-	});
+	$(document).ready(function() {
+	// DataTable initialisation
+	$('#datatable1').DataTable(
+		{
+			"paging": true,
+			"autoWidth": true,
+			"retrieve": true,
+			"footerCallback": function ( row, data, start, end, display ) {
+				var api = this.api();
+				nb_cols = api.columns().nodes().length;
+				var j = 4;
+				while(j < nb_cols){
+					var pageTotal = api
+                .column( j, { page: 'current'} )
+                .data()
+                .reduce( function (a, b) {
+                    return Number(a) + Number(b);
+                }, 0 );
+          // Update footer
+		  
+          $( api.column( j ).footer() ).html(pageTotal);
+					j++;
+					console.log(j)
+				} 
+			}
+		}
+	);
+});
 </script>

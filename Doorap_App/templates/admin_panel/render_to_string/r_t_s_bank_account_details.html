@@ -1,0 +1,24 @@
+	<div class="col-md-12 mx-auto">
+		{% for i in account_detail %}
+		<div>
+			<label class="text-name text-left">Bank Name :</label>
+			<span id="bank_name" class="" style="font-weight: 600;font-size: 16px;">{{i.Bank_name}}</span>
+		</div>
+		<div>
+			<label class="text-name text-left">Account Holder Name :</label>
+			<span id="acc_holder_name"  class="" style="font-weight: 600;font-size: 16px;">{% if i.fk_vender.full_name %} {{i.fk_vender.full_name}} {% else %} --- {% endif %}</span>
+		</div>
+		<div>
+			<label class="text-name text-left">Account Number :</label>
+			<span id="account_no"  class="" style="font-weight: 600;font-size: 16px;">{{i.Account_no}}</span>
+		</div>
+		<div>
+			<label class="text-name text-left">IBAN Number :</label>
+			<span id="ifsc_no"  class="" style="font-weight: 600;font-size: 16px;">{{i.IBAN_no}}</span>
+		</div>
+		<div>
+			<label class="text-name text-left">BIC Code :</label>
+			<span id="ifsc_no"  class="" style="font-weight: 600;font-size: 16px;">{{i.BIC_code}}</span>
+		</div>
+		{% endfor %}
+	</div>

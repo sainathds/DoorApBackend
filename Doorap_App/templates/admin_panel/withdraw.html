@@ -20,6 +20,12 @@
 	{
 		margin-top:15px!important;
 	}
+	tfoot #lbl,#total {
+	background: lightblue;
+}
+tfoot td {
+	font-weight:bold;
+}
 </style>
 
 
@@ -69,7 +75,8 @@
 							  <option value="All">All</option>
 							  <option value="Pending">Pending</option>
 							  <option value="Accepted">Accepted</option>
-							  <option value="Rejected">Cancelled</option>
+							  <option value="Cancelled">Cancelled</option>
+							  
 							</select>
 							<span id="errmsg3" style="color:red;  "></span><br>
 					</div>
@@ -81,42 +88,65 @@
 					</div>
 				</div>
 				
-				<div class="col-md-2" style="margin-left:-121px; display:none;" id="approve">
+				<div class="col-md-2" style="margin-left:-121px; display:none; width: 235px;" id="approve">
 					<div class="form-group">
-						<button style="width:50%;margin-top:30px;" type="button" class="btn btn-success" value="save" onclick="payment('Accepted','Approved')">Approve</button>
+						<button style="width:50%;margin-top:30px;" type="button" class="btn btn-primary" value="save" onclick="payment('Accepted','Approved')">Approve</button>
 					</div>
 				</div>
-				<div class="col-md-2" style="text-align: right;margin-left: 74.5rem;margin-top: -6.9rem; display:none;" id="reject">
-					<div class="form-group">
-						<button style="width:50%;margin-top:30px;" type="button" class="btn btn-success" value="save" onclick="payment('Cancelled','Rejected')">Reject</button>
+				<div class="col-md-2" style="text-align: right;margin-left: 81rem;margin-top: -6.9rem; display:none;" id="reject">
+					<div class="form-group" style="float: left;">
+						<button style="width:135%;margin-top:30px;" type="button" class="btn btn-warning" value="save" onclick="payment('Cancelled','Rejected')">Reject</button>
 					</div>
 				</div>
 		
 			</div>
 			
       </div>
+    </div>				
+		<div id="table_div">
+			{{payment}}
+		</div>							
+	</div>		
+ </div>
+ 
+ 
+ <div class="modal fade" id="bankModal" data-keyword="false" data-backdrop="static"  style="background: rgba(0,0,0,0.5) !important; ">
+    <div class="modal-dialog modal-md" style="margin-top: 164px; z-index: 10000000000;">
+        <div class="modal-content"  >
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title" style="margin-left:17px;">Bank Account Details<span id="name" class="modal-title"></span></h4>
+                <button type="button"    class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="container" id="bank">
+                    
+                </div>
+            </div>
+ 
+        </div>
     </div>
-				
-				<div id="table_div">
-					{{payment}}
-				</div>
-							
-	</div>
-		
-  </div>
-	<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
-	<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> -->
+</div>
+	
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
 
 <script>
-	$(document).ready(function(){
-		$('#datatable1').DataTable();
-		
-		"footerCallback": function ( row, data, start, end, display ) {
+	
+	$(document).ready(function() {
+	// DataTable initialisation
+	$('#datatable1').DataTable(
+		{
+			"paging": true,
+			"autoWidth": true,
+			"retrieve": true,
+			"footerCallback": function ( row, data, start, end, display ) {
 				var api = this.api();
 				nb_cols = api.columns().nodes().length;
-				var j = 3;
+				var j = 4;
 				while(j < nb_cols){
 					var pageTotal = api
                 .column( j, { page: 'current'} )
@@ -127,9 +157,12 @@
           // Update footer
           $( api.column( j ).footer() ).html(pageTotal);
 					j++;
+					console.log(j);
 				} 
 			}
-	});
+		}
+	);
+});
 	$(".withdraw").css({"color": "rgb(255, 255, 255)"});
 	 document.getElementById("from_date").onchange = function () {
         var input = document.getElementById("to_date");
@@ -227,6 +260,39 @@
 		}
 		
 	}
+	
+	function Bank_Account_Details(vendor_id)
+	{
+		$.ajax({
+					type:"POST",
+					url: "/bank_account_details/",
+					data: {
+						'vendor_id':vendor_id
+					},
+					success: function (response) 
+					{
+						
+						if (response.status == '1'){
+							$("#bank").html();
+							$("#bank").html(response.response);
+						}
+						else{
+							swal(""+response.msg+"", {
+							icon: "error",
+							button: "Ok",
+							closeOnClickOutside: false,
+							}).then((addcat)=>{
+							   if(addcat){
+								window.location.reload();
+							   }
+							});
+							
+						}
+					}
+					
+			});
+	
+	}
 
 </script>
 
@@ -269,7 +335,7 @@
 		{
 			$.ajax({
 					type:"POST",
-					url: "/filter_order/",
+					url: "/filter_withdraw_request/",
 					data: {
 						'from_date':from_date,
 						'to_date':to_date,
@@ -277,7 +343,7 @@
 					},
 					success: function (response) 
 					{
-						<!-- $("#loader_img").hide(); -->
+						
 						if (response.status == '1'){
 							$("#table_div").html(response.response);
 							

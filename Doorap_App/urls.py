@@ -46,6 +46,8 @@ urlpatterns = [
     
     path('withdraw/',views.Withdraw,name ='withdraw'),
     path('payment_approve_reject/',views.Payment_Approve_Reject,name='payment_approve_reject'),
+    path('filter_withdraw_request/',views.Filter_Withdraw_Request, name='filter_withdraw_request'),
+    path('bank_account_details/',views.Bank_Account_Details , name='bank_account_details'),
     
     path('test/',views.test , name='test'),
    
