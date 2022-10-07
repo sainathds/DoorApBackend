@@ -2,7 +2,7 @@ from Doorap_App import views
 from django.urls import path, re_path
 from Doorap_App import cron
 urlpatterns = [
-    path('login_page/',views.Login_page,name='login_page'),
+    path('',views.Login_page,name='login_page'),
     path('login/',views.Login,name='login'),
     path('logout/',views.logout , name='logout'),
     path('dashboard/',views.Dashboard,name='dashboard'),

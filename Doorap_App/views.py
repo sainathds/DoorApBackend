@@ -23,7 +23,7 @@ def Login(request):
         if request.method == "POST":
             email = request.POST.get('email')
             password = request.POST.get('password')            
-            if AdminDetails.objects.filter(email = email, password = password).exists():
+            if AdminDetails.objects.filter(email = email, password = password).exists(): #check user exists
                 request.session['email'] = email
                 return JsonResponse({"status":"1","msg":"Login Successfull."})
             else:
@@ -39,9 +39,9 @@ def logout(request):
         if request.session.get('email'):
             print(request.session.get('email'))
             del request.session['email']
-            return redirect('/login_page/')
+            return redirect('/')
         else:
-            return redirect('/login_page/')
+            return redirect('/')
     except:
         return JsonResponse({"status":"0","msg":"Something went wrong."})
 
@@ -83,7 +83,7 @@ def Dashboard(request):
             }
         return render(request,"admin_panel/dashboard.html",context)
     else:
-        return redirect('/login_page/')
+        return redirect('/')
  
  
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -126,7 +126,7 @@ def VenderListPage(request):
         context = {'vender':temp_list}
         return render(request,'admin_panel/vendor_list.html',context)
     else:
-        return redirect('/login_page/')
+        return redirect('/')
 
 
 
@@ -139,7 +139,7 @@ def CustomerListPage(request):
        context = {'customer':customer}
        return render(request,'admin_panel/customer_list.html',context)
     else:
-       return redirect('/login_page/')
+       return redirect('/')
 
 @csrf_exempt
 def DeleteCustomer(request):
@@ -362,7 +362,7 @@ def view_vendor(request,id):
         
         return render(request,'admin_panel/view_vendor.html', {"main_dict":temp,'vendor_obj':vendor_obj, "obj_vender":obj_vender})
     else:
-        return redirect('/login_page/')  
+        return redirect('/')  
  
 @csrf_exempt
 def Delete_Vendor(request):
@@ -382,7 +382,7 @@ def Delete_Vendor(request):
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-            return redirect('/login_page/')
+            return redirect('/')
     except:
         traceback.print_exc()
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
@@ -437,7 +437,7 @@ def test(request,id):
         # print(main_dict);
         return render(request,'admin_panel/view_vendor.html', {"main_dict":main_dict,'vendor_obj':vendor_obj, "obj_vender":obj_vender})
     else:
-        return redirect('/login_page/')  
+        return redirect('/')  
 
 @csrf_exempt
 def show_vendor_facility(request):
@@ -450,7 +450,7 @@ def show_vendor_facility(request):
             print(service.price, service.hour)
             return JsonResponse({'status':'1','msg':'Service Facility','data1':list(facility),'data2':service.price,'data3':service.hour})
         else:
-            return redirect('/login_page/') 
+            return redirect('/') 
     except:
         traceback.print_exc()
         return JsonResponse({'status':"0",'msg':'Something went wrong'})
@@ -463,7 +463,7 @@ def Customservice(request):
         obj2 = VenderCustomService.objects.all().values('fk_vendor', 'fk_vendor__full_name', 'fk_vendor__id' ).distinct()
         return render(request,'admin_panel/customservice.html',{"obj2":obj2})
     else:
-        return redirect('/login_page/')
+        return redirect('/')
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -492,7 +492,7 @@ def vendorCategories(request, id):
         
         return render(request,'admin_panel/vendor_categories_tmeplate.html',{"main_dict":main_dict,'vendor_obj':vendor_obj})
     else:
-        return redirect('/login_page/')   
+        return redirect('/')   
 
 
 
@@ -516,7 +516,7 @@ def custom_services_form(request,id):
         return render(request,'admin_panel/custom_services_form.html', 
         {"obj":dict1, "user_id":id})
     else:
-        return redirect('/login_page/') 
+        return redirect('/') 
 
 
 
@@ -586,7 +586,7 @@ def Show_banner(request):
         obj_banner = BannerMaster.objects.all().order_by('-id')
         return render(request, 'admin_panel/banner.html', {'obj_banner': obj_banner})
     else:
-        return redirect('/login_page/')
+        return redirect('/')
     
     
 @csrf_exempt
@@ -634,7 +634,7 @@ def commision(request):
         }
         return render(request,'admin_panel/commision.html',context)
     else:
-        return redirect ('/login_page/')
+        return redirect ('/')
 
 @csrf_exempt
 def Save_Customer_Commision(request):
@@ -656,7 +656,7 @@ def Save_Customer_Commision(request):
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-           return redirect ('/login_page/') 
+           return redirect ('/') 
     except:
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
 
@@ -681,7 +681,7 @@ def Edit_Commision(request):
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-           return redirect ('/login_page/') 
+           return redirect ('/') 
     except:
         traceback.print_exc()
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
@@ -699,7 +699,7 @@ def Delete_Commision(request):
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-           return redirect ('/login_page/') 
+           return redirect ('/') 
     except:
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
         
@@ -729,7 +729,7 @@ def Save_Vendor_Commision(request):
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-           return redirect ('/login_page/') 
+           return redirect ('/') 
     except:
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
 
@@ -749,7 +749,7 @@ def offer(request):
         }
         return render(request,'admin_panel/offer.html',context)
     else:
-        return redirect ('/login_page/')
+        return redirect ('/')
         
         
 @csrf_exempt
@@ -774,7 +774,7 @@ def Save_Offer(request):
            else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-           return redirect ('/login_page/') 
+           return redirect ('/') 
     except:
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
         
@@ -813,7 +813,7 @@ def Edit_Offer(request):
            else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-           return redirect ('/login_page/') 
+           return redirect ('/') 
     except:
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
         
@@ -831,7 +831,7 @@ def Delete_Offer(request):
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-           return redirect ('/login_page/') 
+           return redirect ('/') 
     except:
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
 
@@ -841,7 +841,7 @@ def Orders(request):
     if request.session.get('email'):
         return render(request,'admin_panel/orders.html')
     else:
-        return redirect('/login_page/')
+        return redirect('/')
         
 @csrf_exempt
 def Show_Orders(request):
@@ -861,7 +861,7 @@ def Show_Orders(request):
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-            return redirect('/login_page/')
+            return redirect('/')
     except:
         traceback.print_exc()
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
@@ -885,7 +885,7 @@ def Filter_Order(request):
             else:
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-            return redirect('/login_page/')
+            return redirect('/')
     except:
         traceback.print_exc()
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
@@ -905,7 +905,7 @@ def Show_item_detail(request):
                 print("hello")
                 return JsonResponse({'status':'0','msg':'Something went wrong.'})
         else:
-           return redirect('/login_page/') 
+           return redirect('/') 
     except:
         traceback.print_exc()
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
@@ -934,11 +934,11 @@ def Revenue_Income(request):
             return render(request,'admin_panel/revenue_income.html',context)
         else:
             print(request.session.get('email'))
-            return redirect('/login_page/')
+            return redirect('/')
     except:
         traceback.print_exc()
         
-        return redirect('/login_page/')
+        return redirect('/')
 
 @csrf_exempt
 def Filter_Revenue_Income(request):
@@ -956,7 +956,7 @@ def Filter_Revenue_Income(request):
             else:
                 return JsonResponse({'status':'0','msg':'Post method required'})
         else:
-            return redirect('/login_page/')
+            return redirect('/')
     except:
         traceback.print_exc()
         return JsonResponse({'status':'0','msg':'Something went wrong.'})
@@ -973,10 +973,10 @@ def Withdraw(request):
             
             return render(request,'admin_panel/withdraw.html',{'payment':rendered})
         else:
-            return redirect('/login_page/')
+            return redirect('/')
     except:
         traceback.print_exc()
-        return redirect('/login_page/')
+        return redirect('/')
 
 @csrf_exempt
 def Payment_Approve_Reject(request):
