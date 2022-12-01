@@ -1076,8 +1076,8 @@ def Order_Accept_Decline(request):
         order_id = data.get('order_id',None)
         order_status = data.get('order_status',None)
         customer_id = data.get('customer_id',None)
-        stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
-        
+        # stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
+        stripe.api_key = settings.STRIPE_PAYMENT_API_KEY
         order_obj = OrderDetails.objects.get(id = sid , order_id = order_id)
         OrderDetails.objects.filter( id = sid , order_id = order_id).update(order_status = order_status)
         Send_Message(customer_id , order_status , sid,order_obj.fk_vendor.full_name)
@@ -1650,4 +1650,29 @@ def Show_Received_Payment(request):
 
 
 
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+@authentication_classes((JWTAuthentication,))
+@csrf_exempt
+def Delete_Customer_Vendor(request):
+    try:
+        data = request.data
+        if MyUser.objects.filter(id = data['user_id']).exists():
+            if MyUser.objects.filter(id = data['user_id'],is_vendor = True , is_customer = True).exists():
+                    if data['user_type'] == "Customer":
+                        MyUser.objects.filter(id=data['user_id']).update(is_customer = False)
+                    else:
+                        MyUser.objects.filter(id=data['user_id']).update(is_vendor = False)
+                        
+            elif MyUser.objects.filter(id = data['user_id'],is_vendor = False , is_customer = True).exists():
+                MyUser.objects.filter(id =data['user_id']).delete()
+            elif MyUser.objects.filter(id = data['user_id'],is_vendor = True , is_customer = False).exists():
+                MyUser.objects.filter(id =data['user_id']).delete()
+        else:
+            return Response({'status':'403','msg':'Invalid User.'})
+            
+        return Response({'status':200,'msg':'Account Deleted Successfully.'})
+    except:
+        traceback.print_exc()
+        return Response({'status':403,'msg':'Something went wrong.'})
 #**************************************** ***************************************** ***************************

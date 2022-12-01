@@ -73,4 +73,5 @@ urlpatterns = [
    path('social_login/',views_web.Vender_login_social , name='social_login'),
    
    path('show_received_payment/',views_web.Show_Received_Payment , name='show_received_payment'),
+   path('Delete_Customer_Vendor/',views_web.Delete_Customer_Vendor , name='Delete_Customer_Vendor'),
 ]

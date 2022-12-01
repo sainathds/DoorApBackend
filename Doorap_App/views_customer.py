@@ -879,9 +879,9 @@ def Stripe_payment(request):
         total_amount = data.get('amount',None)
         user_email = data.get('email',None)
         
+        stripe.api_key = settings.STRIPE_PAYMENT_API_KEY
         
-        
-        stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
+        # stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
         customer = stripe.Customer.create(email=user_email)
         ephemeralKey = stripe.EphemeralKey.create(
         customer=customer['id'],
@@ -923,8 +923,8 @@ def card(request):
         user_id = data.get('user_id',None)
         total_amount = data.get('amount',None)
         
-        stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
-        
+        # stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
+        stripe.api_key = settings.STRIPE_PAYMENT_API_KEY
         # setupIntent = stripe.SetupIntent.create(customer=customer['id'],)
         
         # customer = stripe.Customer.create()
@@ -1252,7 +1252,8 @@ def Customer_Cancel_Order(request):
         sid = data.get('id',None)
         order_id = data.get('order_id',None)
         vendor_id = data.get('vendor_id',None)
-        stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
+        stripe.api_key = settings.STRIPE_PAYMENT_API_KEY
+        # stripe.api_key = "sk_test_51LHr4UI0Jl0TyufY5lwPfz7zMPSPYd0MUZ7FhDN9n7bCIA7XNqB6G6PlQdVd0lmdrxxoEUg7zXYg2XLIRcPo9c1B00oT6zqkeT"
         if OrderDetails.objects.filter( id = sid , order_id = order_id , order_status ="Started").exists():
             return Response ({'status':403,'msg':'Your Order has been started by vendor.You cannot cancel order.'})
         else:
