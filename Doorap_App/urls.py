@@ -53,7 +53,10 @@ urlpatterns = [
    
     path('privacy_policy/',views.Privacy_Policy ,name='privacy_policy'),
     path('terms_of_service/',views.Terms_of_Service , name='terms_of_service'),
-    path('refund_policy/',views.Refund_Policy , name = 'refund_policy')
+    path('refund_policy/',views.Refund_Policy , name = 'refund_policy'),
+    path('Contact_us/',views.Contact_us , name = 'Contact_us'),
+    path('Ajax_Contact_us/',views.Ajax_Contact_us , name = 'Ajax_Contact_us')
     # path('test/',views.test , name='test')
+    
     
 ]

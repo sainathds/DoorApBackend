@@ -1066,6 +1066,24 @@ def Terms_of_Service(request):
 def Refund_Policy(request):
     return render(request,'admin_panel/refund_policy.html')
 
+def Contact_us(request):
+    return render(request,'admin_panel/contact_us.html')
+
+
+@csrf_exempt
+def Ajax_Contact_us(request):
+    try:
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('contact_msg')
+        
+        send_mail(f'{name} wants to contact us', f'Dear Admin,\nPlease find new contact info received from website.\nName: {name}.\nEmail: {email}, \nMessage: {message},', settings.EMAIL_HOST_USER, [settings.EMAIL_HOST_USER])
+        # temp_dict['otp'] = otp
+        # temp_dict["signup_msg"] = ""
+        return JsonResponse({'status':'1','msg':'Thanks for contacting us, we will reach to you shortly.'})
+    except:
+        traceback.print_exc()
+        return JsonResponse({'status':'0','msg':'Something went wrong.'})
         
 
 
