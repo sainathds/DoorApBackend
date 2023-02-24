@@ -143,6 +143,7 @@ class EditProfileSerializer(serializers.ModelSerializer):
         fields = "__all__"
      
     def update(self, instance, validated_data):
+        
         if validated_data['profile_image'] == None:
             instance.full_name = validated_data['full_name']
             instance.abount_me = validated_data['abount_me']
@@ -156,9 +157,11 @@ class EditProfileSerializer(serializers.ModelSerializer):
             instance.fk_country = self.context['country_obj']
             instance.fk_city = self.context['city_obj']        
             instance.zip_code = validated_data['zip_code']
+            
             instance.save()
             return instance
         else:
+            print("----------")
             instance.full_name = validated_data['full_name']
             instance.profile_image = validated_data['profile_image']
             instance.abount_me = validated_data['abount_me']
@@ -172,6 +175,7 @@ class EditProfileSerializer(serializers.ModelSerializer):
             instance.fk_country = self.context['country_obj']
             instance.fk_city = self.context['city_obj']        
             instance.zip_code = validated_data['zip_code']
+            
             instance.save()
             return instance
 

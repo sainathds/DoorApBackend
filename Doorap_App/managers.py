@@ -28,7 +28,7 @@ class MyCustomManager(BaseUserManager):
             vendor_login_type = vendor_login_type,
             stripe_customer_id=stripe_customer_id,
             login_id = login_id,
-            login_type = login_type
+            login_type = login_type,
             
 			**extra_fields
 		)

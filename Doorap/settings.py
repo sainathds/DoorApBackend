@@ -84,10 +84,10 @@ DATABASES = {
 			'default': {
 					'ENGINE': 'django.db.backends.mysql',
 					'NAME': 'Doorap_DB',
-					'USER': 'root',
+					'USER': 'ubuntu',
 					'PORT': '3306',
 					'PASSWORD':'Root1234',
-					'HOST': 'doorap.chbcgxahrtcf.us-east-1.rds.amazonaws.com',
+					'HOST': 'database-1.chbcgxahrtcf.us-east-1.rds.amazonaws.com',
 					'OPTIONS': {
 							'charset': 'utf8mb4',
 							'use_unicode': True,

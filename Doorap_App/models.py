@@ -76,6 +76,8 @@ class VendorDetails(models.Model):
     user_status = models.CharField(max_length=20, blank=True, null=True, default="Pending")
     is_available = models.BooleanField(default=True)
     is_service_created = models.BooleanField(default = False)
+    photo_id_proof = models.FileField(upload_to='VendorProfile/', blank=True, null=True)
+    address_proof = models.FileField(upload_to='VendorProfile/', blank=True, null=True)
     #set schedule
     is_monday = models.BooleanField(default = False)
     is_tuesday = models.BooleanField(default = False)

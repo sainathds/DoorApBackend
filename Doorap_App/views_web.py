@@ -544,11 +544,11 @@ def view_profile(request):
             if VendorDetails.objects.filter(fk_user__email = email).exists():
                 if VendorDetails.objects.filter(fk_user__email = email ,user_status = "Approve").exists():
                     user_obj = VendorDetails.objects.get(fk_user__email = email)
-                    user_details = VendorDetails.objects.filter(fk_user__email = email).values('id','fk_user','full_name','profile_image','abount_me','business_name','mobile_no','google_address','google_address_lat','google_address_lng','address_line_one','address_line_two','fk_city__city_name','fk_country__country_name','zip_code','user_status','is_available','fk_city','fk_country','is_service_created')
+                    user_details = VendorDetails.objects.filter(fk_user__email = email).values('id','fk_user','full_name','profile_image','abount_me','business_name','mobile_no','google_address','google_address_lat','google_address_lng','address_line_one','address_line_two','fk_city__city_name','fk_country__country_name','zip_code','user_status','is_available','fk_city','fk_country','is_service_created','photo_id_proof','address_proof')
                     print(user_details)
                     return Response({'status': 200, "msg": 'Vender Details','payload':list(user_details),"is_approve":"true"})
                 else:
-                    user_details = VendorDetails.objects.filter(fk_user__email = email).values('id','fk_user','full_name','profile_image','abount_me','business_name','mobile_no','google_address','google_address_lat','google_address_lng','address_line_one','address_line_two','fk_city__city_name','fk_country__country_name','zip_code','user_status','is_available','fk_city','fk_country','is_service_created')
+                    user_details = VendorDetails.objects.filter(fk_user__email = email).values('id','fk_user','full_name','profile_image','abount_me','business_name','mobile_no','google_address','google_address_lat','google_address_lng','address_line_one','address_line_two','fk_city__city_name','fk_country__country_name','zip_code','user_status','is_available','fk_city','fk_country','is_service_created','photo_id_proof','address_proof')
                     print(user_details)
                 return JsonResponse({"status":200,"msg": 'Vender Details','payload':list(user_details),"is_approve":"false"})
             else:
@@ -582,20 +582,38 @@ def Edit_profile(request):
         fk_country = data.get('fk_country', None)
         fk_city = data.get('fk_city',None)
         zip_code = data.get('zip_code',None)
-
+        photo_id_proof = request.FILES.get('photo_id_proof')
+        address_proof = request.FILES.get('address_proof')
         obj = MyUser.objects.get(id = user_id)
+        print(user_id)
         email = obj.email
         user_obj = VendorDetails.objects.get(fk_user__email = email)
-
-        # print("********",profile_image)
+       
+        
         country_obj = CountryMaster.objects.get(id=fk_country)
 
         city_obj = CityMaster.objects.get(id=fk_city)
 
         serializer = EditProfileSerializer(user_obj,data=request.data,context={'country_obj':country_obj,'city_obj':city_obj})
-
+        
+        
+        print(photo_id_proof)
         if serializer.is_valid():
             serializer.save()
+            if 'photo_id_proof' in  request.FILES:
+                user_obj.photo_id_proof = photo_id_proof
+                user_obj.user_status = "Pending"
+                user_obj.save()
+            else:
+                pass
+            
+            if 'address_proof' in  request.FILES:
+                user_obj.address_proof = address_proof
+                user_obj.user_status = "Pending"
+                user_obj.save()
+            else:
+                pass
+            
             return Response({'status': 200, "msg": 'Profile Updated Successfully!'})
         else:
             print(serializer.errors)

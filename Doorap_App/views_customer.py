@@ -59,8 +59,7 @@ def Show_Banner(request):
 
 
 @api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-@authentication_classes((JWTAuthentication,))
+@permission_classes((AllowAny,))
 @csrf_exempt
 def Show_location_wise_vendor(request):
     try:
@@ -73,15 +72,21 @@ def Show_location_wise_vendor(request):
         customer_obj = MyUser.objects.get( id = customer_id)
         distance = 10
         vendor_list = []
+        vendor_obj = None
         
-        query = 'SELECT t.id, (6371  * acos (cos ( radians(%f) )* cos( radians(t.google_address_lat))* cos( radians(t.google_address_lng) - radians(%f)) + sin ( radians(%f))* sin( radians(t.google_address_lat)))) AS distance FROM Doorap_DB.Doorap_App_vendordetails t HAVING distance < %d' %(float(lat),float(lng),float(lat),distance)   #raw query
+        if lat == "" and lng == "":
+            vendor_obj = VendorDetails.objects.filter(is_available = True)
+        else:
+            query = 'SELECT t.id, (6371  * acos (cos ( radians(%f) )* cos( radians(t.google_address_lat))* cos( radians(t.google_address_lng) - radians(%f)) + sin ( radians(%f))* sin( radians(t.google_address_lat)))) AS distance FROM Doorap_DB.Doorap_App_vendordetails t HAVING distance < %d' %(float(lat),float(lng),float(lat),distance)   #raw query
+            
+            
+            result = VendorDetails.objects.raw(query)
+            
+            [vendor_list.append(vendor.id) for vendor in result]
+            
+            vendor_obj = VendorDetails.objects.filter(id__in = vendor_list ,is_available = True)
         
         
-        result = VendorDetails.objects.raw(query)
-        
-        [vendor_list.append(vendor.id) for vendor in result]
-        
-        vendor_obj = VendorDetails.objects.filter(id__in = vendor_list ,is_available = True)
         
         category_obj = CategoryMaster.objects.get( id = category_id)
         
