@@ -586,11 +586,10 @@ def Promocode_check(request):
 
 def Slot(vendor_id,slot_date):
     vendor_obj = VendorDetails.objects.get(id = vendor_id)
-    slot_details = OrderDetails.objects.filter(fk_vendor = vendor_obj , booking_date = slot_date,order_status = "Accept")
+    slot_details = OrderDetails.objects.filter(fk_vendor = vendor_obj , booking_date = slot_date,order_status = "Accepted")
     temp_list = []
     for i in slot_details:
-        print(i.booking_start_time)
-        print(i.booking_end_time)
+       
         data = {
         'from_time':i.booking_start_time,
         'to_time':i.booking_end_time,
@@ -833,10 +832,11 @@ def Save_Order_Details(request):
         customer_obj = MyUser.objects.get( id = customer_id)
         vendor_obj = VendorDetails.objects.get( id = vendor_id)
         
-        vendor_tax = CommisionMaster.objects.get( fk_category = category_obj , fk_country = country_obj , user_type ="Vendor")
+        vendor_tax = 0
+        if CommisionMaster.objects.filter( fk_category = category_obj , fk_country = country_obj , user_type ="Vendor").exists():
         
-        
-        vendor_tax = sub_total * vendor_tax.commision / 100
+            vendor_tax = CommisionMaster.objects.get( fk_category = category_obj , fk_country = country_obj , user_type ="Vendor")
+            vendor_tax = sub_total * vendor_tax.commision / 100
         
         
         vendor_pay_amount = sub_total - vendor_tax
@@ -1033,8 +1033,15 @@ def Get_Cart_data(request):
         country_obj = CountryMaster.objects.get(country_name = country_name)
         category_obj = CategoryMaster.objects.get( id = category_id)
         
+        tax_obj = None
+        tax = 0.0
+        convenience_fee = 0.0
         if AddtoCart.objects.filter(fk_customer = customer_obj).exists():
-            tax_obj = CommisionMaster.objects.get(fk_country = country_obj , fk_category = category_obj ,user_type ="Customer")
+            
+            if CommisionMaster.objects.filter(fk_country = country_obj , fk_category = category_obj ,user_type ="Customer").exists():
+                tax_obj = CommisionMaster.objects.get(fk_country = country_obj , fk_category = category_obj ,user_type ="Customer")
+            else:
+                tax_obj = None
             
             data = AddtoCart.objects.filter(fk_customer = customer_obj)
             sub_total = 0
@@ -1057,9 +1064,12 @@ def Get_Cart_data(request):
                         
                 apply_promocode_subtotal = sub_total - apply_promocode_calculation
                 
-                tax = tax_obj.commision
+                if tax_obj != None:
+                    tax = tax_obj.commision
+                    convenience_fee = apply_promocode_subtotal * tax / 100
+                    
                 
-                convenience_fee = apply_promocode_subtotal * tax / 100
+                
                 
                 
                 total_amount = apply_promocode_subtotal + convenience_fee
@@ -1086,9 +1096,9 @@ def Get_Cart_data(request):
                 
                 return Response({'status':200,'msg':'Cart Data','payload':temp_dict})
             else:
-                
-                tax = tax_obj.commision
-                convenience_fee = sub_total * tax / 100
+                if tax_obj != None:
+                    tax = tax_obj.commision
+                    convenience_fee = sub_total * tax / 100
                 total_amount = sub_total + convenience_fee
                 
                 info =[{

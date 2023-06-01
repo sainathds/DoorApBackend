@@ -831,8 +831,8 @@ def Show_Vender_SetServices(request):       #Show Vender Services
         user_obj = MyUser.objects.get(id = vender_id)
 
         vender_obj = VendorDetails.objects.get(fk_user = user_obj)  # Vender Details table object
-        if VenderServices.objects.filter(fk_vendor = vender_obj).exists():
-            service = VenderServices.objects.filter(fk_vendor = vender_obj).values('id','fk_vendor','fk_category','fk_category__category_name','fk_service','fk_service__service_name','fk_service__service_image','price','hour')
+        
+        service = VenderServices.objects.filter(fk_vendor = vender_obj).values('id','fk_vendor','fk_category','fk_category__category_name','fk_service','fk_service__service_name','fk_service__service_image','price','hour')
             # facility = VenderFacility.objects.filter(fk_vender_service__fk_vendor = vender_obj).values('id','fk_vender_service','fk_vender_facility','fk_vender_facility__facility_name')
             
             # facility = VenderFacility.objects.filter(fk_vender_service__fk_vendor = vender_obj).values('fk_vender_service__id','fk_vender_service__fk_category','fk_vender_service__fk_category__category_name','fk_vender_service__fk_category__category_image','fk_vender_service__fk_service','fk_vender_service__fk_service__service_name','fk_vender_service__fk_service__service_image','fk_vender_service__price','fk_vender_service__hour',)
@@ -848,15 +848,13 @@ def Show_Vender_SetServices(request):       #Show Vender Services
               
             # print(services)
                 
-            temp_dict = {}
+        temp_dict = {}
             # temp_dict['vender_service'] = service
             
             # temp_dict['vender_service'].append(facility)
-            temp_dict['vender_service'] = service
-            return Response({'status':200,'msg':'Vender Services List.','payload':temp_dict})
-        else:
-            return Response({'status':403,'msg':'Something went wrong.'})
-
+        temp_dict['vender_service'] = service
+        return Response({'status':200,'msg':'Vender Services List.','payload':temp_dict})
+        
     except:
         traceback.print_exc()
         return Response({'status':403,'msg':'Something went wrong.'})
